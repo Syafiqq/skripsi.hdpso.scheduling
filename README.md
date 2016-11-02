@@ -1,2 +1,2 @@
 # skripsi.hdpso.scheduling
-[![Build Status](https://travis-ci.org/Syafiqq/skripsi.hdpso.scheduling.svg?branch=master)](https://travis-ci.org/Syafiqq/skripsi.hdpso.scheduling)
+[![Build Status](https://travis-ci.com/Syafiqq/skripsi.hdpso.scheduling.svg?token=3mbt8cW51cs4yzpUENRf&branch=master)](https://travis-ci.com/Syafiqq/skripsi.hdpso.scheduling)
