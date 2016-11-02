@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Flow;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class DBLessonSet
+@SuppressWarnings("WeakerAccess") public class DBLessonSet
 {
     private final ObjectLinkedOpenHashSet<DBClassroom> classrooms;
     private final ObjectList<DBLesson>                 lessons;
