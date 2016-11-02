@@ -2,6 +2,9 @@ package model.database.loader;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.net.URL;
@@ -14,6 +17,8 @@ import model.database.component.DBClassroom;
 import model.database.component.DBDay;
 import model.database.component.DBLecture;
 import model.database.component.DBLesson;
+import model.database.component.DBLessonCluster;
+import model.database.component.DBLessonSet;
 import model.database.component.DBPeriod;
 import model.database.component.DBSchool;
 import model.database.component.DBSubject;
@@ -30,18 +35,20 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class DBProblemLoader extends DBComponent
 {
-    private DBSchool                                    school;
-    private Int2ObjectLinkedOpenHashMap<DBDay>          days;
-    private Int2ObjectLinkedOpenHashMap<DBPeriod>       periods;
-    private Int2ObjectLinkedOpenHashMap<DBAvailability> availabilities;
-    private Int2ObjectLinkedOpenHashMap<DBClass>        classes;
-    private Int2ObjectLinkedOpenHashMap<DBClassroom>    classrooms;
-    private Int2ObjectLinkedOpenHashMap<DBLecture>      lecturers;
-    private Int2ObjectLinkedOpenHashMap<DBSubject>      subjects;
-    private Int2ObjectLinkedOpenHashMap<DBLesson>       lessons;
-    private int                                         complex_lesson_size;
-    private int                                         total_registered_time;
-    private Int2IntLinkedOpenHashMap                    time_distribution;
+    private DBSchool                                                             school;
+    private Int2ObjectLinkedOpenHashMap<DBDay>                                   days;
+    private Int2ObjectLinkedOpenHashMap<DBPeriod>                                periods;
+    private Int2ObjectLinkedOpenHashMap<DBAvailability>                          availabilities;
+    private Int2ObjectLinkedOpenHashMap<DBClass>                                 classes;
+    private Int2ObjectLinkedOpenHashMap<DBClassroom>                             classrooms;
+    private Int2ObjectLinkedOpenHashMap<DBLecture>                               lecturers;
+    private Int2ObjectLinkedOpenHashMap<DBSubject>                               subjects;
+    private Int2ObjectLinkedOpenHashMap<DBLesson>                                lessons;
+    private Int2IntLinkedOpenHashMap                                             time_distribution;
+    private Object2ObjectLinkedOpenHashMap<ObjectList<DBClassroom>, DBLessonSet> lesson_set;
+    private ObjectList<DBLessonCluster>                                          lesson_cluster;
+    private int                                                                  complex_lesson_size;
+    private int                                                                  total_registered_time;
 
     public DBProblemLoader(@NotNull final DBSchool school)
     {
@@ -88,6 +95,47 @@ import org.jetbrains.annotations.NotNull;
     private void generateSchoolExtraInformation()
     {
         this.generateSchoolTimeDistribution();
+        this.generateLessonSet();
+        this.generateLessonCluster();
+    }
+
+    private void generateLessonCluster()
+    {
+        this.lesson_cluster = new ObjectArrayList<>(this.lesson_set.size());
+        final ObjectList<DBLessonCluster> lesson_cluster = this.lesson_cluster;
+        gate:
+        for(final DBLessonSet lesson_set : this.lesson_set.values())
+        {
+            for(final DBLessonCluster les_clus : lesson_cluster)
+            {
+                if(les_clus.isOnCluster(lesson_set))
+                {
+                    les_clus.add(lesson_set);
+                    continue gate;
+                }
+            }
+            lesson_cluster.add(new DBLessonCluster(lesson_set));
+        }
+    }
+
+    private void generateLessonSet()
+    {
+        this.lesson_set = new Object2ObjectLinkedOpenHashMap<>();
+
+        final ObjectIterator<DBLesson>                                             lessons     = this.lessons.values().iterator();
+        final Object2ObjectLinkedOpenHashMap<ObjectList<DBClassroom>, DBLessonSet> lesson_set  = this.lesson_set;
+        final int                                                                  lesson_size = this.lessons.size();
+
+        while(lessons.hasNext())
+        {
+            final DBLesson                dbLesson       = lessons.next();
+            final ObjectList<DBClassroom> classroom_list = dbLesson.getClassrooms();
+            if(!lesson_set.containsKey(classroom_list))
+            {
+                lesson_set.put(classroom_list, new DBLessonSet(classroom_list, lesson_size));
+            }
+            lesson_set.get(classroom_list).add(dbLesson);
+        }
     }
 
     private void generateSchoolCoreData()
@@ -202,6 +250,7 @@ import org.jetbrains.annotations.NotNull;
                     available_classroom = lessons.get(lesson_index).getClassrooms();
                 }
 
+                assert available_classroom != null;
                 available_classroom.add(this.classrooms.get(result_set.getInt("classroom")));
             }
         }
@@ -212,7 +261,7 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
-    @SuppressWarnings("Duplicates") private void generateSubjects()
+    @SuppressWarnings({"Duplicates", "unchecked"}) private void generateSubjects()
     {
         try
         {
@@ -285,6 +334,7 @@ import org.jetbrains.annotations.NotNull;
                     current_timeOff = subject_db.next();
                 }
 
+                assert current_timeOff != null;
                 current_timeOff.set(++period_index, new DBTimeOff(result_set.getInt("id"), this.days.get(result_set.getInt("day")), this.periods.get(result_set.getInt("period")), this.availabilities.get(result_set.getInt("availability"))));
             }
         }
@@ -296,7 +346,7 @@ import org.jetbrains.annotations.NotNull;
 
     }
 
-    @SuppressWarnings("Duplicates") private void generateLecturers()
+    @SuppressWarnings({"Duplicates", "unchecked"}) private void generateLecturers()
     {
         try
         {
@@ -368,6 +418,7 @@ import org.jetbrains.annotations.NotNull;
                     current_timeOff = lecture_db.next();
                 }
 
+                assert current_timeOff != null;
                 current_timeOff.set(++period_index, new DBTimeOff(result_set.getInt("id"), this.days.get(result_set.getInt("day")), this.periods.get(result_set.getInt("period")), this.availabilities.get(result_set.getInt("availability"))));
             }
         }
@@ -379,7 +430,7 @@ import org.jetbrains.annotations.NotNull;
 
     }
 
-    @SuppressWarnings("Duplicates") private void generateClassroom()
+    @SuppressWarnings({"Duplicates", "unchecked"}) private void generateClassroom()
     {
         try
         {
@@ -451,6 +502,7 @@ import org.jetbrains.annotations.NotNull;
                     current_timeOff = classroom_db.next();
                 }
 
+                assert current_timeOff != null;
                 current_timeOff.set(++period_index, new DBTimeOff(result_set.getInt("id"), this.days.get(result_set.getInt("day")), this.periods.get(result_set.getInt("period")), this.availabilities.get(result_set.getInt("availability"))));
             }
         }
@@ -461,7 +513,7 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
-    @SuppressWarnings("Duplicates") private void generateClasses()
+    @SuppressWarnings({"Duplicates", "unchecked"}) private void generateClasses()
     {
         try
         {
@@ -533,6 +585,7 @@ import org.jetbrains.annotations.NotNull;
                     current_timeOff = class_db.next();
                 }
 
+                assert current_timeOff != null;
                 current_timeOff.set(++period_index, new DBTimeOff(result_set.getInt("id"), this.days.get(result_set.getInt("day")), this.periods.get(result_set.getInt("period")), this.availabilities.get(result_set.getInt("availability"))));
             }
         }
@@ -763,6 +816,16 @@ import org.jetbrains.annotations.NotNull;
     public Int2IntLinkedOpenHashMap getTimeDistribution()
     {
         return this.time_distribution;
+    }
+
+    public Object2ObjectLinkedOpenHashMap<ObjectList<DBClassroom>, DBLessonSet> getLessonSet()
+    {
+        return this.lesson_set;
+    }
+
+    public ObjectList<DBLessonCluster> getLessonCluster()
+    {
+        return this.lesson_cluster;
     }
 
     public int getComplexLessonSize()

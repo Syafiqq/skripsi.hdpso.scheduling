@@ -11,7 +11,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TDBSubject
+@SuppressWarnings("unchecked") public class TDBSubject
 {
     @Test public void test_001()
     {
