@@ -10,7 +10,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class Logarithm
+@SuppressWarnings("UnnecessaryLocalVariable") public class Logarithm
 {
     @Test public void test_fastMath_001()
     {

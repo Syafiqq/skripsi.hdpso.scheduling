@@ -9,7 +9,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class ResourceLoader
+@SuppressWarnings("ConstantConditions") public class ResourceLoader
 {
     @Test public void test_001()
     {
