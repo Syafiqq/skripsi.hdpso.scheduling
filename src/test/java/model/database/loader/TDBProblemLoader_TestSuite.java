@@ -21,7 +21,9 @@ import org.junit.runners.Suite;
                             TDBProblemLoader_Lecture.class,
                             TDBProblemLoader_Lesson.class,
                             TDBProblemLoader_Period.class,
-                            TDBProblemLoader_Subject.class})
+                            TDBProblemLoader_Subject.class,
+                            TDBProblemLoader_LessonSet.class,
+                            TDBProblemLoader_LessonCluster.class})
 
 
 public class TDBProblemLoader_TestSuite
