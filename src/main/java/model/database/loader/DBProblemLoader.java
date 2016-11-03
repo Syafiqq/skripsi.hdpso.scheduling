@@ -2,6 +2,8 @@ package model.database.loader;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -47,8 +49,12 @@ import org.jetbrains.annotations.NotNull;
     private Int2IntLinkedOpenHashMap                                             time_distribution;
     private Object2ObjectLinkedOpenHashMap<ObjectList<DBClassroom>, DBLessonSet> lesson_set;
     private ObjectList<DBLessonCluster>                                          lesson_cluster;
+    private IntList                                                              operating_classroom;
+    private IntList                                                              operating_class;
     private int                                                                  complex_lesson_size;
     private int                                                                  total_registered_time;
+    private IntList                                                              operating_lecture;
+    private IntList                                                              operating_subject;
 
     public DBProblemLoader(@NotNull final DBSchool school)
     {
@@ -94,9 +100,125 @@ import org.jetbrains.annotations.NotNull;
 
     private void generateSchoolExtraInformation()
     {
+        this.generateOperatingClassroom();
+        this.generateOperatingClass();
+        this.generateOperatingLecture();
+        this.generateOperatingSubject();
         this.generateSchoolTimeDistribution();
         this.generateLessonSet();
         this.generateLessonCluster();
+    }
+
+    private void generateOperatingClassroom()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            this.operating_classroom = new IntArrayList(this.classrooms.size());
+            final IntList operating_classroom = this.operating_classroom;
+            /*
+             * Get Active Operational Classroom
+             * */
+            String query = "SELECT DISTINCT `classroom`.`id` AS `id` FROM `lesson_available_classroom`  LEFT OUTER JOIN `classroom` ON `lesson_available_classroom`.`classroom` = `classroom`.`id` WHERE `classroom`.`school` = ? ORDER BY `classroom`.`id`  ASC;";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+            final ResultSet result_set = super.result_set;
+            while(result_set.next())
+            {
+                operating_classroom.add(result_set.getInt("id"));
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Operating Classroom");
+            System.exit(-1);
+        }
+    }
+
+    private void generateOperatingClass()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            this.operating_class = new IntArrayList(this.classes.size());
+            final IntList operating_class = this.operating_class;
+            /*
+             * Get Active Operational Class
+             * */
+            String query = "SELECT  DISTINCT `class`.`id` AS `id` FROM `lesson`  LEFT OUTER JOIN `class` ON `lesson`.`class` = `class`.`id` WHERE `class`.`school` = ? ORDER BY `class`.`id`  ASC;";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+            final ResultSet result_set = super.result_set;
+            while(result_set.next())
+            {
+                operating_class.add(result_set.getInt("id"));
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Operating Class");
+            System.exit(-1);
+        }
+    }
+
+    private void generateOperatingLecture()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            this.operating_lecture = new IntArrayList(this.lecturers.size());
+            final IntList operating_lecture = this.operating_lecture;
+            /*
+             * Get Active Operational Lecture
+             * */
+            String query = "SELECT DISTINCT `lecture`.`id` AS `id` FROM `lesson` LEFT OUTER JOIN `lecture` ON `lesson`.`lecture` = `lecture`.`id` WHERE `lecture`.`school` = ? ORDER BY `lecture`.`id` ASC;";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+            final ResultSet result_set = super.result_set;
+            while(result_set.next())
+            {
+                operating_lecture.add(result_set.getInt("id"));
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Operating Lecture");
+            System.exit(-1);
+        }
+    }
+
+    private void generateOperatingSubject()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            this.operating_subject = new IntArrayList(this.subjects.size());
+            final IntList operating_subject = this.operating_subject;
+            /*
+             * Get Active Operational Subject
+             * */
+            String query = "SELECT DISTINCT `subject`.`id` AS `id` FROM `lesson` LEFT OUTER JOIN `subject` ON `lesson`.`subject` = `subject`.`id` WHERE `subject`.`school` = ? ORDER BY `subject`.`id` ASC;";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+            final ResultSet result_set = super.result_set;
+            while(result_set.next())
+            {
+                operating_subject.add(result_set.getInt("id"));
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Operating Subject");
+            System.exit(-1);
+        }
     }
 
     private void generateLessonCluster()
@@ -166,7 +288,7 @@ import org.jetbrains.annotations.NotNull;
             /*
              * Get Time Distribution
              * */
-            String query = "SELECT `lesson`.`sks`, COUNT(`lesson`.`sks`) AS 'total' FROM `lesson` LEFT OUTER JOIN `subject` ON `subject`.`id` = `lesson`.`subject` WHERE `subject`.`school` = ? GROUP BY `lesson`.`sks` ORDER BY `lesson`.`sks`;";
+            String query = "SELECT `lesson`.`sks`, SUM(`lesson`.`count`) AS 'total' FROM `lesson` LEFT OUTER JOIN `subject` ON `subject`.`id` = `lesson`.`subject` WHERE `subject`.`school` = ? GROUP BY `lesson`.`sks` ORDER BY `lesson`.`sks`;";
             super.statement = super.connection.prepareStatement(query);
             super.statement.setInt(1, school);
             super.result_set = super.statement.executeQuery();
@@ -836,5 +958,25 @@ import org.jetbrains.annotations.NotNull;
     public int getTotalRegisteredTime()
     {
         return this.total_registered_time;
+    }
+
+    public IntList getOperatingClassroom()
+    {
+        return this.operating_classroom;
+    }
+
+    public IntList getOperatingClass()
+    {
+        return this.operating_class;
+    }
+
+    public IntList getOperatingLecture()
+    {
+        return this.operating_lecture;
+    }
+
+    public IntList getOperatingSubject()
+    {
+        return this.operating_subject;
     }
 }
