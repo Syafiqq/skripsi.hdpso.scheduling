@@ -25,10 +25,10 @@ import org.jetbrains.annotations.NotNull;
     {
         this.active_days = new Int2IntLinkedOpenHashMap(loader.getDays().size());
         this.active_periods = new Int2IntLinkedOpenHashMap(loader.getPeriods().size());
-        this.classes = new Int2IntLinkedOpenHashMap(loader.getClasses().size());
-        this.classrooms = new Int2IntLinkedOpenHashMap(loader.getClassrooms().size());
-        this.lecturers = new Int2IntLinkedOpenHashMap(loader.getLecturers().size());
-        this.subjects = new Int2IntLinkedOpenHashMap(loader.getSubjects().size());
+        this.classes = new Int2IntLinkedOpenHashMap(loader.getOperatingClass().size());
+        this.classrooms = new Int2IntLinkedOpenHashMap(loader.getOperatingClassroom().size());
+        this.lecturers = new Int2IntLinkedOpenHashMap(loader.getOperatingLecture().size());
+        this.subjects = new Int2IntLinkedOpenHashMap(loader.getOperatingSubject().size());
         this.lessons = new Int2IntLinkedOpenHashMap(loader.getLessons().size());
     }
 
