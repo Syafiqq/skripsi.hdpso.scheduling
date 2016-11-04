@@ -347,8 +347,8 @@ import org.jetbrains.annotations.NotNull;
                                 , this.subjects.get(result_set.getInt("subject"))
                                 , result_set.getInt("sks")
                                 , result_set.getInt("count")
-                                , this.lecturers.get(result_set.getInt("count"))
-                                , this.classes.get(result_set.getInt("count"))
+                                , this.lecturers.get(result_set.getInt("lecture"))
+                                , this.classes.get(result_set.getInt("class"))
                                 , result_set.getInt("classroom_size")));
             }
 
