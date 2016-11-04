@@ -2,15 +2,19 @@ package model.dataset.loader;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import model.database.component.DBClass;
 import model.database.component.DBClassroom;
 import model.database.component.DBDay;
 import model.database.component.DBLecture;
+import model.database.component.DBLesson;
 import model.database.component.DBPeriod;
 import model.database.component.DBSubject;
 import model.database.loader.DBProblemLoader;
+import model.dataset.component.DSLesson;
 import model.dataset.component.DSTimeOff;
 import model.dataset.core.Dataset;
 import model.dataset.core.DatasetConverter;
@@ -46,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
         this.generateClassroom(loader.getClassrooms(), loader.getOperatingClassroom().iterator());
         this.generateLecture(loader.getLecturers(), loader.getOperatingLecture().iterator());
         this.generateSubject(loader.getSubjects(), loader.getOperatingSubject().iterator());
+        this.generateLesson(loader.getLessons().values());
     }
 
     private void generateActiveDays(final ObjectCollection<DBDay> db_days)
@@ -63,7 +68,6 @@ import org.jetbrains.annotations.NotNull;
             decoder.put(counter, db_day_id);
         }
     }
-
 
     private void generateActivePeriods(ObjectCollection<DBPeriod> db_periods)
     {
@@ -142,6 +146,61 @@ import org.jetbrains.annotations.NotNull;
             subjects[counter] = DSTimeOff.newInstance(db_subject.getTimeoff());
             encoder.put(db_subject_id, counter);
             decoder.put(counter, db_subject_id);
+        }
+    }
+
+    private void generateLesson(ObjectCollection<DBLesson> db_lessons)
+    {
+        final @NotNull DSLesson[]               lessons = this.dataset.getLessons();
+        final @NotNull Int2IntLinkedOpenHashMap encoder = this.encoder.getLessons();
+        final @NotNull Int2IntLinkedOpenHashMap decoder = this.decoder.getLessons();
+
+        int extra_counter = db_lessons.size() - 1;
+        int counter       = -1;
+
+        for(final @NotNull DBLesson lesson : db_lessons)
+        {
+            final int          db_lesson_count = lesson.getCount();
+            final IntArrayList temp_link       = new IntArrayList(db_lesson_count);
+
+            temp_link.add(counter + 1);
+            for(int link_counter = 0; ++link_counter < db_lesson_count; )
+            {
+                temp_link.add(extra_counter + link_counter);
+            }
+
+            final int db_lesson_id = lesson.getId();
+
+            ++counter;
+            final int[] links = new int[temp_link.size() - 1];
+
+            int link_counter = -1;
+            for(final int link : temp_link)
+            {
+                if(link != counter)
+                {
+                    links[++link_counter] = link;
+                }
+            }
+
+            lessons[counter] = DSLesson.newInstance(this.encoder, lesson, IntArrays.copy(links));
+            encoder.put(db_lesson_id, counter);
+            decoder.put(counter, db_lesson_id);
+
+            for(int i = -1, is = db_lesson_count - 1; ++i < is; )
+            {
+                ++extra_counter;
+
+                link_counter = -1;
+                for(final int link : temp_link)
+                {
+                    if(link != extra_counter)
+                    {
+                        links[++link_counter] = link;
+                    }
+                }
+                lessons[extra_counter] = DSLesson.newLinkInstance(this.encoder, lesson, counter, IntArrays.copy(links));
+            }
         }
     }
 
