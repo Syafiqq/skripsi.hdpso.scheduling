@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
         this.classrooms = new DSTimeOff[loader.getOperatingClassroom().size()];
         this.lecturers = new DSTimeOff[loader.getOperatingLecture().size()];
         this.subjects = new DSTimeOff[loader.getOperatingSubject().size()];
-        this.lessons = new DSLesson[(this.days.length * this.periods.length * loader.getOperatingClassroom().size()) - (loader.getLessons().size() + loader.getComplexLessonSize())];
+        this.lessons = new DSLesson[(this.days.length * this.periods.length * loader.getOperatingClassroom().size()) - (loader.getTotalRegisteredTime())];
     }
 
     public @NotNull int[] getDays()
@@ -61,5 +61,10 @@ import org.jetbrains.annotations.NotNull;
     @NotNull public DSTimeOff[] getSubjects()
     {
         return this.subjects;
+    }
+
+    @NotNull public DSLesson[] getLessons()
+    {
+        return this.lessons;
     }
 }
