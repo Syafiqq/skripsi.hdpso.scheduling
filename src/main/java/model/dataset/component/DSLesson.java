@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings("unused") public class DSLesson
+@SuppressWarnings({"unused", "ConstantConditions", "WeakerAccess"}) public class DSLesson
 {
     final private int       klass;
     final private int       subject;
@@ -24,11 +24,28 @@ import org.jetbrains.annotations.NotNull;
     final private int[]     available_classroom;
     final private boolean[] allowed_classroom;
 
-    public DSLesson(final @NotNull DatasetConverter encoder, final @NotNull DBLesson lesson)
+    public DSLesson(int klass, int subject, int lecture, int sks, int lesson_parent, int[] lesson_link, int[] available_classroom, boolean[] allowed_classroom)
     {
-        this.subject = encoder.getSubject(lesson.getSubject().getId());
+        this.klass = klass;
+        this.subject = subject;
+        this.lecture = lecture;
+        this.sks = sks;
+        this.lesson_parent = lesson_parent;
+        this.lesson_link = lesson_link;
+        this.available_classroom = available_classroom;
+        this.allowed_classroom = allowed_classroom;
+    }
 
-        int lecture = -1;
+    public static DSLesson newInstance(final @NotNull DatasetConverter encoder, final @NotNull DBLesson lesson, int[] lesson_link)
+    {
+        return DSLesson.newLinkInstance(encoder, lesson, -1, lesson_link);
+    }
+
+    public static DSLesson newLinkInstance(final @NotNull DatasetConverter encoder, final @NotNull DBLesson lesson, int parent, int[] lesson_link)
+    {
+        int subject = encoder.getSubject(lesson.getSubject().getId());
+
+        int lecture;
         try
         {
             lecture = encoder.getLecture(lesson.getLecture().getId());
@@ -37,29 +54,23 @@ import org.jetbrains.annotations.NotNull;
         {
             lecture = -1;
         }
-        finally
-        {
-            this.lecture = lecture;
 
-        }
-        this.klass = encoder.getKlass(lesson.getKlass().getId());
-        this.sks = lesson.getSks();
-        this.lesson_link = new int[lesson.getCount() - 1];
-        this.available_classroom = new int[lesson.getClassrooms().size()];
+        int       klass               = encoder.getKlass(lesson.getKlass().getId());
+        int       sks                 = lesson.getSks();
+        int[]     available_classroom = new int[lesson.getClassrooms().size()];
+        boolean[] allowed_classroom   = new boolean[encoder.getClassrooms().size()];
+
         final @NotNull Int2IntLinkedOpenHashMap classroom_encoder = encoder.getClassrooms();
-
-        int counter = -1;
+        int                                     counter           = -1;
         for(final @NotNull DBClassroom classroom : lesson.getClassrooms())
         {
-            this.available_classroom[++counter] = classroom_encoder.get(classroom.getId());
+            available_classroom[++counter] = classroom_encoder.get(classroom.getId());
+            allowed_classroom[available_classroom[counter]] = true;
         }
 
-        this.lesson_parent = -1;
-        this.allowed_classroom = new boolean[encoder.getClassrooms().size()];
-        for(final int classroom : available_classroom)
-        {
-            this.allowed_classroom[classroom] = true;
-        }
+        int lesson_parent = -1;
+
+        return new DSLesson(klass, subject, lecture, sks, parent, lesson_link, available_classroom, allowed_classroom);
     }
 
     public int getKlass()
@@ -82,12 +93,12 @@ import org.jetbrains.annotations.NotNull;
         return this.sks;
     }
 
-    public int getLesson_parent()
+    public int getLessonParent()
     {
         return this.lesson_parent;
     }
 
-    public int[] getLesson_link()
+    public int[] getLessonLink()
     {
         return this.lesson_link;
     }
