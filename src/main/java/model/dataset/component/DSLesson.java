@@ -103,12 +103,12 @@ import org.jetbrains.annotations.NotNull;
         return this.lesson_link;
     }
 
-    public int[] getAvailable_classroom()
+    public int[] getAvailableClassroom()
     {
         return this.available_classroom;
     }
 
-    public boolean[] getAllowed_classroom()
+    public boolean[] getAllowedClassroom()
     {
         return this.allowed_classroom;
     }
