@@ -2,6 +2,7 @@ package model.dataset.loader;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
@@ -19,7 +20,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TDatasetGenerator_Lesson
+@SuppressWarnings("FieldCanBeLocal") public class TDatasetGenerator_Lesson
 {
     private DBSchool         school;
     private DBProblemLoader  dbLoader;
@@ -106,6 +107,66 @@ public class TDatasetGenerator_Lesson
             catch(NullPointerException ignored)
             {
                 System.out.printf("%3d\t:\t%-5d\t%-5d\t%-5d\t%-5d\t%-5d\n", counter, -1, -1, -1, -1, -1);
+            }
+        }
+    }
+
+    @Test public void classTest_F_001()
+    {
+        final @NotNull DatasetConverter         decoder       = this.dsLoader.getDecoder();
+        final @NotNull Int2IntLinkedOpenHashMap dec_classroom = decoder.getClassrooms();
+        final @NotNull Int2IntLinkedOpenHashMap dec_lesson    = decoder.getLessons();
+        final @NotNull Dataset                  dataset       = this.dsLoader.getDataset();
+        int                                     counter       = -1;
+        System.out.printf("%3s\t%-5s\t%-5s\n", "no", "link", "available");
+        for(final DSLesson lesson : dataset.getLessons())
+        {
+            ++counter;
+            try
+            {
+                System.out.printf("%d\t%s\t%s\n",
+                        counter,
+                        Arrays.toString(Arrays.stream(lesson.getLessonLink()).map(dec_lesson::get).toArray()),
+                        Arrays.toString(Arrays.stream(lesson.getAvailableClassroom()).map(dec_classroom::get).toArray()));
+            }
+            catch(NullPointerException ignored)
+            {
+                System.out.printf("%d\t%s\n", counter, null);
+            }
+        }
+    }
+
+    @Test public void classTest_G_001()
+    {
+        final @NotNull DatasetConverter         encoder       = this.dsLoader.getEncoder();
+        final @NotNull Int2IntLinkedOpenHashMap enc_classroom = encoder.getClassrooms();
+        final @NotNull Dataset                  dataset       = this.dsLoader.getDataset();
+        int                                     counter       = -1;
+        IntStream.range(1, this.dbLoader.getClassrooms().size() + 1).forEach(value -> System.out.printf("%3d\t", value));
+        System.out.println();
+        IntStream.range(1, this.dbLoader.getClassrooms().size() + 1).map(enc_classroom::get).forEach(value -> System.out.printf("%3d\t", value));
+        System.out.println();
+        for(final DSLesson lesson : dataset.getLessons())
+        {
+            try
+            {
+                final boolean[] allowed_classrooms = lesson.getAllowedClassroom();
+                IntStream.range(1, this.dbLoader.getClassrooms().size() + 1).map(operand ->
+                {
+                    try
+                    {
+                        return allowed_classrooms[enc_classroom.getOrDefault(operand, -1)] ? 1 : 0;
+                    }
+                    catch(ArrayIndexOutOfBoundsException ignored)
+                    {
+                        return 0;
+                    }
+                }).forEach(value -> System.out.printf("%3d\t", value));
+                System.out.println();
+            }
+            catch(NullPointerException ignored)
+            {
+                System.out.printf("%d\t%s\n", counter, null);
             }
         }
     }
