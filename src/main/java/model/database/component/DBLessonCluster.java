@@ -58,17 +58,17 @@ import org.jetbrains.annotations.NotNull;
         this.addLessonGroup(lesson_group);
     }
 
-    public List<DBLessonGroup> getLessonGroup()
+    @NotNull public List<DBLessonGroup> getLessonGroup()
     {
         return this.lesson_group;
     }
 
-    public ObjectSet<DBClassroom> getClassrooms()
+    @NotNull public ObjectSet<DBClassroom> getClassrooms()
     {
         return this.classrooms;
     }
 
-    public ObjectSet<DBLesson> getLessons()
+    @NotNull public ObjectSet<DBLesson> getLessons()
     {
         return this.lessons;
     }
