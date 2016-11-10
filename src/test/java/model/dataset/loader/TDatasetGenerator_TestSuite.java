@@ -19,6 +19,11 @@ import org.junit.runners.Suite;
                             TDatasetGenerator_Classrooms.class,
                             TDatasetGenerator_Lecturers.class,
                             TDatasetGenerator_Subjects.class,
+                            TDatasetGenerator_Lesson.class,
+                            TDatasetGenerator_ClusteredClassroomTime.class,
+                            TDatasetGenerator_TimeDistribution.class,
+                            TDatasetGenerator_LessonGroup.class,
+                            TDatasetGenerator_LessonCluster.class
                     })
 
 
