@@ -18,9 +18,9 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings("unused") public class DBLessonCluster
 {
-    private final LinkedList<DBLessonGroup>     lesson_group;
-    private final ObjectAVLTreeSet<DBClassroom> classrooms;
-    private final ObjectAVLTreeSet<DBLesson>    lessons;
+    private final List<DBLessonGroup>    lesson_group;
+    private final ObjectSet<DBClassroom> classrooms;
+    private final ObjectSet<DBLesson>    lessons;
 
     public DBLessonCluster(final DBLessonGroup lesson_group)
     {
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
     private void addLessonGroup(@NotNull final DBLessonGroup lesson_group)
     {
-        this.lesson_group.addLast(lesson_group);
+        this.lesson_group.add(lesson_group);
         Collections.sort(this.lesson_group, (lesson_group_1, lesson_group_2) -> (int) FastMath.signum(lesson_group_1.getClassroomSize() - lesson_group_2.getClassroomSize()));
     }
 
