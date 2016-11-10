@@ -3,7 +3,9 @@ package model.database.component;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.intellij.lang.annotations.Flow;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.component> created by : 
@@ -12,12 +14,12 @@ import org.intellij.lang.annotations.Flow;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings("WeakerAccess") public class DBLessonSet
+@SuppressWarnings({"WeakerAccess", "unused"}) public class DBLessonGroup
 {
-    private final ObjectLinkedOpenHashSet<DBClassroom> classrooms;
-    private final ObjectList<DBLesson>                 lessons;
+    private final ObjectSet<DBClassroom> classrooms;
+    private final ObjectList<DBLesson>   lessons;
 
-    public DBLessonSet(ObjectList<DBClassroom> classrooms, int expected)
+    public DBLessonGroup(ObjectList<DBClassroom> classrooms, int expected)
     {
         this.classrooms = new ObjectLinkedOpenHashSet<>(classrooms);
         this.lessons = new ObjectArrayList<>(expected);
@@ -33,13 +35,23 @@ import org.intellij.lang.annotations.Flow;
         return classrooms.contains(next);
     }
 
-    public ObjectLinkedOpenHashSet<DBClassroom> getClassrooms()
+    @NotNull public ObjectSet<DBClassroom> getClassrooms()
     {
         return this.classrooms;
     }
 
-    public ObjectList<DBLesson> getLessons()
+    @NotNull public ObjectList<DBLesson> getLessons()
     {
         return this.lessons;
+    }
+
+    public int getClassroomSize()
+    {
+        return this.classrooms.size();
+    }
+
+    public int getLessonSize()
+    {
+        return this.lessons.size();
     }
 }
