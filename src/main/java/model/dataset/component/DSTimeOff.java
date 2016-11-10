@@ -17,11 +17,6 @@ import org.jetbrains.annotations.NotNull;
 {
     @NotNull private final double[][] timeoff;
 
-    public DSTimeOff(int day_size, int period_size)
-    {
-        this.timeoff = new double[day_size][period_size];
-    }
-
     public DSTimeOff(@NotNull double[][] timeoff)
     {
         this.timeoff = timeoff;
@@ -32,16 +27,16 @@ import org.jetbrains.annotations.NotNull;
         final @NotNull ObjectList                       availabilities = db_timeoff.getAvailabilities();
         final @NotNull double                           timeoff[][]    = new double[availabilities.size()][];
         final ObjectListIterator<ObjectList<DBTimeOff>> dayIt          = availabilities.iterator();
-        for(int i = 0; dayIt.hasNext(); ++i)
+        for(int c_day = 0; dayIt.hasNext(); ++c_day)
         {
             final ObjectList<DBTimeOff>         period   = dayIt.next();
             final ObjectListIterator<DBTimeOff> periodIt = period.iterator();
 
-            final double[] periods = timeoff[i] = new double[period.size()];
+            final double[] periods = timeoff[c_day] = new double[period.size()];
 
-            for(int j = 0; periodIt.hasNext(); ++j)
+            for(int c_period = 0; periodIt.hasNext(); ++c_period)
             {
-                periods[j] = periodIt.next().getAvailability().getValue();
+                periods[c_period] = periodIt.next().getAvailability().getValue();
             }
         }
 
