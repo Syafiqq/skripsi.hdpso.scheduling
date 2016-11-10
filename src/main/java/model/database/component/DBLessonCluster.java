@@ -1,7 +1,13 @@
 package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.commons.math3.util.FastMath;
 import org.intellij.lang.annotations.Flow;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.component> created by : 
@@ -12,25 +18,31 @@ import org.intellij.lang.annotations.Flow;
  */
 @SuppressWarnings("unused") public class DBLessonCluster
 {
+    private final LinkedList<DBLessonGroup>     lesson_group;
     private final ObjectAVLTreeSet<DBClassroom> classrooms;
-    private final ObjectAVLTreeSet<DBLessonSet> lesson_cluster;
     private final ObjectAVLTreeSet<DBLesson>    lessons;
 
-    public DBLessonCluster(final DBLessonSet lesson_set)
+    public DBLessonCluster(final DBLessonGroup lesson_group)
     {
+        this.lesson_group = new LinkedList<>();
         this.classrooms = new ObjectAVLTreeSet<>((class_1, class_2) -> (int) Math.signum(class_1.getId() - class_2.getId()));
-        this.lesson_cluster = new ObjectAVLTreeSet<>((lesson_set_1, lesson_set_2) -> (int) Math.signum(lesson_set_1.getLessons().size() - lesson_set_2.getLessons().size()));
         this.lessons = new ObjectAVLTreeSet<>((lesson_1, lesson_2) -> (int) Math.signum(lesson_1.getId() - lesson_2.getId()));
 
-        this.add(lesson_set);
+        this.add(lesson_group);
     }
 
-    public boolean isOnCluster(DBLessonSet lesson_set)
+    private void addLessonGroup(@NotNull final DBLessonGroup lesson_group)
+    {
+        this.lesson_group.addLast(lesson_group);
+        Collections.sort(this.lesson_group, (lesson_group_1, lesson_group_2) -> (int) FastMath.signum(lesson_group_1.getClassroomSize() - lesson_group_2.getClassroomSize()));
+    }
+
+    public boolean isOnCluster(DBLessonGroup lesson_group)
     {
         boolean isOnCluster = false;
         for(DBClassroom classroom : this.classrooms)
         {
-            if(lesson_set.isOnSet(classroom))
+            if(lesson_group.isOnSet(classroom))
             {
                 isOnCluster = true;
                 break;
@@ -39,25 +51,40 @@ import org.intellij.lang.annotations.Flow;
         return isOnCluster;
     }
 
-    public boolean add(@Flow(targetIsContainer = true) DBLessonSet dbLessonSet)
+    public void add(@Flow(targetIsContainer = true) DBLessonGroup lesson_group)
     {
-        this.classrooms.addAll(dbLessonSet.getClassrooms());
-        this.lessons.addAll(dbLessonSet.getLessons());
-        return lesson_cluster.add(dbLessonSet);
+        this.classrooms.addAll(lesson_group.getClassrooms());
+        this.lessons.addAll(lesson_group.getLessons());
+        this.addLessonGroup(lesson_group);
     }
 
-    public ObjectAVLTreeSet<DBClassroom> getClassrooms()
+    public List<DBLessonGroup> getLessonGroup()
+    {
+        return this.lesson_group;
+    }
+
+    public ObjectSet<DBClassroom> getClassrooms()
     {
         return this.classrooms;
     }
 
-    public ObjectAVLTreeSet<DBLessonSet> getLessonCluster()
-    {
-        return this.lesson_cluster;
-    }
-
-    public ObjectAVLTreeSet<DBLesson> getLessons()
+    public ObjectSet<DBLesson> getLessons()
     {
         return this.lessons;
+    }
+
+    public int getLessonGroupSize()
+    {
+        return this.lesson_group.size();
+    }
+
+    public int getClassroomSize()
+    {
+        return this.classrooms.size();
+    }
+
+    public int getLessonSize()
+    {
+        return this.lessons.size();
     }
 }
