@@ -68,4 +68,9 @@ public class TDatasetGenerator_Classrooms
             System.out.println();
         }
     }
+
+    @Test public void activeClassroom()
+    {
+        System.out.println(this.dsLoader.getEncoder().getClassrooms().keySet());
+    }
 }
