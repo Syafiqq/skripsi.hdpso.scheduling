@@ -22,16 +22,16 @@ import org.jetbrains.annotations.NotNull;
         object_counter = -1;
     }
 
-    @NotNull private final DSLessonGroup[]          lesson_groups;
-    @NotNull private final int[]                    lessons;
-    @NotNull private final int[]                    lessons_null;
-    @NotNull private final int[]                    classrooms;
-    @NotNull private final int[][][]                clustered_classroom_time;
-    @NotNull private final DSTimeOff[]              classrooms_timeoff;
-    @NotNull private final Int2IntLinkedOpenHashMap classroom_encoder;
-    @NotNull private final Int2IntLinkedOpenHashMap classroom_decoder;
+    @NotNull private final DSLessonGroup[] lesson_groups;
+    @NotNull private final int[]           lessons;
+    @NotNull private final int[]           lessons_null;
+    @NotNull private final int[]           classrooms;
+    @NotNull private final int[][][]       clustered_classroom_time;
+    @NotNull private final DSTimeOff[]     classrooms_timeoff;
+    @NotNull private final Int2IntMap      classroom_encoder;
+    @NotNull private final Int2IntMap      classroom_decoder;
 
-    public DSLessonCluster(@NotNull DSLessonGroup[] lesson_groups, @NotNull int[] lessons, @NotNull int[] lessons_null, @NotNull int[] classrooms, @NotNull DSTimeOff[] classrooms_timeoff, @NotNull int[][][] clustered_classroom_time, @NotNull Int2IntLinkedOpenHashMap classroom_encoder, @NotNull Int2IntLinkedOpenHashMap classroom_decoder)
+    public DSLessonCluster(@NotNull DSLessonGroup[] lesson_groups, @NotNull int[] lessons, @NotNull int[] lessons_null, @NotNull int[] classrooms, @NotNull DSTimeOff[] classrooms_timeoff, @NotNull int[][][] clustered_classroom_time, @NotNull Int2IntMap classroom_encoder, @NotNull Int2IntMap classroom_decoder)
     {
         this.lesson_groups = lesson_groups;
         this.lessons = lessons;
@@ -57,7 +57,7 @@ import org.jetbrains.annotations.NotNull;
 
     private static void rearrangeLocator(int index, @NotNull final DSLessonCluster cluster)
     {
-        @NotNull final Int2IntLinkedOpenHashMap classroom_decoder = cluster.classroom_decoder;
+        @NotNull final Int2IntMap classroom_decoder = cluster.classroom_decoder;
         for(final int classroom : cluster.classrooms)
         {
             DSLessonCluster.classroom_locator.put(classroom_decoder.get(classroom), index);
