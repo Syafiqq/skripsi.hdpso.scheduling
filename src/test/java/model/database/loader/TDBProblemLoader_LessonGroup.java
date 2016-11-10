@@ -1,12 +1,11 @@
 package model.database.loader;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Arrays;
 import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
-import model.database.component.DBLessonSet;
+import model.database.component.DBLessonGroup;
 import model.database.component.DBSchool;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +17,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings("FieldCanBeLocal") public class TDBProblemLoader_LessonSet
+@SuppressWarnings("FieldCanBeLocal") public class TDBProblemLoader_LessonGroup
 {
     private DBSchool        school;
     private DBProblemLoader loader;
@@ -34,12 +33,20 @@ import org.junit.Test;
         this.loader.loadData();
     }
 
-    @Test public void lesson_set_test001()
+    @Test public void lesson_group_all_test001()
     {
-        for(Object2ObjectMap.Entry<ObjectList<DBClassroom>, DBLessonSet> i : this.loader.getLessonSet().object2ObjectEntrySet())
+        for(@NotNull final DBLessonGroup i : this.loader.getLessonGroup())
         {
-            System.out.println(Arrays.toString(i.getKey().stream().mapToInt(DBClassroom::getId).toArray()));
-            System.out.println("\t" + Arrays.toString(i.getValue().getLessons().stream().mapToInt(DBLesson::getId).toArray()));
+            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println("\t" + Arrays.toString(i.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
+        }
+    }
+
+    @Test public void lesson_group_classroom_test001()
+    {
+        for(@NotNull final DBLessonGroup i : this.loader.getLessonGroup())
+        {
+            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
         }
     }
 }

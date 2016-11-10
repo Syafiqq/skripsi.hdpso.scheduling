@@ -4,6 +4,7 @@ import java.util.Arrays;
 import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.database.component.DBLessonCluster;
+import model.database.component.DBLessonGroup;
 import model.database.component.DBSchool;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,13 +33,31 @@ import org.junit.Test;
         this.loader.loadData();
     }
 
-    @Test public void lesson_set_test001()
+    @Test public void lesson_cluster_test001()
     {
         System.out.println(this.loader.getLessonCluster().size());
         for(DBLessonCluster a : this.loader.getLessonCluster())
         {
             System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
             System.out.println("\t" + Arrays.toString(a.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
+        }
+    }
+
+    @Test public void lesson_group_test001()
+    {
+        System.out.println(this.loader.getLessonCluster().size());
+        for(DBLessonCluster a : this.loader.getLessonCluster())
+        {
+            System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println("\t" + Arrays.toString(a.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
+            System.out.println("<===");
+            for(DBLessonGroup b : a.getLessonGroup())
+            {
+                System.out.println(Arrays.toString(b.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+                System.out.println("\t" + Arrays.toString(b.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
+            }
+            System.out.println("===>");
+            System.out.println();
         }
     }
 }

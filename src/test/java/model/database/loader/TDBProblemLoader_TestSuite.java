@@ -22,7 +22,7 @@ import org.junit.runners.Suite;
                             TDBProblemLoader_Lesson.class,
                             TDBProblemLoader_Period.class,
                             TDBProblemLoader_Subject.class,
-                            TDBProblemLoader_LessonSet.class,
+                            TDBProblemLoader_LessonGroup.class,
                             TDBProblemLoader_LessonCluster.class})
 
 

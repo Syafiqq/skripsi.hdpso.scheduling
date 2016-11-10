@@ -32,7 +32,7 @@ public class TDBProblemLoader_ExtraData
     {
         System.out.println("this.loader.getComplexLessonSize() = " + this.loader.getComplexLessonSize());
         System.out.println("this.loader.getTotalRegisteredTime() = " + this.loader.getTotalRegisteredTime());
-        System.out.println("this.loader.getTimeDistribution() = " + this.loader.getTimeDistribution());
+        System.out.println("this.loader.getTimeDistributions() = " + this.loader.getTimeDistribution());
         System.out.println("this.loader.getOperatingClass() = " + this.loader.getOperatingClass());
         System.out.println("this.loader.getOperatingClassroom() = " + this.loader.getOperatingClassroom());
         System.out.println("this.loader.getOperatingLecture() = " + this.loader.getOperatingLecture());
