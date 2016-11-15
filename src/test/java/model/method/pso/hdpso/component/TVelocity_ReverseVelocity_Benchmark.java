@@ -32,7 +32,7 @@ public class TVelocity_ReverseVelocity_Benchmark
     {
 
         Long time = System.currentTimeMillis();
-        Velocity.reverseVelocity(this.destination);
+        Velocity.reverse(this.destination);
         System.out.println(System.currentTimeMillis() - time);
     }
 

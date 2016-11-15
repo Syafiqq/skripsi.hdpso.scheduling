@@ -40,7 +40,7 @@ import org.junit.Test;
     {
 
         Long time = System.currentTimeMillis();
-        Velocity.additionVelocity(this.destination, this.source);
+        Velocity.addition(this.destination, this.source);
         System.out.println(System.currentTimeMillis() - time);
     }
 

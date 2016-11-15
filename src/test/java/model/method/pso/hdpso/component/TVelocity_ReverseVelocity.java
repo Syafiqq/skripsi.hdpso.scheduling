@@ -21,7 +21,7 @@ public class TVelocity_ReverseVelocity
         }
         System.out.println(source);
         System.out.println(source.size());
-        Velocity.reverseVelocity(source);
+        Velocity.reverse(source);
         System.out.println(source);
         System.out.println(source.size());
     }
@@ -36,7 +36,7 @@ public class TVelocity_ReverseVelocity
         }
         System.out.println(source);
         System.out.println(source.size());
-        Velocity.reverseVelocity(source);
+        Velocity.reverse(source);
         System.out.println(source);
         System.out.println(source.size());
     }

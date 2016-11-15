@@ -30,7 +30,7 @@ public class TVelocity_AdditionVelocity
         source.set(14, 15);
         System.out.println(source);
         System.out.println(destination);
-        Velocity.additionVelocity(destination, source);
+        Velocity.addition(destination, source);
         System.out.println(destination);
     }
 
@@ -53,7 +53,7 @@ public class TVelocity_AdditionVelocity
         source.set(10, 11);
         System.out.println(source);
         System.out.println(destination);
-        Velocity.additionVelocity(destination, source);
+        Velocity.addition(destination, source);
         System.out.println(destination);
     }
 
@@ -76,7 +76,7 @@ public class TVelocity_AdditionVelocity
         source.set(10, 11);
         System.out.println(source);
         System.out.println(destination);
-        Velocity.additionVelocity(destination, source);
+        Velocity.addition(destination, source);
         System.out.println(destination);
     }
 
@@ -99,7 +99,7 @@ public class TVelocity_AdditionVelocity
         source.set(10, 11);
         System.out.println(source);
         System.out.println(destination);
-        Velocity.additionVelocity(destination, source);
+        Velocity.addition(destination, source);
         System.out.println(destination);
     }
 }
