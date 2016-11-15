@@ -1,6 +1,6 @@
 package model.dataset.loader;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import model.database.component.DBSchool;
@@ -89,13 +89,13 @@ import org.junit.Test;
 
     @Test public void classTest_E_001()
     {
-        final @NotNull DatasetConverter         decoder     = this.dsLoader.getDecoder();
-        final @NotNull Int2IntLinkedOpenHashMap dec_lecture = decoder.getLecturers();
-        final @NotNull Int2IntLinkedOpenHashMap dec_subject = decoder.getSubjects();
-        final @NotNull Int2IntLinkedOpenHashMap dec_klass   = decoder.getClasses();
-        final @NotNull Int2IntLinkedOpenHashMap dec_lesson  = decoder.getLessons();
-        final @NotNull Dataset                  dataset     = this.dsLoader.getDataset();
-        int                                     counter     = -1;
+        final @NotNull DatasetConverter decoder     = this.dsLoader.getDecoder();
+        final @NotNull Int2IntMap       dec_lecture = decoder.getLecturers();
+        final @NotNull Int2IntMap       dec_subject = decoder.getSubjects();
+        final @NotNull Int2IntMap       dec_klass   = decoder.getClasses();
+        final @NotNull Int2IntMap       dec_lesson  = decoder.getLessons();
+        final @NotNull Dataset          dataset     = this.dsLoader.getDataset();
+        int                             counter     = -1;
         System.out.printf("%3s\t:\t%-5s\t%-5s\t%-5s\t%-5s\t%-5s\n", "no", "subjt", "sks", "lectr", "klass", "prent");
         for(final DSLesson lesson : dataset.getLessons())
         {
@@ -113,11 +113,11 @@ import org.junit.Test;
 
     @Test public void classTest_F_001()
     {
-        final @NotNull DatasetConverter         decoder       = this.dsLoader.getDecoder();
-        final @NotNull Int2IntLinkedOpenHashMap dec_classroom = decoder.getClassrooms();
-        final @NotNull Int2IntLinkedOpenHashMap dec_lesson    = decoder.getLessons();
-        final @NotNull Dataset                  dataset       = this.dsLoader.getDataset();
-        int                                     counter       = -1;
+        final @NotNull DatasetConverter decoder       = this.dsLoader.getDecoder();
+        final @NotNull Int2IntMap       dec_classroom = decoder.getClassrooms();
+        final @NotNull Int2IntMap       dec_lesson    = decoder.getLessons();
+        final @NotNull Dataset          dataset       = this.dsLoader.getDataset();
+        int                             counter       = -1;
         System.out.printf("%3s\t%-5s\t%-5s\n", "no", "link", "available");
         for(final DSLesson lesson : dataset.getLessons())
         {
@@ -138,10 +138,10 @@ import org.junit.Test;
 
     @Test public void classTest_G_001()
     {
-        final @NotNull DatasetConverter         encoder       = this.dsLoader.getEncoder();
-        final @NotNull Int2IntLinkedOpenHashMap enc_classroom = encoder.getClassrooms();
-        final @NotNull Dataset                  dataset       = this.dsLoader.getDataset();
-        int                                     counter       = -1;
+        final @NotNull DatasetConverter encoder       = this.dsLoader.getEncoder();
+        final @NotNull Int2IntMap       enc_classroom = encoder.getClassrooms();
+        final @NotNull Dataset          dataset       = this.dsLoader.getDataset();
+        int                             counter       = -1;
         IntStream.range(1, this.dbLoader.getClassrooms().size() + 1).forEach(value -> System.out.printf("%3d\t", value));
         System.out.println();
         IntStream.range(1, this.dbLoader.getClassrooms().size() + 1).map(enc_classroom::get).forEach(value -> System.out.printf("%3d\t", value));
@@ -167,6 +167,26 @@ import org.junit.Test;
             catch(NullPointerException ignored)
             {
                 System.out.printf("%d\t%s\n", counter, null);
+            }
+        }
+    }
+
+    @Test
+    public void test_lesson_available_and_allowed_after_update_for_comparison()
+    {
+        int counter = -1;
+        for(final DSLesson lesson : this.dsLoader.getDataset().getLessons())
+        {
+            System.out.println(++counter);
+            try
+            {
+                System.out.println(Arrays.toString(lesson.getAvailableClassroom()));
+                System.out.println(Arrays.toString(lesson.getAllowedClassroom()));
+                System.out.println();
+            }
+            catch(NullPointerException ignored)
+            {
+                System.out.println("null");
             }
         }
     }
