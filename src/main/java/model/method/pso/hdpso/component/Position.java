@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
     public static void update(final @NotNull Position position, final @NotNull Velocity velocity)
     {
-        for(final @NotNull Iterator<ActivableTransposition> iterator = velocity.iterator(); iterator.hasNext(); )
+        for(final @NotNull Iterator<Transposition> iterator = velocity.iterator(); iterator.hasNext(); )
         {
             position.update(iterator.next());
         }
