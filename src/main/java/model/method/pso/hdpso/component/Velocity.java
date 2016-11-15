@@ -2,6 +2,7 @@ package model.method.pso.hdpso.component;
 
 import java.util.Iterator;
 import model.util.list.HList;
+import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -41,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
     {
         velocity.reset();
         System.arraycopy(source.getPosition(), 0, source_mimic.getPosition(), 0, source.getPositionSize());
-        Velocity.getDistance(velocity, destination.getPosition(), source_mimic.getPosition(), temp_container.getPosition());
+        Velocity.calculateDistance(velocity, destination.getPosition(), source_mimic.getPosition(), temp_container.getPosition());
     }
 
     /**
@@ -64,7 +65,7 @@ import org.jetbrains.annotations.NotNull;
      *
      * @param velocity = velocity to be reversed
      */
-    public static void reverseVelocity(final Velocity velocity)
+    public static void reverse(final Velocity velocity)
     {
         Transposition         temp = new Transposition();
         final Transposition[] list = velocity.list;
@@ -82,13 +83,12 @@ import org.jetbrains.annotations.NotNull;
      * @param destination = velocity to be added
      * @param source      = source of velocity
      */
-    @SuppressWarnings("Duplicates") public static void additionVelocity(final Velocity destination, final Velocity source)
+    public static void addition(final Velocity destination, final Velocity source)
     {
         final Transposition[] vel_destination  = destination.list;
         final Transposition[] vel_source       = source.list;
         final int             size_destination = destination.size();
         final int             size_source      = source.size();
-        boolean               need_arrange     = false;
 
         /*
         * @param vel_destination = ABC_______
@@ -174,7 +174,7 @@ import org.jetbrains.annotations.NotNull;
      * @param velocity       = velocity
      * @param temp_container = container of velocity if needed for processing
      */
-    public static void multiplicationVelocity(double coefficient, final Velocity velocity, final Velocity temp_container)
+    public static void multiplication(double coefficient, final Velocity velocity, final Velocity temp_container)
     {
         if(!velocity.isEmpty())
         {
@@ -182,31 +182,33 @@ import org.jetbrains.annotations.NotNull;
             {
                 velocity.reset();
             }
-            else if(Math.abs(coefficient) <= 1.0)
+            else if(FastMath.abs(coefficient) <= 1.0)
             {
                 if(coefficient < 0.0)
                 {
-                    reverseVelocity(velocity);
+                    Velocity.reverse(velocity);
                 }
-                velocity.backward((int) Math.floor(velocity.size() * (1.0 - Math.abs(coefficient))));
+                velocity.backward((int) FastMath.floor(velocity.size() * (1.0 - FastMath.abs(coefficient))));
             }
             else
             {
                 if(coefficient < 0.0)
                 {
-                    reverseVelocity(velocity);
-                    coefficient = Math.abs(coefficient);
+                    Velocity.reverse(velocity);
+                    coefficient = FastMath.abs(coefficient);
                 }
-                cloneVelocity(velocity, temp_container);
-                int natural_coefficient = (int) Math.floor(coefficient);
+                Velocity.cloneVelocity(velocity, temp_container);
+
+                int natural_coefficient = (int) FastMath.floor(coefficient);
                 coefficient -= natural_coefficient;
-                for(int i = 1; i < natural_coefficient; ++i)
+                if(natural_coefficient % 2 == 0)
                 {
-                    Velocity.additionVelocity(velocity, temp_container);
+                    velocity.reset();
                 }
+
                 //Keep that line below
-                Velocity.multiplicationVelocity(coefficient, temp_container, null);
-                Velocity.additionVelocity(velocity, temp_container);
+                Velocity.multiplication(coefficient, temp_container, null);
+                Velocity.addition(velocity, temp_container);
             }
         }
     }
@@ -219,41 +221,39 @@ import org.jetbrains.annotations.NotNull;
      * @param mimic          : source position of particle (simulation change)
      * @param temp_container : temporary container for processing
      */
-    private static void getDistance(final Velocity velocity, final int[] destinations, final int[] mimic, final int[] temp_container)
+    private static void calculateDistance(final Velocity velocity, final int[] destinations, final int[] mimic, final int[] temp_container)
     {
         for(int i = -1, is = mimic.length; ++i < is; )
         {
             int value = mimic[i];
-            if(value != 0)
-            {
-                temp_container[value] = i;
-            }
+            temp_container[value] = i;
         }
 
         for(int counter_destination = -1, destination_size = destinations.length; ++counter_destination < destination_size; )
         {
             final int destination = destinations[counter_destination];
-            if(destination != 0)
+
+            /*
+            * If position is not in correct order
+            * */
+            if(counter_destination != temp_container[destination])
             {
-                if(counter_destination != temp_container[destination])
-                {
-                    velocity.set(counter_destination, temp_container[destination]);
+                velocity.set(counter_destination, temp_container[destination]);
 
-                    /*
-                     * Swap Mimic
-                     * */
-                    mimic[temp_container[destination]] = mimic[counter_destination];
+                /*
+                 * Swap Mimic
+                 * */
+                mimic[temp_container[destination]] = mimic[counter_destination];
 
-                    /*
-                     * Swap Temp Container
-                     * */
-                    temp_container[mimic[counter_destination]] = temp_container[destination];
-                }
+                /*
+                 * Swap Temp Container
+                 * */
+                temp_container[mimic[counter_destination]] = temp_container[destination];
             }
         }
     }
 
-    public static String toString(final Velocity[] velocities, int indent)
+    @NotNull public static String toString(final Velocity[] velocities, int indent)
     {
         String storedIndent = "";
         for(int i = indent; --i >= 0; )
@@ -267,6 +267,11 @@ import org.jetbrains.annotations.NotNull;
             sb.append(String.format("%s%14s : %s\n", storedIndent, String.format("%s [%d]", "Velocity", i), velocities[i]));
         }
         return sb.toString();
+    }
+
+    @Override public void set(@NotNull Transposition data)
+    {
+        this.set(data.getSource(), data.getDestination());
     }
 
     /**
@@ -288,23 +293,6 @@ import org.jetbrains.annotations.NotNull;
     public boolean isEmpty()
     {
         return super.counter == -1;
-    }
-
-    /**
-     * Insert Transposition with checking index first
-     *
-     * @param transposition : transposition to be inserted
-     */
-    public void checkAndSet(final Transposition transposition)
-    {
-        if((super.counter != -1) && (super.list[super.counter].equalsTransposition(transposition)))
-        {
-            super.backward(1);
-        }
-        else
-        {
-            super.list[++super.counter].set(transposition);
-        }
     }
 
     public String toString()
