@@ -114,7 +114,7 @@ import org.jetbrains.annotations.NotNull;
             * */
             for(int counter_destination = -1, counter_lookup = -1, insertion_length = size_destination; --insertion_length >= 0; )
             {
-                vel_destination[++counter_destination].set(vel_source[counter_lookup]);
+                vel_destination[counter_destination += 2].set(vel_source[++counter_lookup]);
             }
 
             /*
@@ -160,9 +160,11 @@ import org.jetbrains.annotations.NotNull;
             * */
             for(int counter_destination = -1, counter_lookup = -1, insertion_length = size_source; --insertion_length >= 0; )
             {
-                vel_destination[++counter_destination].set(vel_source[counter_lookup]);
+                vel_destination[counter_destination += 2].set(vel_source[++counter_lookup]);
             }
         }
+
+        destination.moveTo(size_destination + size_source);
     }
 
     /**
