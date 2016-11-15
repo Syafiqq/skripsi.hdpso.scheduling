@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"WeakerAccess", "unused"}) public class HList<Data_Type>
+@SuppressWarnings({"WeakerAccess", "unused"}) public abstract class HList<Data_Type>
 {
     protected final Data_Type[] list;
     protected       int         counter;
@@ -27,10 +27,7 @@ import org.jetbrains.annotations.NotNull;
         this.counter = -1;
     }
 
-    public void set(Data_Type data)
-    {
-        this.list[++this.counter] = data;
-    }
+    public abstract void set(Data_Type data);
 
     public Data_Type get()
     {
