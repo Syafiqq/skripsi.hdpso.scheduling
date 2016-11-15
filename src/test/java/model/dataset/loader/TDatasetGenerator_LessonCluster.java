@@ -16,7 +16,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TDatasetGenerator_LessonCluster
+@SuppressWarnings("FieldCanBeLocal") public class TDatasetGenerator_LessonCluster
 {
     private DBSchool         school;
     private DBProblemLoader  dbLoader;
