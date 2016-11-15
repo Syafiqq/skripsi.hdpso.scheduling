@@ -1,6 +1,6 @@
 package model.dataset.loader;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
 import model.database.component.DBSchool;
@@ -19,7 +19,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TDatasetGenerator_LessonGroup
+@SuppressWarnings("FieldCanBeLocal") public class TDatasetGenerator_LessonGroup
 {
     private DBSchool         school;
     private DBProblemLoader  dbLoader;
@@ -75,9 +75,9 @@ public class TDatasetGenerator_LessonGroup
 
     @Test public void classTest_D_001()
     {
-        final @NotNull Int2IntLinkedOpenHashMap classroom_decoder = this.dsLoader.getDecoder().getClassrooms();
-        final @NotNull Int2IntLinkedOpenHashMap lesson_decoder    = this.dsLoader.getDecoder().getLessons();
-        final @NotNull DSLesson[]               lessons           = this.dsLoader.getDataset().getLessons();
+        final @NotNull Int2IntMap classroom_decoder = this.dsLoader.getDecoder().getClassrooms();
+        final @NotNull Int2IntMap lesson_decoder    = this.dsLoader.getDecoder().getLessons();
+        final @NotNull DSLesson[] lessons           = this.dsLoader.getDataset().getLessons();
 
         for(@NotNull final DSLessonGroup lesson_group : this.dsLoader.getDataset().getLessonGroups())
         {

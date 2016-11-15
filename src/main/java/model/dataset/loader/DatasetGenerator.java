@@ -69,6 +69,7 @@ import org.jetbrains.annotations.NotNull;
         this.generateTimeDistribution(loader.getTimeDistribution().int2IntEntrySet());
         this.generateLessonGroup(loader.getLessonGroup().iterator());
         this.generateLessonCluster(loader.getLessonCluster().iterator(), loader.getComplexLessonSize());
+        this.updateLessonAvailableClassroom();
     }
 
     private void generateActiveDays(final ObjectIterator<DBDay> db_days)
@@ -342,16 +343,22 @@ import org.jetbrains.annotations.NotNull;
             @NotNull final DBLessonCluster tmp_lesson_cluster = db_lesson_cluster.next();
             @NotNull final int[]           classroom_check    = tmp_lesson_cluster.getClassrooms().stream().mapToInt(value -> classroom_encoder.get(value.getId())).toArray();
 
-            int                            tmp_pre_allocated_time = 0;
             @NotNull final DSLessonGroup[] tmp_lesson_groups      = new DSLessonGroup[tmp_lesson_cluster.getLessonGroupSize()];
+            int                            tmp_pre_allocated_time = 0;
             int                            c_data                 = -1;
             for(final @NotNull DSLessonGroup lesson_group : ds_lesson_groups)
             {
+                /*
+                * Check if current lesson group is subset of lesson cluster
+                * */
                 if(IntArrays.binarySearch(classroom_check, lesson_group.getClassroom(0)) >= 0)
                 {
                     tmp_lesson_groups[++c_data] = lesson_group;
                     final int[] ds_time_distribution = lesson_group.getTimeDistributions();
 
+                    /*
+                    * Calculate total lesson
+                    * */
                     for(int c_distribution = -1, cs_distribution = ds_time_distribution.length; ++c_distribution < cs_distribution; )
                     {
                         tmp_pre_allocated_time += (c_distribution * (ds_time_distribution[c_distribution]));
@@ -359,6 +366,9 @@ import org.jetbrains.annotations.NotNull;
                 }
             }
 
+            /*
+            * Register classroom and its decoder and encoder
+            * */
             @NotNull final int[]      tmp_classrooms        = new int[tmp_lesson_cluster.getClassroomSize()];
             @NotNull final Int2IntMap tmp_classroom_encoder = new Int2IntLinkedOpenHashMap(tmp_classrooms.length);
             @NotNull final Int2IntMap tmp_classroom_decoder = new Int2IntLinkedOpenHashMap(tmp_classrooms.length);
@@ -371,16 +381,23 @@ import org.jetbrains.annotations.NotNull;
                 tmp_classrooms[c_data] = c_data;
             }
 
-            int                        tmp_classoom_available_time  = 0;
+            int                        tmp_classroom_available_time = 0;
             @NotNull final DSTimeOff[] tmp_timeoff                  = new DSTimeOff[tmp_classrooms.length];
             @NotNull final int[][][]   tmp_clustered_classroom_time = new int[tmp_classrooms.length][][];
             for(final int tmp_classroom : tmp_classrooms)
             {
+                /*
+                * Register classroom timeoff and clustered classroom time
+                * */
                 tmp_timeoff[tmp_classroom] = ds_classroom_timeoff[tmp_classroom_decoder.get(tmp_classroom)];
                 tmp_clustered_classroom_time[tmp_classroom] = ds_clustered_classroom_time[tmp_classroom_decoder.get(tmp_classroom)];
+
+                /*
+                * Calculate classrooms available time
+                * */
                 for(final @NotNull int[] tmp_clustered_classroom_time_day : tmp_clustered_classroom_time[tmp_classroom])
                 {
-                    tmp_classoom_available_time += tmp_clustered_classroom_time_day[0];
+                    tmp_classroom_available_time += tmp_clustered_classroom_time_day[0];
                 }
             }
 
@@ -390,6 +407,9 @@ import org.jetbrains.annotations.NotNull;
                 tmp_lesson_size += db_lesson.getCount();
             }
 
+            /*
+            * Register lesson and its link
+            * */
             @NotNull final int[] tmp_lessons = new int[tmp_lesson_size];
             c_data = -1;
             for(@NotNull final DBLesson db_lesson : tmp_lesson_cluster.getLessons())
@@ -405,7 +425,10 @@ import org.jetbrains.annotations.NotNull;
 
             IntArrays.radixSort(tmp_lessons);
 
-            final int            tmp_lesson_null_count = tmp_classoom_available_time - tmp_pre_allocated_time;
+            /*
+            * Register null lesson
+            * */
+            final int            tmp_lesson_null_count = tmp_classroom_available_time - tmp_pre_allocated_time;
             @NotNull final int[] tmp_lessons_null      = new int[tmp_lesson_null_count];
             for(int c_null = -1; ++c_null < tmp_lesson_null_count; )
             {
@@ -419,6 +442,36 @@ import org.jetbrains.annotations.NotNull;
 
         ObjectArrays.quickSort(lesson_clusters, (cluster_1, cluster_2) -> (int) FastMath.signum(cluster_1.getClassroomLength() - cluster_2.getClassroomLength()));
         DSLessonCluster.rearrangeLocator(lesson_clusters);
+    }
+
+
+    private void updateLessonAvailableClassroom()
+    {
+        final @NotNull int[] globalConverter = new int[this.dataset.getClassroomSize()];
+        for(final @NotNull DSLessonCluster cluster : this.dataset.getLessonClusters())
+        {
+            for(Int2IntMap.Entry encoder : cluster.getClassroomEncoder().int2IntEntrySet())
+            {
+                globalConverter[encoder.getIntKey()] = encoder.getIntValue();
+            }
+        }
+        for(final @NotNull DSLesson lesson : this.dataset.getLessons())
+        {
+            try
+            {
+                final @NotNull int[]     available_classroom = lesson.getAvailableClassroom();
+                final @NotNull boolean[] allowed_classroom   = lesson.getAllowedClassroom();
+                for(int c_available_classroom = -1, cs_available_classroom = available_classroom.length; ++c_available_classroom < cs_available_classroom; )
+                {
+                    allowed_classroom[available_classroom[c_available_classroom]] = false;
+                    available_classroom[c_available_classroom] = globalConverter[available_classroom[c_available_classroom]];
+                    allowed_classroom[available_classroom[c_available_classroom]] = true;
+                }
+            }
+            catch(NullPointerException ignored)
+            {
+            }
+        }
     }
 
     public @NotNull Dataset getDataset()

@@ -133,4 +133,9 @@ import org.jetbrains.annotations.Nullable;
     {
         return this.clustered_classroom_time;
     }
+
+    public int getClassroomSize()
+    {
+        return this.classrooms.length;
+    }
 }
