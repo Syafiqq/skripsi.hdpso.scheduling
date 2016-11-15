@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
     public Transposition()
     {
-        this.setDefault();
+        this(-1, -1);
     }
 
     public void set(int source, int destination)
@@ -58,16 +58,6 @@ import org.jetbrains.annotations.NotNull;
     public void setDestination(int destination)
     {
         this.destination = destination;
-    }
-
-    public void setDefault()
-    {
-        this.source = this.destination = -1;
-    }
-
-    public boolean isDefault()
-    {
-        return (this.source == -1) && (this.destination == -1);
     }
 
     @Override public String toString()
