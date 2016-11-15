@@ -69,6 +69,7 @@ import org.jetbrains.annotations.NotNull;
         this.generateTimeDistribution(loader.getTimeDistribution().int2IntEntrySet());
         this.generateLessonGroup(loader.getLessonGroup().iterator());
         this.generateLessonCluster(loader.getLessonCluster().iterator(), loader.getComplexLessonSize());
+        this.updateLessonAvailableClassroom();
     }
 
     private void generateActiveDays(final ObjectIterator<DBDay> db_days)
@@ -441,6 +442,36 @@ import org.jetbrains.annotations.NotNull;
 
         ObjectArrays.quickSort(lesson_clusters, (cluster_1, cluster_2) -> (int) FastMath.signum(cluster_1.getClassroomLength() - cluster_2.getClassroomLength()));
         DSLessonCluster.rearrangeLocator(lesson_clusters);
+    }
+
+
+    private void updateLessonAvailableClassroom()
+    {
+        final @NotNull int[] globalConverter = new int[this.dataset.getClassroomSize()];
+        for(final @NotNull DSLessonCluster cluster : this.dataset.getLessonClusters())
+        {
+            for(Int2IntMap.Entry encoder : cluster.getClassroomEncoder().int2IntEntrySet())
+            {
+                globalConverter[encoder.getIntKey()] = encoder.getIntValue();
+            }
+        }
+        for(final @NotNull DSLesson lesson : this.dataset.getLessons())
+        {
+            try
+            {
+                final @NotNull int[]     available_classroom = lesson.getAvailableClassroom();
+                final @NotNull boolean[] allowed_classroom   = lesson.getAllowedClassroom();
+                for(int c_available_classroom = -1, cs_available_classroom = available_classroom.length; ++c_available_classroom < cs_available_classroom; )
+                {
+                    allowed_classroom[available_classroom[c_available_classroom]] = false;
+                    available_classroom[c_available_classroom] = globalConverter[available_classroom[c_available_classroom]];
+                    allowed_classroom[available_classroom[c_available_classroom]] = true;
+                }
+            }
+            catch(NullPointerException ignored)
+            {
+            }
+        }
     }
 
     public @NotNull Dataset getDataset()
