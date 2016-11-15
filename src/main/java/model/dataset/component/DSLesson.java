@@ -1,6 +1,6 @@
 package model.dataset.component;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.dataset.core.DatasetConverter;
@@ -60,8 +60,8 @@ import org.jetbrains.annotations.NotNull;
         int[]     available_classroom = new int[lesson.getClassrooms().size()];
         boolean[] allowed_classroom   = new boolean[encoder.getClassrooms().size()];
 
-        final @NotNull Int2IntLinkedOpenHashMap classroom_encoder = encoder.getClassrooms();
-        int                                     counter           = -1;
+        final @NotNull Int2IntMap classroom_encoder = encoder.getClassrooms();
+        int                       counter           = -1;
         for(final @NotNull DBClassroom classroom : lesson.getClassrooms())
         {
             available_classroom[++counter] = classroom_encoder.get(classroom.getId());

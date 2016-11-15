@@ -1,6 +1,7 @@
 package model.dataset.core;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import model.database.loader.DBProblemLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,13 +14,13 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class DatasetConverter
 {
-    final @NotNull Int2IntLinkedOpenHashMap active_days;
-    final @NotNull Int2IntLinkedOpenHashMap active_periods;
-    final @NotNull Int2IntLinkedOpenHashMap classes;
-    final @NotNull Int2IntLinkedOpenHashMap classrooms;
-    final @NotNull Int2IntLinkedOpenHashMap lecturers;
-    final @NotNull Int2IntLinkedOpenHashMap subjects;
-    final @NotNull Int2IntLinkedOpenHashMap lessons;
+    final @NotNull Int2IntMap active_days;
+    final @NotNull Int2IntMap active_periods;
+    final @NotNull Int2IntMap classes;
+    final @NotNull Int2IntMap classrooms;
+    final @NotNull Int2IntMap lecturers;
+    final @NotNull Int2IntMap subjects;
+    final @NotNull Int2IntMap lessons;
 
     public DatasetConverter(@NotNull final DBProblemLoader loader)
     {
@@ -32,37 +33,37 @@ import org.jetbrains.annotations.NotNull;
         this.lessons = new Int2IntLinkedOpenHashMap(loader.getLessons().size());
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getActiveDays()
+    @NotNull public Int2IntMap getActiveDays()
     {
         return this.active_days;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getActivePeriods()
+    @NotNull public Int2IntMap getActivePeriods()
     {
         return this.active_periods;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getClasses()
+    @NotNull public Int2IntMap getClasses()
     {
         return this.classes;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getClassrooms()
+    @NotNull public Int2IntMap getClassrooms()
     {
         return this.classrooms;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getLecturers()
+    @NotNull public Int2IntMap getLecturers()
     {
         return this.lecturers;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getSubjects()
+    @NotNull public Int2IntMap getSubjects()
     {
         return this.subjects;
     }
 
-    @NotNull public Int2IntLinkedOpenHashMap getLessons()
+    @NotNull public Int2IntMap getLessons()
     {
         return this.lessons;
     }
