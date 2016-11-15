@@ -13,13 +13,13 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings("unused") public class DSLessonCluster
 {
-    @NotNull public static Int2IntMap classroom_locator;
-    private static         int        object_counter;
+    public static  Int2IntMap classroom_locator;
+    private static int        object_counter;
 
     static
     {
-        classroom_locator = new Int2IntLinkedOpenHashMap(Byte.MAX_VALUE * 4);
-        object_counter = -1;
+        DSLessonCluster.classroom_locator = new Int2IntLinkedOpenHashMap(Byte.MAX_VALUE * 4);
+        DSLessonCluster.object_counter = -1;
     }
 
     @NotNull private final DSLessonGroup[] lesson_groups;
