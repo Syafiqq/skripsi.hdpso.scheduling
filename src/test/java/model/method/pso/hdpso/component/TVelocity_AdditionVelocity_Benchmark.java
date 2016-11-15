@@ -13,7 +13,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TVelocity_AdditionVelocity_Benchmark
+@SuppressWarnings("unused") public class TVelocity_AdditionVelocity_Benchmark
 {
     private Velocity destination;
     private Velocity source;
@@ -31,10 +31,7 @@ public class TVelocity_AdditionVelocity_Benchmark
         }
         System.out.println(destination.size());
         this.source = new Velocity(SIZE);
-        for(int ci = -1, cis = SIZE / 2; ++ci < cis; )
-        {
-            source.set(ci, ci);
-        }
+        Velocity.cloneVelocity(this.destination, source);
         System.out.println(source.size());
     }
 
