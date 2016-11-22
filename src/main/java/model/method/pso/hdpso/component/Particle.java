@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final Velocity[] velocity;
 
     @NotNull private final Setting             setting;
-    private final          Random              random;
+    @NotNull private final Random              random;
     @NotNull private final VelocityProperty    velocity_properties;
     @NotNull private final PlacementProperties placement_properties;
     @NotNull private final RepairProperty[]    repair_properties;
