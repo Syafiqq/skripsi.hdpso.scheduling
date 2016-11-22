@@ -44,6 +44,11 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
+    @NotNull public Position[] getPositions()
+    {
+        return this.positions;
+    }
+
     public String toString(int indent)
     {
         String storedIndent = "";
@@ -61,5 +66,20 @@ import org.jetbrains.annotations.NotNull;
     @Override public String toString()
     {
         return this.toString(0);
+    }
+
+    public int getPositionSize()
+    {
+        return this.positions.length;
+    }
+
+    public @NotNull Position getPosition(int c_position)
+    {
+        return this.positions[c_position];
+    }
+
+    public double getFitness()
+    {
+        return fitness;
     }
 }
