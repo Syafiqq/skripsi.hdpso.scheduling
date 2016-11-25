@@ -112,4 +112,14 @@ import org.jetbrains.annotations.NotNull;
     {
         return this.allowed_classroom;
     }
+
+    public int getLinkTotal()
+    {
+        return this.lesson_link.length;
+    }
+
+    public boolean getAllowedClassroom(int classroom)
+    {
+        return this.allowed_classroom[classroom];
+    }
 }
