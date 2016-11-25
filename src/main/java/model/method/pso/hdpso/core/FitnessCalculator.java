@@ -7,7 +7,7 @@ package model.method.pso.hdpso.core;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public interface FitnessCalculator<T>
+@SuppressWarnings("WeakerAccess") public interface FitnessCalculator<T>
 {
     void calculate(T data);
 }
