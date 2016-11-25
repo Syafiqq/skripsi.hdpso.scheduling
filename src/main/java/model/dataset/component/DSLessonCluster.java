@@ -30,8 +30,10 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final DSTimeOff[]     classrooms_timeoff;
     @NotNull private final Int2IntMap      classroom_encoder;
     @NotNull private final Int2IntMap      classroom_decoder;
+    private final          int             classroom_available_time;
+    private final          int             classroom_registered_time;
 
-    public DSLessonCluster(@NotNull DSLessonGroup[] lesson_groups, @NotNull int[] lessons, @NotNull int[] lessons_null, @NotNull int[] classrooms, @NotNull DSTimeOff[] classrooms_timeoff, @NotNull int[][][] clustered_classroom_time, @NotNull Int2IntMap classroom_encoder, @NotNull Int2IntMap classroom_decoder)
+    public DSLessonCluster(@NotNull DSLessonGroup[] lesson_groups, @NotNull int[] lessons, @NotNull int[] lessons_null, @NotNull int[] classrooms, @NotNull DSTimeOff[] classrooms_timeoff, @NotNull int[][][] clustered_classroom_time, @NotNull Int2IntMap classroom_encoder, @NotNull Int2IntMap classroom_decoder, int classroom_available_time, int classroom_registered_time)
     {
         this.lesson_groups = lesson_groups;
         this.lessons = lessons;
@@ -41,6 +43,8 @@ import org.jetbrains.annotations.NotNull;
         this.clustered_classroom_time = clustered_classroom_time;
         this.classroom_encoder = classroom_encoder;
         this.classroom_decoder = classroom_decoder;
+        this.classroom_available_time = classroom_available_time;
+        this.classroom_registered_time = classroom_registered_time;
 
         DSLessonCluster.rearrangeLocator(++DSLessonCluster.object_counter, this);
     }
@@ -89,7 +93,7 @@ import org.jetbrains.annotations.NotNull;
         return this.classrooms;
     }
 
-    public int[][][] getClassroomAvailableTime()
+    public int[][][] getClassroomClusteredTime()
     {
         return this.clustered_classroom_time;
     }
@@ -104,19 +108,39 @@ import org.jetbrains.annotations.NotNull;
         return this.classroom_decoder;
     }
 
-    public int getLessonLength()
+    public int getLessonTotal()
     {
         return this.lessons.length;
     }
 
-    public int getLessonNullLength()
+    public int getLessonNullTotal()
     {
         return this.lessons_null.length;
     }
 
-    public int getClassroomLength()
+    public int getClassroomTotal()
     {
         return this.classrooms.length;
+    }
+
+    public int getLessonGroupTotal()
+    {
+        return this.lesson_groups.length;
+    }
+
+    public DSLessonGroup getLessonGroup(int index)
+    {
+        return this.lesson_groups[index];
+    }
+
+    public @NotNull DSTimeOff getClassroomsTimeoff(int index)
+    {
+        return this.classrooms_timeoff[index];
+    }
+
+    public int getClassroomRegisteredTime()
+    {
+        return this.classroom_registered_time;
     }
 
 }

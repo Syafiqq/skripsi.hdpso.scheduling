@@ -1,5 +1,6 @@
 package model.method.pso.hdpso.component;
 
+import java.util.Comparator;
 import java.util.Random;
 import model.dataset.component.DSScheduleShufflingProperty;
 import model.method.pso.hdpso.core.ScheduleRandomable;
@@ -13,35 +14,30 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused"}) public class Particle
+@SuppressWarnings({"FieldCanBeLocal", "unused"}) public class Particle extends ParticleBuilder<Data, Velocity>
 {
-    @NotNull private final Data       data;
-    @NotNull private final Data       pBest;
-    @NotNull private final Velocity[] velocity;
+    public static final Comparator<Particle> particlePBestFitnessDescComparator = (p1, p2) -> (int) (p2.pBest.getFitness() - p1.pBest.getFitness());
 
-    @NotNull private final Setting             setting;
-    @NotNull private final Random              random;
-    @NotNull private final VelocityProperty    velocity_properties;
-    @NotNull private final PlacementProperties placement_properties;
-    @NotNull private final RepairProperty[]    repair_properties;
-    @NotNull private final IntHList[]          lesson_conflicts;
+    @NotNull private final Setting           setting;
+    @NotNull private final Random            random;
+    @NotNull private final VelocityProperty  velocity_properties;
+    @NotNull private final PlacementProperty placement_properties;
+    @NotNull private final RepairProperty[]  repair_properties;
+    @NotNull private final IntHList[]        lesson_conflicts;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
             @NotNull final ScheduleRandomable<Position[], DSScheduleShufflingProperty> randomable,
             @NotNull final Setting setting,
-            @NotNull final PlacementProperties placement_properties,
+            @NotNull final PlacementProperty placement_properties,
             @NotNull final RepairProperty[] repair_properties)
     {
+        super(new Data(randomable.random(builder)));
         this.setting = setting;
-        this.data = new Data(randomable.random(builder));
-        this.pBest = Data.newInstance(this.data);
-
-        this.velocity = new Velocity[this.data.getPositionSize()];
-        this.lesson_conflicts = new IntHList[this.velocity.length];
-        for(int c_position = -1, position_size = this.velocity.length; ++c_position < position_size; )
+        this.lesson_conflicts = new IntHList[super.velocity.length];
+        for(int c_position = -1, position_size = super.velocity.length; ++c_position < position_size; )
         {
-            final int position_length = this.data.getPosition(c_position).getPositionSize();
+            final int position_length = super.data.getPosition(c_position).getPositionSize();
 
             this.lesson_conflicts[c_position] = new IntHList(position_length);
 
@@ -50,7 +46,7 @@ import org.jetbrains.annotations.NotNull;
             this.velocity[c_position] = new Velocity(velocity_bound);
         }
 
-        this.velocity_properties = new VelocityProperty(builder, randomable, setting, this.data.getPositions());
+        this.velocity_properties = new VelocityProperty(builder, randomable, setting, super.data.getPositions());
         this.placement_properties = placement_properties;
         this.repair_properties = repair_properties;
         this.random = new Random();
@@ -58,9 +54,9 @@ import org.jetbrains.annotations.NotNull;
 
     public void assignPBest()
     {
-        if(this.data.getFitness() > this.pBest.getFitness())
+        if(super.data.getFitness() > super.pBest.getFitness())
         {
-            Data.replaceData(this.pBest, this.data);
+            Data.replaceData(super.pBest, super.data);
         }
     }
 
@@ -71,20 +67,20 @@ import org.jetbrains.annotations.NotNull;
         @NotNull final Velocity[]       v_temp          = property.getVelocityContainer();
         @NotNull final Position[]       p_mimic         = property.getPositionMimic();
         @NotNull final Position[]       p_cont          = property.getPositionContainer();
-        final int                       position_length = this.data.getPositionSize();
+        final int                       position_length = super.data.getPositionSize();
 
         double random_coefficient;
         double constants_coefficient;
 
         property.initializePRand();
-        property.initializeDLoc(this.data);
-        property.initializeDGlob(this.data);
+        property.initializeDLoc(super.data);
+        property.initializeDGlob(super.data);
 
         random_coefficient = this.random.nextDouble();
         constants_coefficient = ((this.setting.bloc_max - this.setting.bloc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bloc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
-            Velocity.calculateDistance(velocity[c_data], this.pBest.getPosition(c_data), this.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
             Position.update(property.getDLoc(c_data), velocity[c_data]);
         }
@@ -93,7 +89,7 @@ import org.jetbrains.annotations.NotNull;
         constants_coefficient = this.setting.bglob_max - ((this.setting.bglob_max - this.setting.bglob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
-            Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), this.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
             Position.update(property.getDGlob(c_data), velocity[c_data]);
         }
@@ -102,7 +98,7 @@ import org.jetbrains.annotations.NotNull;
         constants_coefficient = this.setting.brand_max - ((this.setting.brand_max - this.setting.brand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
-            Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), this.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, this.velocity[c_data], v_temp[c_data]);
         }
 
@@ -117,7 +113,7 @@ import org.jetbrains.annotations.NotNull;
 
     public void updateData()
     {
-        Data.replacePosition(this.data.getPositions(), this.velocity_properties.getDGlob());
+        Data.replacePosition(super.data.getPositions(), this.velocity_properties.getDGlob());
     }
 
     public String toString(int indent)
@@ -129,10 +125,25 @@ import org.jetbrains.annotations.NotNull;
         }
 
         return String.format("%s{\n", storedIndent)
-                + String.format("%s\t%s : \n%s\n\n", storedIndent, "Data", this.data.toString(indent + 1))
-                + String.format("%s\t%s : [%s = %b]\n%s\n\n", storedIndent, "P-Best", "Data : P-Best", this.data == this.pBest, this.pBest.toString(indent + 1))
+                + String.format("%s\t%s : \n%s\n\n", storedIndent, "Data", super.data.toString(indent + 1))
+                + String.format("%s\t%s : [%s = %b]\n%s\n\n", storedIndent, "P-Best", "Data : P-Best", super.data == super.pBest, super.pBest.toString(indent + 1))
                 + String.format("%s\t%s : \n%s\t{\n", storedIndent, "Velocities", storedIndent) + String.format("%s", Velocity.toString(this.velocity, indent + 2))
                 + String.format("%s\t}\n\n", storedIndent) + String.format("%s\t%s : \n%s\n", storedIndent, "Velocity Properties", this.velocity_properties.toString(indent + 1))
                 + String.format("%s}", storedIndent);
+    }
+
+    public @NotNull PlacementProperty getPlacementProperty()
+    {
+        return this.placement_properties;
+    }
+
+    public IntHList getLessonConflict(int i_cluster)
+    {
+        return this.lesson_conflicts[i_cluster];
+    }
+
+    public void setFitness(double fitness)
+    {
+        this.data.setFitness(fitness);
     }
 }

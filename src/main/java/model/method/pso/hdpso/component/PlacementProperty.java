@@ -11,7 +11,7 @@ import org.apache.commons.math3.util.FastMath;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"unused", "FieldCanBeLocal"}) public class PlacementProperties
+@SuppressWarnings({"unused", "FieldCanBeLocal"}) public class PlacementProperty
 {
     /*
     * @param lecture_placement
@@ -32,7 +32,7 @@ import org.apache.commons.math3.util.FastMath;
     private final int                  day;
     private final int                  period;
 
-    public PlacementProperties(int lecture_total, int class_total, int classroom_total, int day_total, int period_total, int active_classroom)
+    public PlacementProperty(int lecture_total, int class_total, int classroom_total, int day_total, int period_total, int active_classroom)
     {
         this.lecture_placement = new DSTimeOffPlacement[lecture_total];
         this.class_placement = new DSTimeOffPlacement[class_total];
@@ -95,5 +95,25 @@ import org.apache.commons.math3.util.FastMath;
         }
         this.lecture_fill.reset();
         this.class_fill.reset();
+    }
+
+    public DSTimeOffPlacement[] getLecturePlacement()
+    {
+        return this.lecture_placement;
+    }
+
+    public DSTimeOffPlacement[] getClassPlacement()
+    {
+        return this.class_placement;
+    }
+
+    public IntHList getLectureFill()
+    {
+        return this.lecture_fill;
+    }
+
+    public IntHList getClassFill()
+    {
+        return this.class_fill;
     }
 }

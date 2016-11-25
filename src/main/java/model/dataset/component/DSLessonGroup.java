@@ -57,7 +57,7 @@ import org.jetbrains.annotations.NotNull;
         return this.lessons.length;
     }
 
-    public int getClassroomsLength()
+    public int getClassroomTotal()
     {
         return this.classrooms.length;
     }
