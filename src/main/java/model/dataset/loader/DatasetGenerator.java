@@ -70,6 +70,7 @@ import org.jetbrains.annotations.NotNull;
         this.generateLessonGroup(loader.getLessonGroup().iterator());
         this.generateLessonCluster(loader.getLessonCluster().iterator(), loader.getComplexLessonSize());
         this.updateLessonAvailableClassroom();
+        this.adjustLessonGroupClassroomId();
     }
 
     private void generateActiveDays(final ObjectIterator<DBDay> db_days)
@@ -343,9 +344,9 @@ import org.jetbrains.annotations.NotNull;
             @NotNull final DBLessonCluster tmp_lesson_cluster = db_lesson_cluster.next();
             @NotNull final int[]           classroom_check    = tmp_lesson_cluster.getClassrooms().stream().mapToInt(value -> classroom_encoder.get(value.getId())).toArray();
 
-            @NotNull final DSLessonGroup[] tmp_lesson_groups      = new DSLessonGroup[tmp_lesson_cluster.getLessonGroupSize()];
-            int                            tmp_pre_allocated_time = 0;
-            int                            c_data                 = -1;
+            @NotNull final DSLessonGroup[] tmp_lesson_groups             = new DSLessonGroup[tmp_lesson_cluster.getLessonGroupSize()];
+            int                            tmp_classroom_registered_time = 0;
+            int                            c_data                        = -1;
             for(final @NotNull DSLessonGroup lesson_group : ds_lesson_groups)
             {
                 /*
@@ -357,11 +358,11 @@ import org.jetbrains.annotations.NotNull;
                     final int[] ds_time_distribution = lesson_group.getTimeDistributions();
 
                     /*
-                    * Calculate total lesson
+                    * Calculate total lesson time (sks)
                     * */
                     for(int c_distribution = -1, cs_distribution = ds_time_distribution.length; ++c_distribution < cs_distribution; )
                     {
-                        tmp_pre_allocated_time += (c_distribution * (ds_time_distribution[c_distribution]));
+                        tmp_classroom_registered_time += (c_distribution * (ds_time_distribution[c_distribution]));
                     }
                 }
             }
@@ -428,7 +429,7 @@ import org.jetbrains.annotations.NotNull;
             /*
             * Register null lesson
             * */
-            final int            tmp_lesson_null_count = tmp_classroom_available_time - tmp_pre_allocated_time;
+            final int            tmp_lesson_null_count = tmp_classroom_available_time - tmp_classroom_registered_time;
             @NotNull final int[] tmp_lessons_null      = new int[tmp_lesson_null_count];
             for(int c_null = -1; ++c_null < tmp_lesson_null_count; )
             {
@@ -437,13 +438,12 @@ import org.jetbrains.annotations.NotNull;
 
             assert tmp_lesson_null_count > 0;
 
-            lesson_clusters[++c_cluster] = new DSLessonCluster(tmp_lesson_groups, tmp_lessons, tmp_lessons_null, tmp_classrooms, tmp_timeoff, tmp_clustered_classroom_time, tmp_classroom_encoder, tmp_classroom_decoder);
+            lesson_clusters[++c_cluster] = new DSLessonCluster(tmp_lesson_groups, tmp_lessons, tmp_lessons_null, tmp_classrooms, tmp_timeoff, tmp_clustered_classroom_time, tmp_classroom_encoder, tmp_classroom_decoder, tmp_classroom_available_time, tmp_classroom_registered_time);
         }
 
-        ObjectArrays.quickSort(lesson_clusters, (cluster_1, cluster_2) -> (int) FastMath.signum(cluster_1.getClassroomLength() - cluster_2.getClassroomLength()));
+        ObjectArrays.quickSort(lesson_clusters, (cluster_1, cluster_2) -> (int) FastMath.signum(cluster_1.getClassroomTotal() - cluster_2.getClassroomTotal()));
         DSLessonCluster.rearrangeLocator(lesson_clusters);
     }
-
 
     private void updateLessonAvailableClassroom()
     {
@@ -470,6 +470,22 @@ import org.jetbrains.annotations.NotNull;
             }
             catch(NullPointerException ignored)
             {
+            }
+        }
+    }
+
+    private void adjustLessonGroupClassroomId()
+    {
+        for(@NotNull final DSLessonCluster cluster : this.dataset.getLessonClusters())
+        {
+            @NotNull final Int2IntMap encoder = cluster.getClassroomEncoder();
+            for(@NotNull final DSLessonGroup group : cluster.getLessonGroups())
+            {
+                final @NotNull int[] classrooms = group.getClassrooms();
+                for(int c_classroom = -1, cs_classroom = classrooms.length; ++c_classroom < cs_classroom; )
+                {
+                    classrooms[c_classroom] = encoder.get(classrooms[c_classroom]);
+                }
             }
         }
     }
