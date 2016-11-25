@@ -47,11 +47,11 @@ import org.junit.Test;
         for(int i = -1, is = lesson_pool.length; ++i < is; )
         {
             Int2IntMap pol_clas_dec = lesson_pool[i].getClassroomDecoder();
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getClassroomLength(), Arrays.toString(Arrays.stream(lesson_pool[i].getClassrooms()).map(operand -> this.dsLoader.getDecoder().getClassrooms().get(pol_clas_dec.get(operand))).toArray()));
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonLength(), Arrays.toString(Arrays.stream(lesson_pool[i].getLessons()).map(operand ->
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getClassroomTotal(), Arrays.toString(Arrays.stream(lesson_pool[i].getClassrooms()).map(operand -> this.dsLoader.getDecoder().getClassrooms().get(pol_clas_dec.get(operand))).toArray()));
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonTotal(), Arrays.toString(Arrays.stream(lesson_pool[i].getLessons()).map(operand ->
                     this.dsLoader.getDecoder().getLessons().getOrDefault(this.dsLoader.getDataset().getLessons()[operand].getLessonParent(), this.dsLoader.getDecoder().getLessons().get(operand))
             ).toArray()));
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonNullLength(), Arrays.toString(lesson_pool[i].getLessonNull()));
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonNullTotal(), Arrays.toString(lesson_pool[i].getLessonNull()));
             System.out.println();
         }
     }
@@ -61,9 +61,9 @@ import org.junit.Test;
         DSLessonCluster[] lesson_pool = this.dsLoader.getDataset().getLessonClusters();
         for(int i = -1, is = lesson_pool.length; ++i < is; )
         {
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getClassroomLength(), Arrays.toString(lesson_pool[i].getClassrooms()));
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonLength(), Arrays.toString(lesson_pool[i].getLessons()));
-            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonNullLength(), Arrays.toString(lesson_pool[i].getLessonNull()));
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getClassroomTotal(), Arrays.toString(lesson_pool[i].getClassrooms()));
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonTotal(), Arrays.toString(lesson_pool[i].getLessons()));
+            System.out.printf("[%4d]\t%s\n", lesson_pool[i].getLessonNullTotal(), Arrays.toString(lesson_pool[i].getLessonNull()));
             System.out.println();
         }
     }
