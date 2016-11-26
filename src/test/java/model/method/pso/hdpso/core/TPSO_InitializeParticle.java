@@ -34,7 +34,7 @@ public class TPSO_InitializeParticle
         Assert.assertNotNull(dsLoader);
 
         Setting setting = Setting.getInstance();
-        setting.max_particle = 1;
+        setting.max_particle = 10;
         setting.max_epoch = 1;
         setting.bloc_min = 0.600;
         setting.bloc_max = 0.900;
