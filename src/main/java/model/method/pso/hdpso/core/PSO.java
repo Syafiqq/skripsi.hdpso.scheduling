@@ -1,9 +1,7 @@
 package model.method.pso.hdpso.core;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
-import model.custom.it.unimi.dsi.fastutil.ints.ScheduleContainer;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.component.DSLessonGroup;
@@ -18,6 +16,7 @@ import model.method.pso.hdpso.component.Particle;
 import model.method.pso.hdpso.component.PlacementProperty;
 import model.method.pso.hdpso.component.Position;
 import model.method.pso.hdpso.component.RepairProperty;
+import model.method.pso.hdpso.component.ScheduleContainer;
 import model.method.pso.hdpso.component.Setting;
 import model.method.pso.hdpso.component.Velocity;
 import model.util.list.IntHList;
@@ -381,26 +380,20 @@ import org.jetbrains.annotations.NotNull;
         * 8. @lesson_dataset               : Get lesson dataset
         * 9. @schedule_container           : Generate new schedule container
         * */
-        final DSLessonCluster       lesson_cluster             = this.lesson_cluster[c_cluster];
-        final int                   lesson_distribution_window = (int) FastMath.ceil(lesson_cluster.getClassroomRegisteredTime() * 1f / lesson_cluster.getClassroomTotal() / this.active_days.length);
-        final int[]                 day_set                    = properties.getDaySet();
-        final int[]                 time_distribution          = properties.getTimeDistribution();
-        final int[]                 lesson_null_set            = properties.getLessonNullSet(c_cluster);
-        final int[][][]             classroom_clustered_time   = lesson_cluster.getClassroomClusteredTime();
-        final int[][][]             lesson_appender_manager    = properties.getLessonAppenderManager(c_cluster);
-        final DSLesson[]            lessons                    = this.lessons;
-        final ScheduleContainer[][] schedule_container         = new ScheduleContainer[lesson_cluster.getClassroomTotal()][day_set.length];
+        @NotNull final DSLessonCluster lesson_cluster = this.lesson_cluster[c_cluster];
 
-        /*
-         * Instantiate Schedule Container with period length
-         * */
-        for(int counter_classroom = -1, period_length = this.active_periods.length, classroom_size = schedule_container.length; ++counter_classroom < classroom_size; )
-        {
-            for(int counter_day = -1, day_size = schedule_container[counter_classroom].length; ++counter_day < day_size; )
-            {
-                schedule_container[counter_classroom][counter_day] = new ScheduleContainer(period_length);
-            }
-        }
+        final int                            lesson_distribution_window = (int) FastMath.ceil(lesson_cluster.getClassroomRegisteredTime() * 1f / lesson_cluster.getClassroomTotal() / this.active_days.length);
+        @NotNull final int[]                 day_set                    = properties.getDaySet();
+        @NotNull final int[]                 time_distribution          = properties.getTimeDistribution();
+        @NotNull final int[]                 lesson_null_set            = properties.getLessonNullSet(c_cluster);
+        @NotNull final int[][][]             classroom_clustered_time   = lesson_cluster.getClassroomClusteredTime();
+        @NotNull final int[][][]             lesson_appender_manager    = properties.getLessonAppenderManager(c_cluster);
+        @NotNull final DSLesson[]            lessons                    = this.lessons;
+        @NotNull final ScheduleContainer[][] schedule_container         = properties.getScheduleContainer(c_cluster);
+        @NotNull final IntHList              full_schedule              = properties.getFullScheduleContainer(c_cluster);
+
+        properties.reset_schedule_container(c_cluster);
+        full_schedule.reset();
 
         /*
         * Initialize lesson null counter
@@ -692,7 +685,6 @@ import org.jetbrains.annotations.NotNull;
         /*
          * Fill remaining schedule container with null lesson
          * */
-        @NotNull final IntArrayList full_schedule = new IntArrayList(lesson_cluster.getLessonTotal() + lesson_cluster.getLessonNullTotal());
         for(int c_classroom = -1, cs_classroom = schedule_container.length; ++c_classroom < cs_classroom; )
         {
             for(int c_day = -1, cs_day = schedule_container[c_classroom].length; ++c_day < cs_day; )
@@ -707,7 +699,7 @@ import org.jetbrains.annotations.NotNull;
 
         try
         {
-            System.arraycopy(full_schedule.toIntArray(), 0, data[c_cluster].getPosition(), 0, full_schedule.size());
+            System.arraycopy(full_schedule.toArray(), 0, data[c_cluster].getPosition(), 0, full_schedule.size());
         }
         catch(ArrayIndexOutOfBoundsException ignored)
         {
