@@ -1,5 +1,8 @@
 package model.method.pso.hdpso.core;
 
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import java.util.Arrays;
+import java.util.Random;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
@@ -20,7 +23,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TPSO_Particle_Stability_Checking
+public class TPSO_InitializeParticle_StabilityChecking
 {
     private DatasetGenerator dsLoader;
 
@@ -38,7 +41,7 @@ public class TPSO_Particle_Stability_Checking
         Assert.assertNotNull(dsLoader);
 
         Setting setting = Setting.getInstance();
-        setting.max_particle = 1;
+        setting.max_particle = 10;
         setting.max_epoch = 1;
         setting.bloc_min = 0.600;
         setting.bloc_max = 0.900;
@@ -56,7 +59,13 @@ public class TPSO_Particle_Stability_Checking
         Assert.assertNotNull(pso);
         pso.initialize();
 
-        Assert.assertTrue(this.check(pso.getParticle(0)));
+        final Random random       = new Random();
+        final int    max_particle = Setting.getInstance().max_particle;
+        int          c_particle   = random.nextInt(max_particle);
+
+        Assert.assertTrue(this.checkConflict(pso.getParticle(c_particle)));
+        Assert.assertTrue(this.checkAppearance(pso.getParticle(c_particle)));
+
         try
         {
             Thread.sleep(800);
@@ -66,7 +75,33 @@ public class TPSO_Particle_Stability_Checking
         }
     }
 
-    @SuppressWarnings("ConstantConditions") private boolean check(@NotNull final Particle particle)
+    private boolean checkAppearance(@NotNull final Particle particle)
+    {
+        boolean         isValid = true;
+        final boolean[] check   = new boolean[this.dsLoader.getDataset().getLessons().length];
+        Assert.assertEquals(1244, check.length);
+        for(@NotNull Position positions : particle.getData().getPositions())
+        {
+            int[] sorted = IntArrays.copy(positions.getPosition());
+            IntArrays.mergeSort(sorted);
+            System.out.println(Arrays.toString(sorted));
+            for(int position : positions.getPosition())
+            {
+                check[position] = true;
+            }
+        }
+        for(boolean c : check)
+        {
+            if(!c)
+            {
+                isValid = false;
+                break;
+            }
+        }
+        return isValid;
+    }
+
+    @SuppressWarnings("ConstantConditions") private boolean checkConflict(@NotNull final Particle particle)
     {
         boolean                    isValid         = true;
         @NotNull Position[]        positions       = particle.getData().getPositions();
