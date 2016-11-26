@@ -22,6 +22,11 @@ import org.jetbrains.annotations.NotNull;
         this.counter = -1;
     }
 
+    @NotNull public static IntHList newInstance(@NotNull final IntHList list)
+    {
+        return new IntHList(list.list.length);
+    }
+
     public void add(int value)
     {
         this.list[++this.counter] = value;
@@ -98,5 +103,16 @@ import org.jetbrains.annotations.NotNull;
         };
 
         return iterator;
+    }
+
+    public void addAll(@NotNull IntHList container)
+    {
+        System.arraycopy(container.list, 0, this.list, this.size(), container.size());
+        this.counter += container.size();
+    }
+
+    public int[] toArray()
+    {
+        return this.list;
     }
 }
