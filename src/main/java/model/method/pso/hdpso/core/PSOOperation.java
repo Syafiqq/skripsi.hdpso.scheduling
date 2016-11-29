@@ -44,4 +44,9 @@ import model.method.pso.hdpso.component.Velocity;
     {
         return this.particles;
     }
+
+    public TData getGBest()
+    {
+        return this.gBest;
+    }
 }
