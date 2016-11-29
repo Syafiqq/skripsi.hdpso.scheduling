@@ -141,4 +141,9 @@ import org.jetbrains.annotations.NotNull;
     {
         return this.dglob;
     }
+
+    public @NotNull DSScheduleShufflingProperty getPRandProperty()
+    {
+        return this.rand_properties;
+    }
 }

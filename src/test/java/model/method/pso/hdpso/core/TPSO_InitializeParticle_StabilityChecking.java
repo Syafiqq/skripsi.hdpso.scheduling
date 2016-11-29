@@ -1,15 +1,10 @@
 package model.method.pso.hdpso.core;
 
-import it.unimi.dsi.fastutil.ints.IntArrays;
-import java.util.Arrays;
 import java.util.Random;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
-import model.dataset.component.DSLesson;
-import model.dataset.component.DSLessonCluster;
 import model.dataset.loader.DatasetGenerator;
 import model.method.pso.hdpso.component.Particle;
-import model.method.pso.hdpso.component.Position;
 import model.method.pso.hdpso.component.Setting;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -23,7 +18,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TPSO_InitializeParticle_StabilityChecking
+@SuppressWarnings("UnnecessaryLocalVariable") public class TPSO_InitializeParticle_StabilityChecking
 {
     private DatasetGenerator dsLoader;
 
@@ -53,7 +48,7 @@ public class TPSO_InitializeParticle_StabilityChecking
     }
 
     @Test
-    public void test_()
+    public void test_stability_check_once()
     {
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -63,8 +58,8 @@ public class TPSO_InitializeParticle_StabilityChecking
         final int    max_particle = Setting.getInstance().max_particle;
         int          c_particle   = random.nextInt(max_particle);
 
-        Assert.assertTrue(this.checkConflict(pso.getParticle(c_particle)));
-        Assert.assertTrue(this.checkAppearance(pso.getParticle(c_particle)));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
 
         try
         {
@@ -75,84 +70,38 @@ public class TPSO_InitializeParticle_StabilityChecking
         }
     }
 
-    private boolean checkAppearance(@NotNull final Particle particle)
+    @Test
+    public void test_stability_check_full_repeat()
     {
-        boolean         isValid = true;
-        final boolean[] check   = new boolean[this.dsLoader.getDataset().getLessons().length];
-        Assert.assertEquals(1244, check.length);
-        for(@NotNull Position positions : particle.getData().getPositions())
-        {
-            int[] sorted = IntArrays.copy(positions.getPosition());
-            IntArrays.mergeSort(sorted);
-            System.out.println(Arrays.toString(sorted));
-            for(int position : positions.getPosition())
-            {
-                check[position] = true;
-            }
-        }
-        for(boolean c : check)
-        {
-            if(!c)
-            {
-                isValid = false;
-                break;
-            }
-        }
-        return isValid;
-    }
+        Setting setting = Setting.getInstance();
+        setting.max_particle = 10;
+        setting.max_epoch = 1;
+        setting.bloc_min = 0.600;
+        setting.bloc_max = 0.900;
+        setting.bglob_min = 0.100;
+        setting.bglob_max = 0.400;
+        setting.brand_min = 0.001;
+        setting.brand_max = 0.100;
+        setting.total_core = 4;
 
-    @SuppressWarnings("ConstantConditions") private boolean checkConflict(@NotNull final Particle particle)
-    {
-        boolean                    isValid         = true;
-        @NotNull Position[]        positions       = particle.getData().getPositions();
-        @NotNull DSLesson[]        lessons         = this.dsLoader.getDataset().getLessons();
-        @NotNull DSLessonCluster[] lesson_clusters = this.dsLoader.getDataset().getLessonClusters();
-        @NotNull int[]             days            = this.dsLoader.getDataset().getDays();
-        cluster:
-        for(int c_cluster = -1, cs_cluster = lesson_clusters.length; ++c_cluster < cs_cluster; )
+        @NotNull final PSO pso = new PSO(this.dsLoader);
+        Assert.assertNotNull(pso);
+        pso.initialize();
+
+
+        final Random random       = new Random();
+        final int    max_particle = Setting.getInstance().max_particle;
+        final int    SIZE         = 10000;
+
+        for(int i = -1, is = SIZE; ++i < is; )
         {
-            @NotNull DSLessonCluster lesson_cluster = lesson_clusters[c_cluster];
-            @NotNull int[]           classrooms     = lesson_cluster.getClassrooms();
-            @NotNull int[][][]       clustered_time = lesson_cluster.getClassroomClusteredTime();
-            @NotNull int[]           position       = positions[c_cluster].getPosition();
-            int                      c_position     = -1;
-            for(int c_classroom = -1, cs_classroom = classrooms.length; ++c_classroom < cs_classroom; )
+            int c_particle = random.nextInt(max_particle);
+            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
+            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
+            for(final Particle particle : pso.getParticles())
             {
-                for(int c_day = -1, cs_day = days.length; ++c_day < cs_day; )
-                {
-                    int c_clustered  = 0;
-                    int clustered    = clustered_time[c_classroom][c_day][++c_clustered];
-                    int current_time = 0;
-                    int current_sks;
-                    while(true)
-                    {
-                        final DSLesson lesson = lessons[position[++c_position]];
-                        current_sks = lesson == null ? 1 : lesson.getSks();
-                        if(current_time + current_sks < clustered)
-                        {
-                            current_time += current_sks;
-                        }
-                        else if(current_time + current_sks == clustered)
-                        {
-                            current_time += current_sks;
-                            try
-                            {
-                                clustered += clustered_time[c_classroom][c_day][++c_clustered];
-                            }
-                            catch(ArrayIndexOutOfBoundsException ignored)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            isValid = false;
-                            continue cluster;
-                        }
-                    }
-                }
+                pso.random(particle);
             }
         }
-        return isValid;
     }
 }

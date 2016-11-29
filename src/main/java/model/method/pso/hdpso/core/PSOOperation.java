@@ -39,4 +39,9 @@ import model.method.pso.hdpso.component.Velocity;
     }
 
     protected abstract void assignGBest();
+
+    public TParticle[] getParticles()
+    {
+        return this.particles;
+    }
 }
