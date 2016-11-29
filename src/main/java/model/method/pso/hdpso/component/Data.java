@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
     public Data(@NotNull final Position[] positions)
     {
         this.positions = positions;
-        this.fitness = 0.0;
+        this.fitness = -1.0;
     }
 
     public static Data newInstance(@NotNull final Data data)
@@ -26,6 +26,16 @@ import org.jetbrains.annotations.NotNull;
         for(int c_position = -1, c_position_s = positions.length; ++c_position < c_position_s; )
         {
             positions[c_position] = Position.newInstance(data.positions[c_position].getPosition());
+        }
+        return new Data(positions);
+    }
+
+    public static Data newInstanceOnly(@NotNull final Data data)
+    {
+        @NotNull final Position[] positions = new Position[data.positions.length];
+        for(int c_position = -1, c_position_s = positions.length; ++c_position < c_position_s; )
+        {
+            positions[c_position] = Position.newInstance(data.positions[c_position].getPositionSize());
         }
         return new Data(positions);
     }
