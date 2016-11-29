@@ -1,5 +1,6 @@
 package model.method.pso.hdpso.core;
 
+import java.util.Random;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
 import model.dataset.loader.DatasetGenerator;
@@ -32,7 +33,11 @@ public class TPSO_InitializeParticle
 
         this.dsLoader = new DatasetGenerator(dbLoader);
         Assert.assertNotNull(dsLoader);
+    }
 
+    @Test
+    public void test_InitializeParticle()
+    {
         Setting setting = Setting.getInstance();
         setting.max_particle = 10;
         setting.max_epoch = 1;
@@ -43,13 +48,55 @@ public class TPSO_InitializeParticle
         setting.brand_min = 0.001;
         setting.brand_max = 0.100;
         setting.total_core = 4;
-    }
 
-    @Test
-    public void test_InitializeParticle()
-    {
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
         pso.initialize();
     }
+
+    @Test
+    public void test_InitializeParticleWithHugeSize()
+    {
+        Setting setting = Setting.getInstance();
+        setting.max_particle = 500;
+        setting.max_epoch = 1;
+        setting.bloc_min = 0.600;
+        setting.bloc_max = 0.900;
+        setting.bglob_min = 0.100;
+        setting.bglob_max = 0.400;
+        setting.brand_min = 0.001;
+        setting.brand_max = 0.100;
+        setting.total_core = 4;
+
+        @NotNull final PSO pso = new PSO(this.dsLoader);
+        Assert.assertNotNull(pso);
+        pso.initialize();
+    }
+
+    @Test
+    public void test_InitializeParticle_AndCheck()
+    {
+        Setting setting = Setting.getInstance();
+        setting.max_particle = 1;
+        setting.max_epoch = 1;
+        setting.bloc_min = 0.600;
+        setting.bloc_max = 0.900;
+        setting.bglob_min = 0.100;
+        setting.bglob_max = 0.400;
+        setting.brand_min = 0.001;
+        setting.brand_max = 0.100;
+        setting.total_core = 4;
+
+        @NotNull final PSO pso = new PSO(this.dsLoader);
+        Assert.assertNotNull(pso);
+        pso.initialize();
+
+        final Random random       = new Random();
+        final int    max_particle = Setting.getInstance().max_particle;
+        int          c_particle   = random.nextInt(max_particle);
+
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
+    }
+
 }
