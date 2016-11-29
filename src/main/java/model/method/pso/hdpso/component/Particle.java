@@ -142,13 +142,18 @@ import org.jetbrains.annotations.NotNull;
         return this.lesson_conflicts[i_cluster];
     }
 
-    public void setFitness(double fitness)
-    {
-        this.data.setFitness(fitness);
-    }
-
     public VelocityProperty getVelocityProperty()
     {
         return this.velocity_properties;
+    }
+
+    public double getFitness()
+    {
+        return this.data.getFitness();
+    }
+
+    public void setFitness(double fitness)
+    {
+        this.data.setFitness(fitness);
     }
 }
