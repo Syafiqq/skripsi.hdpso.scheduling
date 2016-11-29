@@ -137,12 +137,13 @@ import org.jetbrains.annotations.NotNull;
             * Assign new particle
             * */
             this.particles[c_particle] = new Particle(this.shuffling_properties, PSO.this, this.setting, placement_properties, repair);
+            this.calculate(this.particles[c_particle]);
         }
 
         /*
         * Assign gBest with random data
         * */
-        super.gBest = Data.newInstance(super.particles[0].getPBest());
+        super.gBest = Data.newInstanceOnly(super.particles[0].getPBest());
 
         /*
         * Calculate particles fitness
@@ -153,7 +154,7 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
-    @Override protected void assignGBest()
+    @Override public void assignGBest()
     {
         /*
         * Sort particle by pBest value
@@ -768,5 +769,10 @@ import org.jetbrains.annotations.NotNull;
     public void random(Particle particle)
     {
         this.random(particle.getVelocityProperty().getPRandProperty(), particle.getData().getPositions());
+    }
+
+    public double getFitness()
+    {
+        return this.gBest.getFitness();
     }
 }
