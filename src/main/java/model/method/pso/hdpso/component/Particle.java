@@ -146,4 +146,9 @@ import org.jetbrains.annotations.NotNull;
     {
         this.data.setFitness(fitness);
     }
+
+    public VelocityProperty getVelocityProperty()
+    {
+        return this.velocity_properties;
+    }
 }
