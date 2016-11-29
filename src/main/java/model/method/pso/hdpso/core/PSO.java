@@ -364,249 +364,353 @@ import org.jetbrains.annotations.NotNull;
 
     private void random(@NotNull final DSScheduleShufflingProperty properties, @NotNull final Position[] data, final int c_cluster)
     {
-        /*
-        * Reset classroom random property
-        * */
-        properties.reset_classroom_current_time(c_cluster);
-
-        /*
-        * 1. @lesson_cluster               : Select current cluster
-        * 2. @lesson_distribution_window   : Calculate lesson distribution window, so we can distribute lesson all over classroom evenly
-        * 3. @day_set                      : Get active day set
-        * 4. @time_distribution            : Get time distribution template
-        * 5. @lesson_null_set              : Get lesson null set current cluster
-        * 6. @classroom_clustered_time     : Get classroom available time { classroom : day : {cumulative, window1, window2, window3}}
-        * 7. @lesson_appender_manager      : Get classroom available property for current cluster {classroom : day : {current time(sks) : observed time (sks)} }
-        * 8. @lesson_dataset               : Get lesson dataset
-        * 9. @schedule_container           : Generate new schedule container
-        * */
-        @NotNull final DSLessonCluster lesson_cluster = this.lesson_cluster[c_cluster];
-
-        final int                            lesson_distribution_window = (int) FastMath.ceil(lesson_cluster.getClassroomRegisteredTime() * 1f / lesson_cluster.getClassroomTotal() / this.active_days.length);
-        @NotNull final int[]                 day_set                    = properties.getDaySet();
-        @NotNull final int[]                 time_distribution          = properties.getTimeDistribution();
-        @NotNull final int[]                 lesson_null_set            = properties.getLessonNullSet(c_cluster);
-        @NotNull final int[][][]             classroom_clustered_time   = lesson_cluster.getClassroomClusteredTime();
-        @NotNull final int[][][]             lesson_appender_manager    = properties.getLessonAppenderManager(c_cluster);
-        @NotNull final DSLesson[]            lessons                    = this.lessons;
-        @NotNull final ScheduleContainer[][] schedule_container         = properties.getScheduleContainer(c_cluster);
-        @NotNull final IntHList              full_schedule              = properties.getFullScheduleContainer(c_cluster);
-
-        properties.reset_schedule_container(c_cluster);
-        full_schedule.reset();
-
-        /*
-        * Initialize lesson null counter
-        * Shuffle lesson null
-        * */
-        int c_null = -1;
-        IntArrays.shuffle(lesson_null_set, properties.random);
-
-        /*
-         * For each lesson set within lesson pool
-         * */
-        for(int c_lesson_group = -1, cs_lesson_group = lesson_cluster.getLessonGroupTotal(); ++c_lesson_group < cs_lesson_group; )
+        try
         {
             /*
-            * 1. @lesson_set         : get lesson set at current cluster and its group
-            * 2. @classroom_set      : get classroom set at current cluster and its group
+            * Reset classroom random property
             * */
-            final int[] lesson_set    = properties.getLessonSet(c_cluster, c_lesson_group);
-            final int[] classroom_set = properties.getClassroomSet(c_cluster, c_lesson_group);
-            System.arraycopy(lesson_cluster.getLessonGroup(c_lesson_group).getTimeDistributions(), 0, time_distribution, 0, time_distribution.length);
+            properties.reset_classroom_current_time(c_cluster);
 
             /*
-            * Shuffle lesson and classroom
+            * 1. @lesson_cluster               : Select current cluster
+            * 2. @lesson_distribution_window   : Calculate lesson distribution window, so we can distribute lesson all over classroom evenly
+            * 3. @day_set                      : Get active day set
+            * 4. @time_distribution            : Get time distribution template
+            * 5. @lesson_null_set              : Get lesson null set current cluster
+            * 6. @classroom_clustered_time     : Get classroom available time { classroom : day : {cumulative, window1, window2, window3}}
+            * 7. @lesson_appender_manager      : Get classroom available property for current cluster {classroom : day : {current time(sks) : observed time (sks)} }
+            * 8. @lesson_dataset               : Get lesson dataset
+            * 9. @schedule_container           : Generate new schedule container
             * */
-            IntArrays.shuffle(lesson_set, properties.random);
-            IntArrays.shuffle(classroom_set, properties.random);
+            @NotNull final DSLessonCluster lesson_cluster = this.lesson_cluster[c_cluster];
+
+            final int                            lesson_distribution_window = (int) FastMath.ceil(lesson_cluster.getClassroomRegisteredTime() * 1f / lesson_cluster.getClassroomTotal() / this.active_days.length);
+            @NotNull final int[]                 day_set                    = properties.getDaySet();
+            @NotNull final int[]                 time_distribution          = properties.getTimeDistribution();
+            @NotNull final int[]                 lesson_null_set            = properties.getLessonNullSet(c_cluster);
+            @NotNull final int[][][]             classroom_clustered_time   = lesson_cluster.getClassroomClusteredTime();
+            @NotNull final int[][][]             lesson_appender_manager    = properties.getLessonAppenderManager(c_cluster);
+            @NotNull final DSLesson[]            lessons                    = this.lessons;
+            @NotNull final ScheduleContainer[][] schedule_container         = properties.getScheduleContainer(c_cluster);
+            @NotNull final IntHList              full_schedule              = properties.getFullScheduleContainer(c_cluster);
+
+            properties.reset_schedule_container(c_cluster);
+            full_schedule.reset();
 
             /*
-            * Retrieve lesson information
+            * Initialize lesson null counter
+            * Shuffle lesson null
             * */
-            int c_lesson  = -1;
-            int id_lesson = lesson_set[++c_lesson];
-            int classroom_filled_time;
-            int lesson_time;
+            int c_null = -1;
+            IntArrays.shuffle(lesson_null_set, properties.random);
 
             /*
-             * Fill Lesson inside Scheduler Container
-             * Foreach classroom in classroom set
+             * For each lesson set within lesson pool
              * */
-            classroom:
-            for(final int classroom : classroom_set)
+            for(int c_lesson_group = -1, cs_lesson_group = lesson_cluster.getLessonGroupTotal(); ++c_lesson_group < cs_lesson_group; )
             {
                 /*
-                * Shuffle day set
+                * 1. @lesson_set         : get lesson set at current cluster and its group
+                * 2. @classroom_set      : get classroom set at current cluster and its group
                 * */
-                IntArrays.shuffle(day_set, properties.random);
+                final int[] lesson_set    = properties.getLessonSet(c_cluster, c_lesson_group);
+                final int[] classroom_set = properties.getClassroomSet(c_cluster, c_lesson_group);
+                System.arraycopy(lesson_cluster.getLessonGroup(c_lesson_group).getTimeDistributions(), 0, time_distribution, 0, time_distribution.length);
+
                 /*
-                 * Foreach day in day set
+                * Shuffle lesson and classroom
+                * */
+                IntArrays.shuffle(lesson_set, properties.random);
+                IntArrays.shuffle(classroom_set, properties.random);
+
+                /*
+                * Retrieve lesson information
+                * */
+                int c_lesson = -1;
+                int id_lesson;
+                try
+                {
+                    id_lesson = lesson_set[++c_lesson];
+                }
+                catch(ArrayIndexOutOfBoundsException ignored)
+                {
+                    continue;
+                }
+
+                int classroom_filled_time;
+                int lesson_time;
+
+                /*
+                 * Fill Lesson inside Scheduler Container
+                 * Foreach classroom in classroom set
                  * */
-                for(final int day : day_set)
+                classroom:
+                for(final int classroom : classroom_set)
                 {
                     /*
-                    * 1. @appender_manager      : get classroom available appender_manager at current classroom and day {current classroom lesson_time cluster : total classroom observed lesson_time};
-                    * 2. @clustered_time        : get classroom clustered lesson_time at current classroom and day;
-                    * 3. @accumulated_time      : get accumulated total lesson_time at current clustered lesson_time;
+                    * Shuffle day set
                     * */
-                    final int[] appender_manager = lesson_appender_manager[classroom][day];
-                    final int[] clustered_time   = classroom_clustered_time[classroom][day];
-                    final int   accumulated_time = clustered_time[0];
-
+                    IntArrays.shuffle(day_set, properties.random);
                     /*
-                    * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
-                    * */
-                    appender_manager[1] += clustered_time[++appender_manager[0]];
-
-                    /*
-                    * Looping while classroom filled lesson_time lesser than lesson distribution window
-                    * */
-                    while((classroom_filled_time = schedule_container[classroom][day].getSizeSKS()) < lesson_distribution_window)
+                     * Foreach day in day set
+                     * */
+                    day:
+                    for(final int day : day_set)
                     {
                         /*
-                        * Get time_length of current lesson id
+                        * 1. @appender_manager      : get classroom available appender_manager at current classroom and day {current classroom lesson_time cluster : total classroom observed lesson_time};
+                        * 2. @clustered_time        : get classroom clustered lesson_time at current classroom and day;
+                        * 3. @accumulated_time      : get accumulated total lesson_time at current clustered lesson_time;
                         * */
-                        lesson_time = lessons[id_lesson].getSks();
+                        final int[] appender_manager = lesson_appender_manager[classroom][day];
+                        final int[] clustered_time   = classroom_clustered_time[classroom][day];
+                        final int   accumulated_time = clustered_time[0];
 
                         /*
-                        * Assign future size with classroom current size + new time_length
+                        * Looping while classroom filled lesson_time lesser than lesson distribution window
                         * */
-                        int future_time = classroom_filled_time + lesson_time;
-
-                        /*
-                        * Check if new lesson is not overflow in current classroom and day
-                        * */
-                        if(future_time <= accumulated_time)
+                        while((classroom_filled_time = schedule_container[classroom][day].getSizeSKS()) < lesson_distribution_window)
                         {
                             /*
-                            * Check if new lesson is not overflow in observed current classroom and day
+                            * Get time_length of current lesson id
                             * */
-                            if(future_time < appender_manager[1])
-                            {
-                                /*
-                                * Append new lesson in current classroom and day;
-                                * */
-                                schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
+                            lesson_time = lessons[id_lesson].getSks();
 
-                                /*
-                                * Decrement lesson_time distribution
-                                * */
-                                --time_distribution[lesson_time];
-
-                                try
-                                {
-                                    /*
-                                    * Get lesson id of shuffled lesson set in current lesson counter
-                                    * */
-                                    id_lesson = lesson_set[++c_lesson];
-                                }
-                                catch(ArrayIndexOutOfBoundsException ignored)
-                                {
-                                    /*
-                                    * decrement appender_manager {observed lesson_time (time_length)} with pos decremented current lesson_time (time_length)
-                                    * */
-                                    appender_manager[1] -= clustered_time[appender_manager[0]--];
-                                    /*
-                                    * change classroom
-                                    * */
-                                    continue classroom;
-                                }
-                            }
                             /*
-                            * Check if new lesson is exactly equal in observed current classroom and day
+                            * Assign future size with classroom current size + new time_length
                             * */
-                            else if(future_time == appender_manager[1])
-                            {
-                                /*
-                                * Append new lesson in current classroom and day;
-                                * */
-                                schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
+                            int future_time = classroom_filled_time + lesson_time;
 
-                                /*
-                                * Decrement lesson_time distribution
-                                * */
-                                --time_distribution[lesson_time];
-
-                                try
-                                {
-                                    /*
-                                    * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
-                                    * */
-                                    appender_manager[1] += clustered_time[++appender_manager[0]];
-                                }
-                                catch(ArrayIndexOutOfBoundsException ignored)
-                                {
-                                    /*
-                                    * rollback current lesson_time (time_length)
-                                    * */
-                                    --appender_manager[0];
-                                }
-
-                                try
-                                {
-                                    /*
-                                    * Get lesson id of shuffled lesson set in current lesson counter
-                                    * */
-                                    id_lesson = lesson_set[++c_lesson];
-                                }
-                                catch(ArrayIndexOutOfBoundsException ignored)
-                                {
-                                    /*
-                                    * decrement appender_manager {observed lesson_time (time_length)} with pos decremented current lesson_time (time_length)
-                                    * */
-                                    appender_manager[1] -= clustered_time[appender_manager[0]--];
-                                    /*
-                                    * Change classroom
-                                    * */
-                                    continue classroom;
-                                }
-                            }
                             /*
-                            * Check if new lesson is overflow in observed current classroom and day
+                            * Check if new lesson is not overflow in current classroom and day
                             * */
-                            else
+                            if(future_time <= accumulated_time)
                             {
                                 /*
-                                * Calculate remaining lesson_time;
+                                * Check if new lesson is not overflow in observed current classroom and day
                                 * */
-                                int remaining_time = appender_manager[1] - classroom_filled_time;
-
-                                /*
-                                * check if there are lesson available with time_length equal remaining lesson_time
-                                * */
-                                boolean fulfill = false;
-                                for(int c_remaining = remaining_time; c_remaining != 0; --c_remaining)
+                                if(future_time < appender_manager[1])
                                 {
-                                    if(time_distribution[c_remaining] > 0)
+                                    /*
+                                    * Append new lesson in current classroom and day;
+                                    * */
+                                    schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
+
+                                    /*
+                                    * Decrement lesson_time distribution
+                                    * */
+                                    --time_distribution[lesson_time];
+
+                                    try
                                     {
                                         /*
-                                        * Search that lesson
+                                        * Try to choose next lesson
+                                        * Get lesson id of shuffled lesson set in current lesson counter
                                         * */
-                                        int c_lesson_remaining = c_lesson;
-                                        while(lessons[lesson_set[++c_lesson_remaining]].getSks() != c_remaining)
-                                        {
-
-                                        }
-
+                                        id_lesson = lesson_set[++c_lesson];
+                                    }
+                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                    {
                                         /*
-                                        * Swap lesson
+                                        * There are no lesson left so change another lesson group
                                         * */
-                                        final int value_temp = lesson_set[c_lesson];
-                                        lesson_set[c_lesson] = lesson_set[c_lesson_remaining];
-                                        lesson_set[c_lesson_remaining] = value_temp;
+                                        break classroom;
+                                    }
+                                }
+                                /*
+                                * Check if new lesson is exactly equal in observed current classroom and day
+                                * */
+                                else if(future_time == appender_manager[1])
+                                {
+                                    /*
+                                    * Append new lesson in current classroom and day;
+                                    * */
+                                    schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
 
+                                    /*
+                                    * Decrement lesson_time distribution
+                                    * */
+                                    --time_distribution[lesson_time];
+
+                                    try
+                                    {
                                         /*
-                                        * Update lesson information
+                                        * Try to expand observed capacity
+                                        * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
                                         * */
-                                        lesson_time = c_remaining;
-                                        id_lesson = lesson_set[c_lesson];
-                                        schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
-                                        --time_distribution[lesson_time];
-
+                                        appender_manager[1] += clustered_time[++appender_manager[0]];
+                                    }
+                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                    {
                                         try
                                         {
                                             /*
+                                            * Try to choose next lesson
+                                            * Get lesson id of shuffled lesson set in current lesson counter
+                                            * */
+                                            id_lesson = lesson_set[++c_lesson];
+                                            /*
+                                            * Current day has reaches maximum capacity so continue another day
+                                            * */
+                                            continue day;
+                                        }
+                                        catch(ArrayIndexOutOfBoundsException ignored1)
+                                        {
+                                            /*
+                                            * There are no lesson left so change another lesson group
+                                            * */
+                                            break classroom;
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        /*
+                                        * Try to choose next lesson
+                                        * Get lesson id of shuffled lesson set in current lesson counter
+                                        * */
+                                        id_lesson = lesson_set[++c_lesson];
+                                    }
+                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                    {
+                                        /*
+                                        * There are no lesson left so change another lesson group
+                                        * */
+                                        break classroom;
+                                    }
+                                }
+                                /*
+                                * Check if new lesson is overflow in observed current classroom and day
+                                * */
+                                else
+                                {
+                                    /*
+                                    * Calculate remaining lesson_time;
+                                    * */
+                                    int remaining_time = appender_manager[1] - classroom_filled_time;
+
+                                    if(remaining_time > 0)
+                                    {
+                                        /*
+                                        * check if there are lesson available with time_length equal remaining lesson_time
+                                        * */
+                                        boolean fulfill = false;
+                                        for(int c_remaining = remaining_time; c_remaining != 0; --c_remaining)
+                                        {
+                                            /*
+                                            * Check whether lesson with remaining time remains
+                                            * */
+                                            if(time_distribution[c_remaining] > 0)
+                                            {
+                                                /*
+                                                * Search that lesson
+                                                * */
+                                                int c_lesson_remaining = c_lesson;
+                                                while(lessons[lesson_set[++c_lesson_remaining]].getSks() != c_remaining)
+                                                {
+
+                                                }
+
+                                                /*
+                                                * Swap lesson
+                                                * */
+                                                final int value_temp = lesson_set[c_lesson];
+                                                lesson_set[c_lesson] = lesson_set[c_lesson_remaining];
+                                                lesson_set[c_lesson_remaining] = value_temp;
+
+                                                /*
+                                                * Update lesson information
+                                                * */
+                                                lesson_time = c_remaining;
+                                                id_lesson = lesson_set[c_lesson];
+                                                schedule_container[classroom][day].addSchedule(id_lesson, lesson_time);
+                                                --time_distribution[lesson_time];
+
+                                                try
+                                                {
+                                                    /*
+                                                    * Try to expand observed capacity
+                                                    * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
+                                                    * */
+                                                    appender_manager[1] += clustered_time[++appender_manager[0]];
+                                                }
+                                                catch(ArrayIndexOutOfBoundsException ignored)
+                                                {
+                                                    try
+                                                    {
+                                                        /*
+                                                        * Try to choose next lesson
+                                                        * Get lesson id of shuffled lesson set in current lesson counter
+                                                        * */
+                                                        id_lesson = lesson_set[++c_lesson];
+
+                                                        /*
+                                                        * Current day has reaches maximum capacity so continue another day
+                                                        * */
+                                                        continue day;
+                                                    }
+                                                    catch(ArrayIndexOutOfBoundsException ignored1)
+                                                    {
+                                                        /*
+                                                        * There are no lesson left so change another lesson group
+                                                        * */
+                                                        break classroom;
+                                                    }
+                                                }
+
+                                                try
+                                                {
+                                                    /*
+                                                    * Try to choose next lesson
+                                                    * Get lesson id of shuffled lesson set in current lesson counter
+                                                    * */
+                                                    id_lesson = lesson_set[++c_lesson];
+                                                }
+                                                catch(ArrayIndexOutOfBoundsException ignored)
+                                                {
+                                                    /*
+                                                    * There are no lesson left so change another lesson group
+                                                    * */
+                                                    break classroom;
+                                                }
+                                                fulfill = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if(!fulfill)
+                                        {
+                                            /*
+                                            * Fill remaining requirement with null lesson
+                                            * */
+                                            for(; remaining_time != 0; --remaining_time)
+                                            {
+                                                schedule_container[classroom][day].addSchedule(lesson_null_set[++c_null], 1);
+                                            }
+
+                                            try
+                                            {
+                                                /*
+                                                * Try to expand observed capacity
+                                                * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
+                                                * */
+                                                appender_manager[1] += clustered_time[++appender_manager[0]];
+                                            }
+                                            catch(ArrayIndexOutOfBoundsException ignored)
+                                            {
+                                                /*
+                                                * Current day has reaches maximum capacity so continue another day
+                                                * */
+                                                continue day;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            /*
+                                            * Try to expand observed capacity
                                             * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
                                             * */
                                             appender_manager[1] += clustered_time[++appender_manager[0]];
@@ -614,94 +718,43 @@ import org.jetbrains.annotations.NotNull;
                                         catch(ArrayIndexOutOfBoundsException ignored)
                                         {
                                             /*
-                                            * rollback current lesson_time (time_length)
+                                            * Current day has reaches maximum capacity so continue another day
                                             * */
-                                            --appender_manager[0];
+                                            continue day;
                                         }
-
-                                        try
-                                        {
-                                            /*
-                                            * Get lesson id of shuffled lesson set in current lesson c_lesson_remaining
-                                            * */
-                                            id_lesson = lesson_set[++c_lesson];
-                                        }
-                                        catch(ArrayIndexOutOfBoundsException ignored)
-                                        {
-                                            /*
-                                            * decrement appender_manager {observed lesson_time (time_length)} with pos decremented current lesson_time (time_length)
-                                            * */
-                                            appender_manager[1] -= clustered_time[appender_manager[0]--];
-                                            /*
-                                            * Change classroom
-                                            * */
-                                            continue classroom;
-                                        }
-                                        fulfill = true;
-                                        break;
-                                    }
-                                }
-
-                                if(!fulfill)
-                                {
-                                    /*
-                                    * Fill remaining requirement with null lesson
-                                    * */
-                                    for(; remaining_time != 0; --remaining_time)
-                                    {
-                                        schedule_container[classroom][day].addSchedule(lesson_null_set[++c_null], 1);
-                                    }
-
-                                    try
-                                    {
-                                        /*
-                                        * increment appender_manager {observed lesson_time (time_length)} with pre incremented current lesson_time (time_length)
-                                        * */
-                                        appender_manager[1] += clustered_time[++appender_manager[0]];
-                                    }
-                                    catch(ArrayIndexOutOfBoundsException ignored)
-                                    {
-                                        /*
-                                        * rollback current lesson_time (time_length)
-                                        * */
-                                        --appender_manager[0];
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            break;
+                            else
+                            {
+                                /*
+                                * Current day has reaches maximum capacity so continue another day
+                                * */
+                                continue day;
+                            }
                         }
                     }
-                    /*
-                    * decrement appender_manager {observed lesson_time (time_length)} with pos decremented current lesson_time (time_length)
-                    * */
-                    appender_manager[1] -= clustered_time[appender_manager[0]--];
                 }
             }
-        }
 
-        /*
-         * Fill remaining schedule container with null lesson
-         * */
-        for(int c_classroom = -1, cs_classroom = schedule_container.length; ++c_classroom < cs_classroom; )
-        {
-            for(int c_day = -1, cs_day = schedule_container[c_classroom].length; ++c_day < cs_day; )
+            /*
+             * Fill remaining schedule container with null lesson
+             * */
+            for(int c_classroom = -1, cs_classroom = schedule_container.length; ++c_classroom < cs_classroom; )
             {
-                full_schedule.addAll((schedule_container[c_classroom][c_day]));
-                for(int cl_null = -1, cls_null = classroom_clustered_time[c_classroom][c_day][0] - schedule_container[c_classroom][c_day].getSizeSKS(); ++cl_null < cls_null; )
+                for(int c_day = -1, cs_day = schedule_container[c_classroom].length; ++c_day < cs_day; )
                 {
-                    full_schedule.add(lesson_null_set[++c_null]);
+                    full_schedule.addAll((schedule_container[c_classroom][c_day]));
+                    for(int cl_null = -1, cls_null = classroom_clustered_time[c_classroom][c_day][0] - schedule_container[c_classroom][c_day].getSizeSKS(); ++cl_null < cls_null; )
+                    {
+                        full_schedule.add(lesson_null_set[++c_null]);
+                    }
                 }
             }
-        }
 
-        try
-        {
             System.arraycopy(full_schedule.toArray(), 0, data[c_cluster].getPosition(), 0, full_schedule.size());
         }
-        catch(ArrayIndexOutOfBoundsException ignored)
+        catch(Exception ignored)
         {
             this.random(properties, data, c_cluster);
         }
@@ -710,5 +763,10 @@ import org.jetbrains.annotations.NotNull;
     public Particle getParticle(final int index)
     {
         return this.particles[index];
+    }
+
+    public void random(Particle particle)
+    {
+        this.random(particle.getVelocityProperty().getPRandProperty(), particle.getData().getPositions());
     }
 }
