@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
     @SuppressWarnings("unchecked") public ParticleBuilder(@NotNull T data)
     {
         this.data = data;
-        this.pBest = (T) Data.newInstance(data);
+        this.pBest = (T) Data.newInstanceOnly(data);
         this.velocity = (V[]) new Velocity[data.getPositionSize()];
     }
 
@@ -30,16 +30,16 @@ import org.jetbrains.annotations.NotNull;
 
     @NotNull public T getData()
     {
-        return data;
+        return this.data;
     }
 
     @NotNull public T getPBest()
     {
-        return pBest;
+        return this.pBest;
     }
 
     @NotNull public V[] getVelocity()
     {
-        return velocity;
+        return this.velocity;
     }
 }
