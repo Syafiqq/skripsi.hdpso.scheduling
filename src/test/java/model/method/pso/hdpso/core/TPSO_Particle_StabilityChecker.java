@@ -3,7 +3,6 @@ package model.method.pso.hdpso.core;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.loader.DatasetGenerator;
-import model.method.pso.hdpso.component.Particle;
 import model.method.pso.hdpso.component.Position;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -17,12 +16,12 @@ import org.junit.Assert;
  */
 @SuppressWarnings("WeakerAccess") public class TPSO_Particle_StabilityChecker
 {
-    public static boolean checkAppearance(@NotNull final DatasetGenerator dsLoader, @NotNull final Particle particle)
+    public static boolean checkAppearance(@NotNull final DatasetGenerator dsLoader, @NotNull final Position[] ds_positions)
     {
         boolean         isValid = true;
         final boolean[] check   = new boolean[dsLoader.getDataset().getLessons().length];
         Assert.assertEquals(1244, check.length);
-        for(@NotNull Position positions : particle.getData().getPositions())
+        for(@NotNull Position positions : ds_positions)
         {
             for(int position : positions.getPosition())
             {
@@ -40,10 +39,9 @@ import org.junit.Assert;
         return isValid;
     }
 
-    @SuppressWarnings("ConstantConditions") public static boolean checkConflict(@NotNull final DatasetGenerator dsLoader, @NotNull final Particle particle)
+    @SuppressWarnings("ConstantConditions") public static boolean checkConflict(@NotNull final DatasetGenerator dsLoader, @NotNull final Position[] positions)
     {
         boolean                    isValid         = true;
-        @NotNull Position[]        positions       = particle.getData().getPositions();
         @NotNull DSLesson[]        lessons         = dsLoader.getDataset().getLessons();
         @NotNull DSLessonCluster[] lesson_clusters = dsLoader.getDataset().getLessonClusters();
         @NotNull int[]             days            = dsLoader.getDataset().getDays();
