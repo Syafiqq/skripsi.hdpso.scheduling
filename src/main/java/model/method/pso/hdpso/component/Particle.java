@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
             this.lesson_conflicts[c_position] = new IntHList(position_length);
 
-            int velocity_bound = position_length * (int) Math.ceil(this.setting.brand_max);
+            int velocity_bound = position_length * (int) Math.ceil(this.setting.bRand_max);
             velocity_bound = velocity_bound == 0 ? position_length : velocity_bound;
             this.velocity[c_position] = new Velocity(velocity_bound);
         }
@@ -77,7 +77,7 @@ import org.jetbrains.annotations.NotNull;
         property.initializeDGlob(super.data);
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = ((this.setting.bloc_max - this.setting.bloc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bloc_min;
+        constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -86,7 +86,7 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bglob_max - ((this.setting.bglob_max - this.setting.bglob_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -95,7 +95,7 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.brand_max - ((this.setting.brand_max - this.setting.brand_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);

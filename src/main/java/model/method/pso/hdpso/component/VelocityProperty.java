@@ -53,7 +53,7 @@ import org.jetbrains.annotations.NotNull;
             this.pRand[counter_sample] = Position.newInstance(position_length);
             this.position_mimic[counter_sample] = Position.newInstance(position_length);
             this.position_container[counter_sample] = Position.newInstance(max + 1);
-            int velocity_bound = (position_length * (int) Math.ceil(Math.max(setting.bloc_max, setting.bglob_max)));
+            int velocity_bound = (position_length * (int) Math.ceil(Math.max(setting.bLoc_max, setting.bGlob_max)));
             velocity_bound = velocity_bound == 0 ? position_length * 2 : velocity_bound;
             this.velocity_temporary[counter_sample] = new Velocity(velocity_bound);
             this.velocity_container[counter_sample] = new Velocity(velocity_bound);

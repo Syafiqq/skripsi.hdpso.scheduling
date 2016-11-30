@@ -41,12 +41,12 @@ public class TPSO_InitializeParticle
         Setting setting = Setting.getInstance();
         setting.max_particle = 10;
         setting.max_epoch = 1;
-        setting.bloc_min = 0.600;
-        setting.bloc_max = 0.900;
-        setting.bglob_min = 0.100;
-        setting.bglob_max = 0.400;
-        setting.brand_min = 0.001;
-        setting.brand_max = 0.100;
+        setting.bLoc_min = 0.600;
+        setting.bLoc_max = 0.900;
+        setting.bGlob_min = 0.100;
+        setting.bGlob_max = 0.400;
+        setting.bRand_min = 0.001;
+        setting.bRand_max = 0.100;
         setting.total_core = 4;
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -60,12 +60,12 @@ public class TPSO_InitializeParticle
         Setting setting = Setting.getInstance();
         setting.max_particle = 500;
         setting.max_epoch = 1;
-        setting.bloc_min = 0.600;
-        setting.bloc_max = 0.900;
-        setting.bglob_min = 0.100;
-        setting.bglob_max = 0.400;
-        setting.brand_min = 0.001;
-        setting.brand_max = 0.100;
+        setting.bLoc_min = 0.600;
+        setting.bLoc_max = 0.900;
+        setting.bGlob_min = 0.100;
+        setting.bGlob_max = 0.400;
+        setting.bRand_min = 0.001;
+        setting.bRand_max = 0.100;
         setting.total_core = 4;
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -79,12 +79,12 @@ public class TPSO_InitializeParticle
         Setting setting = Setting.getInstance();
         setting.max_particle = 1;
         setting.max_epoch = 1;
-        setting.bloc_min = 0.600;
-        setting.bloc_max = 0.900;
-        setting.bglob_min = 0.100;
-        setting.bglob_max = 0.400;
-        setting.brand_min = 0.001;
-        setting.brand_max = 0.100;
+        setting.bLoc_min = 0.600;
+        setting.bLoc_max = 0.900;
+        setting.bGlob_min = 0.100;
+        setting.bGlob_max = 0.400;
+        setting.bRand_min = 0.001;
+        setting.bRand_max = 0.100;
         setting.total_core = 4;
 
         @NotNull final PSO pso = new PSO(this.dsLoader);

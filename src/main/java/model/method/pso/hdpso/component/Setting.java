@@ -14,12 +14,12 @@ package model.method.pso.hdpso.component;
     public int max_particle = 0;
     public int max_epoch    = 0;
 
-    public double bloc_min  = 0.0;
-    public double bloc_max  = 0;
-    public double bglob_min = 0.0;
-    public double bglob_max = 0;
-    public double brand_min = 0.0;
-    public double brand_max = 0;
+    public double bLoc_min  = 0.0;
+    public double bLoc_max  = 0.0;
+    public double bGlob_min = 0.0;
+    public double bGlob_max = 0.0;
+    public double bRand_min = 0.0;
+    public double bRand_max = 0.0;
 
     public int total_core;
 
