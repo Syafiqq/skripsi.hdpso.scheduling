@@ -77,38 +77,74 @@ import org.jetbrains.annotations.NotNull;
         property.initializeDGlob(super.data);
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = ((this.setting.bloc_max - this.setting.bloc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bloc_min;
+        constants_coefficient = this.setting.bloc_max;
+        System.out.printf("%f %f : %f PBest\n", random_coefficient, constants_coefficient, random_coefficient * constants_coefficient);
+        //constants_coefficient = ((this.setting.bloc_max - this.setting.bloc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bloc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
+            System.out.printf("%30s : %s\n", "Particle Position", super.data.getPosition(c_data));
+            System.out.printf("%30s : %s\n", "PBest Position", super.pBest.getPosition(c_data));
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DLoc Position", property.getDLoc(c_data));
             Position.update(property.getDLoc(c_data), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DLoc Position", property.getDLoc(c_data));
+            System.out.println();
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bglob_max - ((this.setting.bglob_max - this.setting.bglob_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bglob_max;
+        System.out.printf("%f %f : %f GBest\n", random_coefficient, constants_coefficient, random_coefficient * constants_coefficient);
+        //constants_coefficient = this.setting.bglob_max - ((this.setting.bglob_max - this.setting.bglob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
+            System.out.printf("%30s : %s\n", "Particle Position", super.data.getPosition(c_data));
+            System.out.printf("%30s : %s\n", "GBest Position", gBest.getPosition(c_data));
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
             Position.update(property.getDGlob(c_data), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
+            System.out.println();
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.brand_max - ((this.setting.brand_max - this.setting.brand_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.brand_max;
+        System.out.printf("%f %f : %f RPos\n", random_coefficient, constants_coefficient, random_coefficient * constants_coefficient);
+        //constants_coefficient = this.setting.brand_max - ((this.setting.brand_max - this.setting.brand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
+            System.out.printf("%30s : %s\n", "Particle Position", super.data.getPosition(c_data));
+            System.out.printf("%30s : %sP\n", "Rand Position", property.getPRand(c_data));
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", this.velocity[c_data].size(), this.velocity[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, this.velocity[c_data], v_temp[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", this.velocity[c_data].size(), this.velocity[c_data]);
+            System.out.println();
         }
 
         for(int c_data = -1; ++c_data < position_length; )
         {
+            System.out.printf("%30s : %s\n", "DLoc Position", property.getDLoc(c_data));
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
             Velocity.calculateDistance(velocity[c_data], property.getDLoc(c_data), property.getDGlob(c_data), p_mimic[c_data], p_cont[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
             Velocity.multiplication(0.5, velocity[c_data], v_temp[c_data]);
+            System.out.printf("%30s : [%3d] %s\n", "Velocity", velocity[c_data].size(), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
             Position.update(property.getDGlob(c_data), velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
             Position.update(property.getDGlob(c_data), this.velocity[c_data]);
+            System.out.printf("%30s : %s\n", "DGlob Position", property.getDGlob(c_data));
         }
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
     }
 
     public void updateData()
