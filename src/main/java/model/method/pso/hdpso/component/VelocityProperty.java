@@ -146,4 +146,9 @@ import org.jetbrains.annotations.NotNull;
     {
         return this.rand_properties;
     }
+
+    public @NotNull Position[] getPRand()
+    {
+        return this.pRand;
+    }
 }
