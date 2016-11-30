@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import java.util.Arrays;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,6 +79,7 @@ public class TVelocity_CalculateDistance_Benchmark
             IntArrays.shuffle(source, random_src);
             Velocity.calculateDistance(vel, p_destination, p_source, p_mimic, p_temp);
             Position.update(p_source, vel);
+            Assert.assertTrue(Arrays.equals(source, destination));
             ++pooling[Arrays.equals(source, destination) ? 1 : 0];
         }
         System.out.println(Arrays.toString(pooling));

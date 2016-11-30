@@ -13,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class VelocityProperty
 {
-    @NotNull private final Position[]                                                  dloc;
-    @NotNull private final Position[]                                                  dglob;
-    @NotNull private final Position[]                                                  prand;
+    @NotNull private final Position[]                                                  dLoc;
+    @NotNull private final Position[]                                                  dGlob;
+    @NotNull private final Position[]                                                  pRand;
     @NotNull private final Position[]                                                  position_mimic;
     @NotNull private final Position[]                                                  position_container;
     @NotNull private final Velocity[]                                                  velocity_container;
@@ -30,9 +30,9 @@ import org.jetbrains.annotations.NotNull;
     {
         final int sample_size = sample_position.length;
         this.random_generator = randomable;
-        this.dloc = new Position[sample_size];
-        this.dglob = new Position[sample_size];
-        this.prand = new Position[sample_size];
+        this.dLoc = new Position[sample_size];
+        this.dGlob = new Position[sample_size];
+        this.pRand = new Position[sample_size];
         this.position_mimic = new Position[sample_size];
         this.position_container = new Position[sample_size];
         this.velocity_temporary = new Velocity[sample_size];
@@ -48,31 +48,31 @@ import org.jetbrains.annotations.NotNull;
             }
 
             int position_length = sample_position[counter_sample].getPositionSize();
-            this.dloc[counter_sample] = Position.newInstance(position_length);
-            this.dglob[counter_sample] = Position.newInstance(position_length);
-            this.prand[counter_sample] = Position.newInstance(position_length);
+            this.dLoc[counter_sample] = Position.newInstance(position_length);
+            this.dGlob[counter_sample] = Position.newInstance(position_length);
+            this.pRand[counter_sample] = Position.newInstance(position_length);
             this.position_mimic[counter_sample] = Position.newInstance(position_length);
             this.position_container[counter_sample] = Position.newInstance(max + 1);
             int velocity_bound = (position_length * (int) Math.ceil(Math.max(setting.bloc_max, setting.bglob_max)));
             velocity_bound = velocity_bound == 0 ? position_length * 2 : velocity_bound;
-            this.getVelocityTemporary()[counter_sample] = new Velocity(velocity_bound);
+            this.velocity_temporary[counter_sample] = new Velocity(velocity_bound);
             this.velocity_container[counter_sample] = new Velocity(velocity_bound);
         }
     }
 
     public void initializeDLoc(final Data data)
     {
-        this.initializePositionFromData(this.dloc, data.getPositions());
+        this.initializePositionFromData(this.dLoc, data.getPositions());
     }
 
     public void initializeDGlob(final Data data)
     {
-        this.initializePositionFromData(this.dglob, data.getPositions());
+        this.initializePositionFromData(this.dGlob, data.getPositions());
     }
 
     public void initializePRand()
     {
-        this.random_generator.random(this.rand_properties, this.prand);
+        this.random_generator.random(this.rand_properties, this.pRand);
     }
 
     private void initializePositionFromData(final Position[] destination, final Position[] source)
@@ -92,9 +92,9 @@ import org.jetbrains.annotations.NotNull;
         }
 
         return String.format("%s{\n", storedIndent)
-                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Loc", storedIndent, Position.toString(this.dloc, indent + 2), storedIndent)
-                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Glob", storedIndent, Position.toString(this.dglob, indent + 2), storedIndent)
-                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Rand", storedIndent, Position.toString(this.prand, indent + 2), storedIndent)
+                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Loc", storedIndent, Position.toString(this.dLoc, indent + 2), storedIndent)
+                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Glob", storedIndent, Position.toString(this.dGlob, indent + 2), storedIndent)
+                + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "D-Rand", storedIndent, Position.toString(this.pRand, indent + 2), storedIndent)
                 + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "Position Mimic", storedIndent, Position.toString(this.position_mimic, indent + 2), storedIndent)
                 + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "Position Container", storedIndent, Position.toString(this.position_container, indent + 2), storedIndent)
                 + String.format("%s\t%s : \n%s\t{\n%s%s\t}\n\n", storedIndent, "Velocity Container", storedIndent, Velocity.toString(this.velocity_container, indent + 2), storedIndent)
@@ -124,22 +124,22 @@ import org.jetbrains.annotations.NotNull;
 
     @NotNull public Position getDLoc(int index)
     {
-        return this.dloc[index];
+        return this.dLoc[index];
     }
 
     @NotNull public Position getDGlob(int index)
     {
-        return this.dglob[index];
+        return this.dGlob[index];
     }
 
     @NotNull public Position getPRand(int index)
     {
-        return this.prand[index];
+        return this.pRand[index];
     }
 
     @NotNull public Position[] getDGlob()
     {
-        return this.dglob;
+        return this.dGlob;
     }
 
     public @NotNull DSScheduleShufflingProperty getPRandProperty()

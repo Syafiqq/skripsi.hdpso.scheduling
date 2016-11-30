@@ -225,8 +225,7 @@ import org.jetbrains.annotations.NotNull;
     {
         for(int i = -1, is = mimic.length; ++i < is; )
         {
-            int value = mimic[i];
-            temp_container[value] = i;
+            temp_container[mimic[i]] = i;
         }
 
         for(int counter_destination = -1, destination_size = destinations.length; ++counter_destination < destination_size; )
