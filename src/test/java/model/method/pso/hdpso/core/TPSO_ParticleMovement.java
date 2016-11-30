@@ -17,7 +17,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TPSO_ParticleMovement
+@SuppressWarnings("Duplicates") public class TPSO_ParticleMovement
 {
     private DatasetGenerator dsLoader;
 
