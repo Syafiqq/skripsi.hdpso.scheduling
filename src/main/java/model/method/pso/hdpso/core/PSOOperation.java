@@ -49,4 +49,9 @@ import model.method.pso.hdpso.component.Velocity;
     {
         return this.gBest;
     }
+
+    public int getEpoch()
+    {
+        return this.cEpoch;
+    }
 }
