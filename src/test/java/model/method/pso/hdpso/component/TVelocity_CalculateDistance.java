@@ -3,6 +3,7 @@ package model.method.pso.hdpso.component;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Test;
 
 /*
@@ -74,6 +75,10 @@ public class TVelocity_CalculateDistance
         System.out.println(vel);
         Velocity.calculateDistance(vel, p_destination, p_source, p_mimic, p_temp);
         System.out.println(vel);
+        Position.update(p_source, vel);
+        System.out.println(Arrays.toString(source));
+        System.out.println(Arrays.toString(destination));
+        Assert.assertTrue(Arrays.equals(source, destination));
     }
 
     @Test public void test_with_random_position_with_checking()
