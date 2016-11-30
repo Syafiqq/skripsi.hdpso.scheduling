@@ -58,8 +58,8 @@ import org.junit.Test;
         final int    max_particle = Setting.getInstance().max_particle;
         int          c_particle   = random.nextInt(max_particle);
 
-        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
-        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
 
         try
         {
@@ -96,8 +96,8 @@ import org.junit.Test;
         for(int i = -1, is = SIZE; ++i < is; )
         {
             int c_particle = random.nextInt(max_particle);
-            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
-            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
+            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
+            Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
             for(final Particle particle : pso.getParticles())
             {
                 pso.random(particle);

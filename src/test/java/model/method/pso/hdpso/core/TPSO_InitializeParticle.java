@@ -95,8 +95,8 @@ public class TPSO_InitializeParticle
         final int    max_particle = Setting.getInstance().max_particle;
         int          c_particle   = random.nextInt(max_particle);
 
-        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle)));
-        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle)));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
+        Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));
     }
 
 }
