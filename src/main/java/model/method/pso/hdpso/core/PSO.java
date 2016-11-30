@@ -341,7 +341,7 @@ import org.jetbrains.annotations.NotNull;
 
     @Override public void repair(@NotNull final Particle particle)
     {
-
+        this.random(particle);
     }
 
     @Override public Position[] random(@NotNull final DSScheduleShufflingProperty properties)
