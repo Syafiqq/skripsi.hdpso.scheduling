@@ -339,7 +339,7 @@ import org.jetbrains.annotations.NotNull;
         placement_property.resetPlacement();
     }
 
-    @Override public void repair(Particle data)
+    @Override public void repair(@NotNull final Particle particle)
     {
 
     }
@@ -766,7 +766,7 @@ import org.jetbrains.annotations.NotNull;
         return this.particles[index];
     }
 
-    public void random(Particle particle)
+    public void random(@NotNull final Particle particle)
     {
         this.random(particle.getVelocityProperty().getPRandProperty(), particle.getData().getPositions());
     }
