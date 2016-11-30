@@ -3,7 +3,8 @@ package model.method.pso.hdpso.component;
 import java.util.Comparator;
 import java.util.Random;
 import model.dataset.component.DSScheduleShufflingProperty;
-import model.method.pso.hdpso.core.ScheduleRandomable;
+import model.method.pso.hdpso.core.PSO;
+import model.tmp.method.pso.hdpso.component.TPSO_Particle_StabilityChecker;
 import model.util.list.IntHList;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,10 +25,11 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final PlacementProperty placement_properties;
     @NotNull private final RepairProperty[]  repair_properties;
     @NotNull private final IntHList[]        lesson_conflicts;
+    @NotNull private final PSO               pso;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
-            @NotNull final ScheduleRandomable<Position[], DSScheduleShufflingProperty> randomable,
+            @NotNull final PSO randomable,
             @NotNull final Setting setting,
             @NotNull final PlacementProperty placement_properties,
             @NotNull final RepairProperty[] repair_properties)
@@ -50,6 +52,7 @@ import org.jetbrains.annotations.NotNull;
         this.placement_properties = placement_properties;
         this.repair_properties = repair_properties;
         this.random = new Random();
+        this.pso = randomable;
     }
 
     public void assignPBest()
@@ -73,11 +76,14 @@ import org.jetbrains.annotations.NotNull;
         double constants_coefficient;
 
         property.initializePRand();
+        assert TPSO_Particle_StabilityChecker.checkConflict(pso.generator, property.getPRand());
+        assert TPSO_Particle_StabilityChecker.checkAppearance(pso.generator, property.getPRand());
         property.initializeDLoc(super.data);
         property.initializeDGlob(super.data);
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
+        constants_coefficient = this.setting.bLoc_max;
+        //constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -86,7 +92,8 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bGlob_max;
+        //constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -95,7 +102,8 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bRand_max;
+        //constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
