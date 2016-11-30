@@ -19,6 +19,7 @@ import model.method.pso.hdpso.component.RepairProperty;
 import model.method.pso.hdpso.component.ScheduleContainer;
 import model.method.pso.hdpso.component.Setting;
 import model.method.pso.hdpso.component.Velocity;
+import model.tmp.method.pso.hdpso.component.TPSO_Particle_StabilityChecker;
 import model.util.list.IntHList;
 import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.NotNull;
@@ -32,13 +33,14 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal", "unused"}) public class PSO extends PSOOperation<Data, Velocity, Particle, DSScheduleShufflingProperty> implements ScheduleRandomable<Position[], DSScheduleShufflingProperty>, PositionRepairable<Particle>
 {
-    private final @NotNull int[]                       active_days;
-    private final @NotNull int[]                       shuffled_active_days;
-    private final @NotNull int[]                       active_periods;
-    private final @NotNull int[]                       sks_distribution;
-    private final @NotNull int[][][]                   clustered_classroom_time;
-    private final @NotNull Setting                     setting;
-    private final @NotNull DSTimeOff[]                 classes;
+    public final @NotNull  DatasetGenerator generator;
+    private final @NotNull int[]            active_days;
+    private final @NotNull int[]            shuffled_active_days;
+    private final @NotNull int[]            active_periods;
+    private final @NotNull int[]            sks_distribution;
+    private final @NotNull int[][][]        clustered_classroom_time;
+    private final @NotNull Setting          setting;
+    private final @NotNull DSTimeOff[]      classes;
     private final @NotNull DSTimeOff[]                 classrooms;
     private final @NotNull DSTimeOff[]                 lecturers;
     private final @NotNull DSTimeOff[]                 subjects;
@@ -89,6 +91,8 @@ import org.jetbrains.annotations.NotNull;
         * Initialize current epoch
         * */
         super.cEpoch = 0;
+
+        this.generator = generator;
     }
 
     @Override public void updateStoppingCondition()
@@ -341,7 +345,9 @@ import org.jetbrains.annotations.NotNull;
 
     @Override public void repair(@NotNull final Particle particle)
     {
-
+        this.random(particle);
+        assert TPSO_Particle_StabilityChecker.checkConflict(this.generator, particle.getData().getPositions());
+        assert TPSO_Particle_StabilityChecker.checkAppearance(this.generator, particle.getData().getPositions());
     }
 
     @Override public Position[] random(@NotNull final DSScheduleShufflingProperty properties)
