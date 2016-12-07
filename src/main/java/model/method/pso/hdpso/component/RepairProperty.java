@@ -28,4 +28,25 @@ import org.jetbrains.annotations.NotNull;
             Arrays.fill(absent, false);
         }
     }
+
+    public void set(int classroom, int day, int c_lesson)
+    {
+        this.absent[classroom][day] = true;
+        this.index[classroom][day] = c_lesson;
+    }
+
+    public @NotNull boolean[][] getAbsent()
+    {
+        return this.absent;
+    }
+
+    public int getPosition(final int classroom, final int day)
+    {
+        return this.index[classroom][day];
+    }
+
+    public void decrementIndex(final int classroom, final int day) throws ArrayIndexOutOfBoundsException
+    {
+        --index[classroom][day];
+    }
 }
