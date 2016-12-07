@@ -118,7 +118,7 @@ import org.jetbrains.annotations.NotNull;
         return this.lesson_link.length;
     }
 
-    public boolean getAllowedClassroom(int classroom)
+    public boolean isLessonAllowed(int classroom)
     {
         return this.allowed_classroom[classroom];
     }
