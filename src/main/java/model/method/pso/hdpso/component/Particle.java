@@ -77,7 +77,8 @@ import org.jetbrains.annotations.NotNull;
         property.initializeDGlob(super.data);
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
+        constants_coefficient = this.setting.bLoc_max;
+        //constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -86,7 +87,8 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bGlob_max;
+        //constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -95,7 +97,8 @@ import org.jetbrains.annotations.NotNull;
         }
 
         random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
+        constants_coefficient = this.setting.bRand_max;
+        //constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
@@ -155,5 +158,15 @@ import org.jetbrains.annotations.NotNull;
     public void setFitness(double fitness)
     {
         this.data.setFitness(fitness);
+    }
+
+    public @NotNull RepairProperty[] getRepairProperties()
+    {
+        return this.repair_properties;
+    }
+
+    public @NotNull RepairProperty getRepairProperty(int cluster)
+    {
+        return this.repair_properties[cluster];
     }
 }
