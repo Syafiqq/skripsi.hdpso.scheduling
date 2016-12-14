@@ -383,17 +383,9 @@ import org.jetbrains.annotations.Nullable;
                 * Initialize lesson counter
                 * Initialize Lesson according to lesson_id index lesson_counter
                 * */
-                int                c_lesson = -1;
-                int                lesson_time;
-                @Nullable DSLesson lesson   = this.lessons[lesson_id[++c_lesson]];
-                try
-                {
-                    lesson_time = lesson.getSks();
-                }
-                catch(NullPointerException ignored)
-                {
-                    lesson_time = 1;
-                }
+                int                c_lesson    = -1;
+                @Nullable DSLesson lesson      = this.lessons[lesson_id[++c_lesson]];
+                int                lesson_time = lesson == null ? 1 : lesson.getSks();
 
                 /*
                 * For all classroom in current lesson pool
@@ -439,17 +431,7 @@ import org.jetbrains.annotations.Nullable;
                                     * */
                                     current_time += lesson_time;
                                     lesson = this.lessons[lesson_id[++c_lesson]];
-                                    /*
-                                    * Try to get lesson information
-                                    * */
-                                    try
-                                    {
-                                        lesson_time = lesson.getSks();
-                                    }
-                                    catch(NullPointerException ignored)
-                                    {
-                                        lesson_time = 1;
-                                    }
+                                    lesson_time = lesson == null ? 1 : lesson.getSks();
                                 }
 
                                 /*
@@ -463,17 +445,7 @@ import org.jetbrains.annotations.Nullable;
                                         * Try to shift next lesson
                                         * */
                                         lesson = this.lessons[lesson_id[++c_lesson]];
-                                        /*
-                                        * Try to get lesson information
-                                        * */
-                                        try
-                                        {
-                                            lesson_time = lesson.getSks();
-                                        }
-                                        catch(NullPointerException ignored)
-                                        {
-                                            lesson_time = 1;
-                                        }
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
                                     }
                                     catch(ArrayIndexOutOfBoundsException ignored)
                                     {
@@ -521,17 +493,7 @@ import org.jetbrains.annotations.Nullable;
                                         * */
                                         current_time += lesson_time;
                                         lesson = this.lessons[lesson_id[++c_lesson]];
-                                        /*
-                                        * Try to get lesson information
-                                        * */
-                                        try
-                                        {
-                                            lesson_time = lesson.getSks();
-                                        }
-                                        catch(NullPointerException ignored)
-                                        {
-                                            lesson_time = 1;
-                                        }
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
                                     }
 
                                     /*
@@ -545,17 +507,7 @@ import org.jetbrains.annotations.Nullable;
                                             * Try to shift next lesson
                                             * */
                                             lesson = this.lessons[lesson_id[++c_lesson]];
-                                            /*
-                                            * Try to get lesson information
-                                            * */
-                                            try
-                                            {
-                                                lesson_time = lesson.getSks();
-                                            }
-                                            catch(NullPointerException ignored)
-                                            {
-                                                lesson_time = 1;
-                                            }
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
                                         }
                                         catch(ArrayIndexOutOfBoundsException ignored)
                                         {
@@ -765,17 +717,7 @@ import org.jetbrains.annotations.Nullable;
                                                                 * Read previous lesson as current lesson
                                                                 * */
                                                                 lesson = this.lessons[lesson_id[--c_lesson]];
-                                                                /*
-                                                                * Try to get lesson information
-                                                                * */
-                                                                try
-                                                                {
-                                                                    lesson_time = lesson.getSks();
-                                                                }
-                                                                catch(NullPointerException ignored)
-                                                                {
-                                                                    lesson_time = 1;
-                                                                }
+                                                                lesson_time = lesson == null ? 1 : lesson.getSks();
                                                                 break lookup_replacement;
                                                             }
                                                         }
@@ -798,17 +740,7 @@ import org.jetbrains.annotations.Nullable;
                                             else
                                             {
                                                 lesson = this.lessons[lesson_id[c_lesson]];
-                                                /*
-                                                * Try to get lesson information
-                                                * */
-                                                try
-                                                {
-                                                    lesson_time = lesson.getSks();
-                                                }
-                                                catch(NullPointerException ignored)
-                                                {
-                                                    lesson_time = 1;
-                                                }
+                                                lesson_time = lesson == null ? 1 : lesson.getSks();
                                             }
                                         }
                                         /*
@@ -817,17 +749,7 @@ import org.jetbrains.annotations.Nullable;
                                         else
                                         {
                                             lesson = this.lessons[lesson_id[c_lesson]];
-                                            /*
-                                            * Try to get lesson information
-                                            * */
-                                            try
-                                            {
-                                                lesson_time = lesson.getSks();
-                                            }
-                                            catch(NullPointerException ignored)
-                                            {
-                                                lesson_time = 1;
-                                            }
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
                                         }
                                     }
                                 }
@@ -1077,17 +999,7 @@ import org.jetbrains.annotations.Nullable;
                                                             * Read previous lesson as current lesson
                                                             * */
                                                             lesson = this.lessons[lesson_id[--c_lesson]];
-                                                            /*
-                                                            * Try to get lesson information
-                                                            * */
-                                                            try
-                                                            {
-                                                                lesson_time = lesson.getSks();
-                                                            }
-                                                            catch(NullPointerException ignored)
-                                                            {
-                                                                lesson_time = 1;
-                                                            }
+                                                            lesson_time = lesson == null ? 1 : lesson.getSks();
                                                             break lookup_replacement;
                                                         }
                                                     }
@@ -1110,17 +1022,7 @@ import org.jetbrains.annotations.Nullable;
                                         else
                                         {
                                             lesson = this.lessons[lesson_id[c_lesson]];
-                                            /*
-                                            * Try to get lesson information
-                                            * */
-                                            try
-                                            {
-                                                lesson_time = lesson.getSks();
-                                            }
-                                            catch(NullPointerException ignored)
-                                            {
-                                                lesson_time = 1;
-                                            }
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
                                         }
                                     }
                                     /*
@@ -1129,17 +1031,7 @@ import org.jetbrains.annotations.Nullable;
                                     else
                                     {
                                         lesson = this.lessons[lesson_id[c_lesson]];
-                                        /*
-                                        * Try to get lesson information
-                                        * */
-                                        try
-                                        {
-                                            lesson_time = lesson.getSks();
-                                        }
-                                        catch(NullPointerException ignored)
-                                        {
-                                            lesson_time = 1;
-                                        }
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
                                     }
                                 }
                             }
