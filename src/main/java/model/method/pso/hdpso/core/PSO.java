@@ -1262,10 +1262,11 @@ import org.jetbrains.annotations.Nullable;
         return false;
     }
 
-    private boolean simulateExchange(int lookup_start, int lookup_end, int need_index, int overflow_index, int lesson_counter, int[] time, int[] lesson_id) throws Exception
+    @SuppressWarnings("ConstantConditions") private boolean simulateExchange(int lookup_start, int lookup_end, int need_index, int overflow_index, int lesson_counter, int[] time, int[] lesson_id) throws Exception
     {
         int last_index_sks       = 0;
-        int cumulative_need_size = this.lessons[lesson_id[need_index]].getSks() + this.lessons[lesson_id[overflow_index]].getSks();
+        int cumulative_need_size = (this.lessons[lesson_id[need_index]] == null ? 1 : this.lessons[lesson_id[need_index]].getSks()) + (this.lessons[lesson_id[overflow_index]] == null ? 1 : this.lessons[lesson_id[overflow_index]].getSks());
+        //int cumulative_need_size = this.lessons[lesson_id[need_index]].getSks() + this.lessons[lesson_id[overflow_index]].getSks();
 
         //Priority Queue
         IntArrayList container = new IntArrayList(lookup_end - lookup_start - 1);
@@ -1279,7 +1280,7 @@ import org.jetbrains.annotations.Nullable;
         {
             if((lesson_index != need_index) && (lesson_index != overflow_index))
             {
-                int lesson_sks = this.lessons[lesson_id[lesson_index]].getSks();
+                int lesson_sks = (this.lessons[lesson_id[lesson_index]] == null ? 1 : this.lessons[lesson_id[lesson_index]].getSks());
                 for(int fuel_index = -1, fuel_size = fuel.size(); ++fuel_index < fuel_size; )
                 {
                     if(lesson_sks == last_index_sks)
@@ -1287,7 +1288,7 @@ import org.jetbrains.annotations.Nullable;
                         fuel.add(lesson_index);
                         continue lesson_lookup;
                     }
-                    if(lesson_sks > this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks())
+                    if(lesson_sks > (this.lessons[lesson_id[fuel.getInt(fuel_index)]] == null ? 1 : this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks()))
                     {
                         fuel.add(fuel_index, lesson_index);
                         continue lesson_lookup;
@@ -1303,7 +1304,7 @@ import org.jetbrains.annotations.Nullable;
         * */
         for(int fuel_index = -1, fuel_size = fuel.size(); ++fuel_index < fuel_size; )
         {
-            if(cumulative_need_size >= this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks())
+            if(cumulative_need_size >= (this.lessons[lesson_id[fuel.getInt(fuel_index)]] == null ? 1 : this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks()))
             {
                 fuel.add(fuel_index, -1);
                 break;
@@ -1328,7 +1329,7 @@ import org.jetbrains.annotations.Nullable;
                 * */
                 try
                 {
-                    temp_sks = this.lessons[lesson_id[fuel_lesson]].getSks();
+                    temp_sks = (this.lessons[lesson_id[fuel_lesson]] == null ? 1 : this.lessons[lesson_id[fuel_lesson]].getSks());
                 }
                 catch(ArrayIndexOutOfBoundsException ignored)
                 {
