@@ -18,6 +18,10 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+before_script:
+ - "echo $JAVA_OPTS"
+ - "export JAVA_OPTS=-Xmx2048m"
+
 script:
   - ./gradlew check
   - ./gradlew assemble
