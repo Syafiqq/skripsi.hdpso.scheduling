@@ -632,7 +632,7 @@ import org.jetbrains.annotations.Nullable;
                                             if(!is_changed)
                                             {
                                                 is_changed = false;
-                                                final int remain = current_time - need;
+                                                final int remain = lesson_time - need;
                                                 /*
                                                  * Lookup all its lesson available classroom
                                                  * */
@@ -1070,28 +1070,35 @@ import org.jetbrains.annotations.Nullable;
             current_sks += lesson_need_time;
 
             /*
-            * Shift time cluster
-            * */
-            if(current_sks == time[time_index])
-            {
-                ++time_index;
-                current_sks = 0;
-            }
-
-            /*
             * Check if lesson satisfy need time
             * */
             if(lesson_need == null)
             {
-                if(need != 1)
+                if(!(need == 1))
                 {
+                    /*
+                    * Shift time cluster
+                    * */
+                    if(current_sks == time[time_index])
+                    {
+                        ++time_index;
+                        current_sks = 0;
+                    }
                     continue;
                 }
             }
             else
             {
-                if((lesson_need_time != need) || !lesson_need.isLessonAllowed(current_classroom))
+                if(!((lesson_need_time == need) && lesson_need.isLessonAllowed(current_classroom)))
                 {
+                    /*
+                    * Shift time cluster
+                    * */
+                    if(current_sks == time[time_index])
+                    {
+                        ++time_index;
+                        current_sks = 0;
+                    }
                     continue;
                 }
             }
@@ -1123,28 +1130,35 @@ import org.jetbrains.annotations.Nullable;
                 current_sks += lesson_remain_time;
 
                 /*
-                * Shift time cluster
-                * */
-                if(current_sks == time[time_index])
-                {
-                    ++time_index;
-                    current_sks = 0;
-                }
-
-                /*
-                * Check if lesson satisfy need time
+                * Check if lesson satisfy remaining time
                 * */
                 if(lesson_remain == null)
                 {
-                    if(remain != 1)
+                    if(!((remain == 1) && (i_lookup != need_index)))
                     {
+                        /*
+                        * Shift time cluster
+                        * */
+                        if(current_sks == time[time_index])
+                        {
+                            ++time_index;
+                            current_sks = 0;
+                        }
                         continue;
                     }
                 }
                 else
                 {
-                    if((lesson_remain_time != remain) || !lesson_remain.isLessonAllowed(current_classroom))
+                    if(!((lesson_remain_time == remain) && (i_lookup != need_index) && lesson_remain.isLessonAllowed(current_classroom)))
                     {
+                        /*
+                        * Shift time cluster
+                        * */
+                        if(current_sks == time[time_index])
+                        {
+                            ++time_index;
+                            current_sks = 0;
+                        }
                         continue;
                     }
                 }
