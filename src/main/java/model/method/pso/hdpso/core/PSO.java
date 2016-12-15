@@ -1035,7 +1035,8 @@ import org.jetbrains.annotations.Nullable;
             * */
             if(lesson_need == null)
             {
-                if(!(need == 1))
+                //if(!(need == 1))
+                if(need != 1)
                 {
                     /*
                     * Shift time cluster
@@ -1050,7 +1051,8 @@ import org.jetbrains.annotations.Nullable;
             }
             else
             {
-                if(!((lesson_need_time == need) && lesson_need.isLessonAllowed(current_classroom)))
+                //if(!((lesson_need_time == need) && lesson_need.isLessonAllowed(current_classroom)))
+                if((lesson_need_time != need) || !lesson_need.isLessonAllowed(current_classroom))
                 {
                     /*
                     * Shift time cluster
@@ -1095,7 +1097,8 @@ import org.jetbrains.annotations.Nullable;
                 * */
                 if(lesson_remain == null)
                 {
-                    if(!((remain == 1) && (i_lookup != need_index)))
+                    //if(!((remain == 1) && (i_lookup != need_index)))
+                    if((remain != 1) || (i_lookup == need_index))
                     {
                         /*
                         * Shift time cluster
@@ -1110,7 +1113,8 @@ import org.jetbrains.annotations.Nullable;
                 }
                 else
                 {
-                    if(!((lesson_remain_time == remain) && (i_lookup != need_index) && lesson_remain.isLessonAllowed(current_classroom)))
+                    //if(!((lesson_remain_time == remain) && (i_lookup != need_index) && lesson_remain.isLessonAllowed(current_classroom)))
+                    if((lesson_remain_time != remain) || (i_lookup == need_index) || !lesson_remain.isLessonAllowed(current_classroom))
                     {
                         /*
                         * Shift time cluster
@@ -1147,7 +1151,7 @@ import org.jetbrains.annotations.Nullable;
                 /*
                  * check lesson need next to lesson overflow
                  * */
-                if(Math.abs(overflow_index - need_index) == 1)
+                if(FastMath.abs(overflow_index - need_index) == 1)
                 {
                     /*
                      * Arrange lesson position so need index < overflow index
@@ -1200,7 +1204,7 @@ import org.jetbrains.annotations.Nullable;
                 final int need_value     = lesson_id[need_index];
                 final int overflow_value = lesson_id[overflow_index];
 
-                System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, Math.abs(lesson_counter - overflow_index));
+                System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, FastMath.abs(lesson_counter - overflow_index));
 
                 lesson_id[need_index] = lesson_id[lesson_counter];
                 lesson_id[lesson_counter - 1] = need_value;
@@ -1376,7 +1380,7 @@ import org.jetbrains.annotations.Nullable;
             final int need_value     = lesson_id[need_index];
             final int overflow_value = lesson_id[overflow_index];
 
-            System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, Math.abs(lesson_counter - overflow_index));
+            System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, FastMath.abs(lesson_counter - overflow_index));
 
             lesson_id[need_index] = lesson_id[lesson_counter];
             lesson_id[lesson_counter - 1] = need_value;
