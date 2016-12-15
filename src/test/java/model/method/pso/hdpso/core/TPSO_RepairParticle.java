@@ -17,7 +17,7 @@ import org.junit.Test;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class TPSO_RepairParticle
+@SuppressWarnings("Duplicates") public class TPSO_RepairParticle
 {
     private DatasetGenerator dsLoader;
 
