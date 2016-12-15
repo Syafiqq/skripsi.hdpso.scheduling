@@ -1227,15 +1227,15 @@ import org.jetbrains.annotations.Nullable;
         return false;
     }
 
-    @SuppressWarnings("ConstantConditions") private boolean simulateExchange(int lookup_start, int lookup_end, int need_index, int overflow_index, int lesson_counter, int[] time, int[] lesson_id) throws Exception
+    @SuppressWarnings("ConstantConditions") private boolean simulateExchange(int lookup_start, int lookup_end, int need_index, int overflow_index, int lesson_counter, final int[] time, final int[] lesson_id) throws Exception
     {
         int last_index_sks       = 0;
         int cumulative_need_size = (this.lessons[lesson_id[need_index]] == null ? 1 : this.lessons[lesson_id[need_index]].getSks()) + (this.lessons[lesson_id[overflow_index]] == null ? 1 : this.lessons[lesson_id[overflow_index]].getSks());
         //int cumulative_need_size = this.lessons[lesson_id[need_index]].getSks() + this.lessons[lesson_id[overflow_index]].getSks();
 
         //Priority Queue
-        IntArrayList container = new IntArrayList(lookup_end - lookup_start - 1);
-        IntArrayList fuel      = new IntArrayList(lookup_end - lookup_start - 2);
+        @NotNull final IntArrayList container = new IntArrayList(lookup_end - lookup_start - 1);
+        @NotNull final IntArrayList fuel      = new IntArrayList(lookup_end - lookup_start - 2);
 
         /*
         * Fill fuel with lesson id in one day sort by its sks size descending
