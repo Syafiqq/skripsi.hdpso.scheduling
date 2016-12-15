@@ -38,23 +38,13 @@ public class TPSO_RepairParticle
     @Test public void testRepair()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 3;
-        setting.max_epoch = 100;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        this.setting501000();
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
         pso.initialize();
-        int a = 0;
         while(!pso.isConditionSatisfied())
         {
-            System.out.println("Iteration : " + ++a);
             for(@NotNull final Particle particle : pso.getParticles())
             {
                 particle.assignPBest();
@@ -67,9 +57,25 @@ public class TPSO_RepairParticle
                 pso.repair(particle);
                 Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, particle.getData().getPositions()));
                 Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAppearance(this.dsLoader, particle.getData().getPositions()));
+                Assert.assertTrue(TPSO_Particle_StabilityChecker.checkAllowed(this.dsLoader, particle.getData().getPositions()));
+
                 pso.calculate(particle);
             }
             pso.updateStoppingCondition();
         }
+    }
+
+    private void setting501000()
+    {
+        Setting setting = Setting.getInstance();
+        setting.max_particle = 50;
+        setting.max_epoch = 1000;
+        setting.bLoc_min = 0.600;
+        setting.bLoc_max = 0.900;
+        setting.bGlob_min = 0.100;
+        setting.bGlob_max = 0.400;
+        setting.bRand_min = 0.001;
+        setting.bRand_max = 0.100;
+        setting.total_core = 4;
     }
 }
