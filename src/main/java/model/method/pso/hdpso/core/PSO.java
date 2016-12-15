@@ -347,8 +347,9 @@ import org.jetbrains.annotations.Nullable;
         * Initialize cluster index
         * Initialize active days
         * */
-        int                  i_cluster   = -1;
-        @NotNull final int[] active_days = this.active_days;
+        int                  i_cluster       = -1;
+        @NotNull final int[] active_days     = this.active_days;
+        final int            active_day_size = active_days.length;
 
         /*
         * Search all position cluster
@@ -373,6 +374,7 @@ import org.jetbrains.annotations.Nullable;
                 @NotNull final int[]          lesson_id       = particle.getData().getPosition(i_cluster).getPosition();
                 @NotNull final RepairProperty repair_property = particle.getRepairProperty(i_cluster);
                 @NotNull final boolean[][]    rp_absent       = repair_property.getAbsent();
+                final int                     rp_absent_size  = rp_absent.length;
 
                 /*
                 * reset repair property
@@ -439,15 +441,15 @@ import org.jetbrains.annotations.Nullable;
                                  * */
                                 else if(future_time == time_cluster)
                                 {
-                                    try
+                                    /*
+                                    * Try to shift next lesson
+                                    * */
+                                    if(++c_lesson < lesson_id.length)
                                     {
-                                        /*
-                                        * Try to shift next lesson
-                                        * */
-                                        lesson = this.lessons[lesson_id[++c_lesson]];
+                                        lesson = this.lessons[lesson_id[c_lesson]];
                                         lesson_time = lesson == null ? 1 : lesson.getSks();
                                     }
-                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                    else
                                     {
                                         continue cluster;
                                     }
@@ -462,13 +464,7 @@ import org.jetbrains.annotations.Nullable;
                                     /*
                                     * Try to shift time cluster
                                     * */
-                                    try
-                                    {
-                                        time_cluster = clustered_time[c_cluster];
-                                    }
-                                    catch(ArrayIndexOutOfBoundsException ignored)
-                                    {
-                                    }
+                                    time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
                                 }
                             }
                             /*
@@ -501,15 +497,12 @@ import org.jetbrains.annotations.Nullable;
                                      * */
                                     else if(future_time == time_cluster)
                                     {
-                                        try
+                                        if(++c_lesson < lesson_id.length)
                                         {
-                                            /*
-                                            * Try to shift next lesson
-                                            * */
-                                            lesson = this.lessons[lesson_id[++c_lesson]];
+                                            lesson = this.lessons[lesson_id[c_lesson]];
                                             lesson_time = lesson == null ? 1 : lesson.getSks();
                                         }
-                                        catch(ArrayIndexOutOfBoundsException ignored)
+                                        else
                                         {
                                             continue cluster;
                                         }
@@ -524,13 +517,8 @@ import org.jetbrains.annotations.Nullable;
                                         /*
                                         * Try to shift time cluster
                                         * */
-                                        try
-                                        {
-                                            time_cluster = clustered_time[c_cluster];
-                                        }
-                                        catch(ArrayIndexOutOfBoundsException ignored)
-                                        {
-                                        }
+
+                                        time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
                                     }
 
                                     /*
@@ -651,38 +639,29 @@ import org.jetbrains.annotations.Nullable;
                                                          * */
                                                         if(rp_absent[classroom_lookup][day_lookup])
                                                         {
-                                                            try
+                                                            /*
+                                                             * Check if current classroom and the day after is already observed for lookup_end
+                                                             * */
+                                                            if((day_lookup + 1) < active_day_size)
                                                             {
-                                                                /*
-                                                                 * Check if current classroom and the day after is already observed for lookup_end
-                                                                 * */
-                                                                if(rp_absent[classroom_lookup][day_lookup + 1])
-                                                                {
-                                                                    lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                    lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
-                                                                }
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
                                                             }
-                                                            catch(ArrayIndexOutOfBoundsException ignored)
+                                                            /*
+                                                             * Check if current day and the classroom after is already observed for lookup_end
+                                                             * */
+                                                            else if((classroom_lookup + 1) < rp_absent_size)
                                                             {
-                                                                try
-                                                                {
-                                                                    /*
-                                                                     * Check if current day and the classroom after is already observed for lookup_end
-                                                                     * */
-                                                                    if(rp_absent[classroom_lookup + 1][0])
-                                                                    {
-                                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                        lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
-                                                                    }
-                                                                }
-                                                                /*
-                                                                 * Assign lookup_end in the end of lesson_id list
-                                                                 * */
-                                                                catch(ArrayIndexOutOfBoundsException ignored1)
-                                                                {
-                                                                    lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                    lookup_end = lesson_id.length;
-                                                                }
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                            }
+                                                            /*
+                                                             * Assign lookup_end in the end of lesson_id list
+                                                             * */
+                                                            else
+                                                            {
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = lesson_id.length;
                                                             }
                                                         }
 
@@ -702,11 +681,11 @@ import org.jetbrains.annotations.Nullable;
                                                                 * */
                                                                 do
                                                                 {
-                                                                    try
+                                                                    if(++day_lookup < active_day_size)
                                                                     {
-                                                                        repair_property.decrementIndex(classroom_lookup, ++day_lookup);
+                                                                        repair_property.decrementIndex(classroom_lookup, day_lookup);
                                                                     }
-                                                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                                                    else
                                                                     {
                                                                         repair_property.decrementIndex(++classroom_lookup, day_lookup = 0);
                                                                     }
@@ -826,38 +805,29 @@ import org.jetbrains.annotations.Nullable;
                                                  * */
                                                 if(rp_absent[classroom_lookup][day_lookup])
                                                 {
-                                                    try
+                                                    /*
+                                                     * Check if current classroom and the day after is already observed for lookup_end
+                                                     * */
+                                                    if((day_lookup + 1) < active_day_size)
                                                     {
-                                                        /*
-                                                         * Check if current classroom and the day after is already observed for lookup_end
-                                                         * */
-                                                        if(rp_absent[classroom_lookup][day_lookup + 1])
-                                                        {
-                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                            lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
-                                                        }
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
                                                     }
-                                                    catch(ArrayIndexOutOfBoundsException ignored)
+                                                    /*
+                                                     * Check if current day and the classroom after is already observed for lookup_end
+                                                     * */
+                                                    else if((classroom_lookup + 1) < rp_absent_size)
                                                     {
-                                                        try
-                                                        {
-                                                            /*
-                                                             * Check if current day and the classroom after is already observed for lookup_end
-                                                             * */
-                                                            if(rp_absent[classroom_lookup + 1][0])
-                                                            {
-                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
-                                                            }
-                                                        }
-                                                        /*
-                                                         * Assign lookup_end in the end of lesson_id list
-                                                         * */
-                                                        catch(ArrayIndexOutOfBoundsException ignored1)
-                                                        {
-                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                            lookup_end = lesson_id.length;
-                                                        }
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                    }
+                                                    /*
+                                                     * Assign lookup_end in the end of lesson_id list
+                                                     * */
+                                                    else
+                                                    {
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = lesson_id.length;
                                                     }
                                                 }
 
@@ -931,38 +901,29 @@ import org.jetbrains.annotations.Nullable;
                                                      * */
                                                     if(rp_absent[classroom_lookup][day_lookup])
                                                     {
-                                                        try
+                                                        /*
+                                                         * Check if current classroom and the day after is already observed for lookup_end
+                                                         * */
+                                                        if((day_lookup + 1) < active_day_size)
                                                         {
-                                                            /*
-                                                             * Check if current classroom and the day after is already observed for lookup_end
-                                                             * */
-                                                            if(rp_absent[classroom_lookup][day_lookup + 1])
-                                                            {
-                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
-                                                            }
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
                                                         }
-                                                        catch(ArrayIndexOutOfBoundsException ignored)
+                                                        /*
+                                                         * Check if current day and the classroom after is already observed for lookup_end
+                                                         * */
+                                                        else if((classroom_lookup + 1) < rp_absent_size)
                                                         {
-                                                            try
-                                                            {
-                                                                /*
-                                                                 * Check if current day and the classroom after is already observed for lookup_end
-                                                                 * */
-                                                                if(rp_absent[classroom_lookup + 1][0])
-                                                                {
-                                                                    lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                    lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
-                                                                }
-                                                            }
-                                                            /*
-                                                             * Assign lookup_end in the end of lesson_id list
-                                                             * */
-                                                            catch(ArrayIndexOutOfBoundsException ignored1)
-                                                            {
-                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
-                                                                lookup_end = lesson_id.length;
-                                                            }
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                        }
+                                                        /*
+                                                         * Assign lookup_end in the end of lesson_id list
+                                                         * */
+                                                        else
+                                                        {
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = lesson_id.length;
                                                         }
                                                     }
 
@@ -984,11 +945,11 @@ import org.jetbrains.annotations.Nullable;
                                                             * */
                                                             do
                                                             {
-                                                                try
+                                                                if(++day_lookup < active_day_size)
                                                                 {
-                                                                    repair_property.decrementIndex(classroom_lookup, ++day_lookup);
+                                                                    repair_property.decrementIndex(classroom_lookup, day_lookup);
                                                                 }
-                                                                catch(ArrayIndexOutOfBoundsException ignored)
+                                                                else
                                                                 {
                                                                     repair_property.decrementIndex(++classroom_lookup, day_lookup = 0);
                                                                 }
