@@ -143,4 +143,8 @@ import org.jetbrains.annotations.NotNull;
         return this.classroom_registered_time;
     }
 
+    public int[] getClassroomClusteredTime(final int classroom, final int day)
+    {
+        return this.clustered_classroom_time[classroom][day];
+    }
 }

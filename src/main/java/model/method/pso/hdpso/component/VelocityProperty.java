@@ -142,8 +142,13 @@ import org.jetbrains.annotations.NotNull;
         return this.dGlob;
     }
 
-    public @NotNull DSScheduleShufflingProperty getPRandProperty()
+    @NotNull public DSScheduleShufflingProperty getPRandProperty()
     {
         return this.rand_properties;
+    }
+
+    @NotNull public Position[] getPRand()
+    {
+        return this.pRand;
     }
 }

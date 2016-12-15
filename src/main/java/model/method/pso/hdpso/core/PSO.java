@@ -1,5 +1,6 @@
 package model.method.pso.hdpso.core;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
 import model.dataset.component.DSLesson;
@@ -22,6 +23,7 @@ import model.method.pso.hdpso.component.Velocity;
 import model.util.list.IntHList;
 import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.method.pso.hdpso.core> created by : 
@@ -284,7 +286,7 @@ import org.jetbrains.annotations.NotNull;
                                 final double fitness_5 = (5.000 * (lecture == -1 ? 10 : (lecture_placement[lecture].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1)));
                                 final double fitness_6 = (5.000 * (class_placement[klass].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1));
                                 final double fitness_7 = (3.000 * (lesson.getLinkTotal() == 0 ? 10 : class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1));
-                                final double fitness_8 = (0.500 * (lesson.getAllowedClassroom(classroom) ? 10 : 0.1));
+                                final double fitness_8 = (0.500 * (lesson.isLessonAllowed(classroom) ? 10 : 0.1));
 
                                 /*
                                 * Accumulate fitness
@@ -339,9 +341,1059 @@ import org.jetbrains.annotations.NotNull;
         placement_property.resetPlacement();
     }
 
-    @Override public void repair(@NotNull final Particle particle)
+    @SuppressWarnings({"Duplicates", "ConstantConditions"}) @Override public void repair(@NotNull final Particle particle)
     {
+        /*
+        * Initialize cluster index
+        * Initialize active days
+        * */
+        int                  i_cluster       = -1;
+        @NotNull final int[] active_days     = this.active_days;
+        final int            active_day_size = active_days.length;
 
+        /*
+        * Search all position cluster
+        * */
+        cluster:
+        for(@NotNull final DSLessonCluster lesson_cluster : this.lesson_cluster)
+        {
+            /*
+            * increment cluster index
+            * */
+            ++i_cluster;
+
+            /*
+            * try to repair
+            * */
+            try
+            {
+                /*
+                * Initialize lesson id
+                * Initialize repair property
+                * */
+                @NotNull final int[]          lesson_id       = particle.getData().getPosition(i_cluster).getPosition();
+                @NotNull final RepairProperty repair_property = particle.getRepairProperty(i_cluster);
+                @NotNull final boolean[][]    rp_absent       = repair_property.getAbsent();
+                final int                     rp_absent_size  = rp_absent.length;
+
+                /*
+                * reset repair property
+                * */
+                repair_property.resetAbsent();
+
+                /*
+                * Initialize lesson counter
+                * Initialize Lesson according to lesson_id index lesson_counter
+                * */
+                int                c_lesson    = -1;
+                @Nullable DSLesson lesson      = this.lessons[lesson_id[++c_lesson]];
+                int                lesson_time = lesson == null ? 1 : lesson.getSks();
+
+                /*
+                * For all classroom in current lesson pool
+                * */
+                for(final int classroom : lesson_cluster.getClassrooms())
+                {
+                    /*
+                    * For all operational day in current classroom
+                    * */
+                    for(final int day : this.active_days)
+                    {
+                        /*
+                        * mark lesson counter as start of the day
+                        * */
+                        repair_property.set(classroom, day, c_lesson);
+
+                        /*
+                        * Initialize classroom clustered time from current classroom and day
+                        * Initialize current sks
+                        * */
+                        @NotNull final int[] clustered_time = lesson_cluster.getClassroomClusteredTime(classroom, day);
+                        int                  current_time   = 0;
+
+                        /*
+                        * For all time cluster in current day
+                        * */
+                        for(int c_cluster = 1, time_cluster = clustered_time[c_cluster], cs_cluster = clustered_time.length; c_cluster < cs_cluster; )
+                        {
+                            /*
+                            * Check whether current lesson is null
+                            * */
+                            if(lesson == null)
+                            {
+                                final int future_time = current_time + lesson_time;
+                                /*
+                                 * Check whether incoming sks + current sks LESS than cluster capacity
+                                 * */
+                                if(future_time < time_cluster)
+                                {
+                                    /*
+                                    * Append current lesson
+                                    * Shift to next lesson
+                                    * */
+                                    current_time += lesson_time;
+                                    lesson = this.lessons[lesson_id[++c_lesson]];
+                                    lesson_time = lesson == null ? 1 : lesson.getSks();
+                                }
+
+                                /*
+                                 * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
+                                 * */
+                                else if(future_time == time_cluster)
+                                {
+                                    /*
+                                    * Try to shift next lesson
+                                    * */
+                                    if(++c_lesson < lesson_id.length)
+                                    {
+                                        lesson = this.lessons[lesson_id[c_lesson]];
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
+                                    }
+                                    else
+                                    {
+                                        continue cluster;
+                                    }
+
+                                    /*
+                                    * shift time cluster index
+                                    * set current time to zero
+                                    * */
+                                    ++c_cluster;
+                                    current_time = 0;
+
+                                    /*
+                                    * Try to shift time cluster
+                                    * */
+                                    time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
+                                }
+                            }
+                            /*
+                            * Check whether current lesson is not null (active lesson)
+                            * */
+                            else
+                            {
+                                /*
+                                * Check whether current lesson is allowed in current classroom
+                                * */
+                                if(lesson.isLessonAllowed(classroom))
+                                {
+                                    final int future_time = current_time + lesson_time;
+                                    /*
+                                     * Check whether incoming sks + current sks LESS than cluster capacity
+                                     * */
+                                    if(future_time < time_cluster)
+                                    {
+                                        /*
+                                        * Append current lesson
+                                        * Shift to next lesson
+                                        * */
+                                        current_time += lesson_time;
+                                        lesson = this.lessons[lesson_id[++c_lesson]];
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
+                                    }
+
+                                    /*
+                                     * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
+                                     * */
+                                    else if(future_time == time_cluster)
+                                    {
+                                        if(++c_lesson < lesson_id.length)
+                                        {
+                                            lesson = this.lessons[lesson_id[c_lesson]];
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
+                                        }
+                                        else
+                                        {
+                                            continue cluster;
+                                        }
+
+                                        /*
+                                        * shift time cluster index
+                                        * set current time to zero
+                                        * */
+                                        ++c_cluster;
+                                        current_time = 0;
+
+                                        /*
+                                        * Try to shift time cluster
+                                        * */
+
+                                        time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
+                                    }
+
+                                    /*
+                                     * Check whether incoming sks + current sks overflow sks cluster capacity so we must change incoming lesson with lesson in which occupy remaining sks capacity
+                                     * */
+                                    else
+                                    {
+                                        /*
+                                        * calculate time need
+                                        * */
+                                        final int need       = time_cluster - current_time;
+                                        boolean   is_changed = false;
+
+                                        /*
+                                         * Find lesson which its sks completely equals remaining sks [search forward]
+                                         * */
+                                        for(int i_lookup = c_lesson, is_lookup = lesson_id.length; ++i_lookup < is_lookup; )
+                                        {
+                                            /*
+                                            * Get lesson from lookup index
+                                            * */
+                                            @Nullable final DSLesson lesson_lookup = this.lessons[lesson_id[i_lookup]];
+                                            /*
+                                            * Check if lesson satisfy need time
+                                            * */
+                                            if(lesson_lookup == null)
+                                            {
+                                                //if(!(need == 1))
+                                                if(need != 1)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //if(!((lesson_lookup.getSks() == need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                if((lesson_lookup.getSks() != need) || !lesson_lookup.isLessonAllowed(classroom))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            /*
+                                            * Swap lesson id position
+                                            * */
+                                            is_changed = true;
+                                            final int swap_temp = lesson_id[i_lookup];
+                                            lesson_id[i_lookup] = lesson_id[c_lesson];
+                                            lesson_id[c_lesson] = swap_temp;
+
+                                            /*
+                                            * Break the lookup
+                                            * */
+                                            break;
+                                        }
+
+                                        /*
+                                         * If function above fail, find lesson which its sks less than need sks [search forward]
+                                         * */
+                                        if(!is_changed)
+                                        {
+                                            is_changed = false;
+                                            for(int i_lookup = c_lesson, is_lookup = lesson_id.length; ++i_lookup < is_lookup; )
+                                            {
+                                                 /*
+                                                * Get lesson from lookup index
+                                                * */
+                                                @Nullable final DSLesson lesson_lookup = this.lessons[lesson_id[i_lookup]];
+                                                /*
+                                                * Check if lesson satisfy need time
+                                                * */
+                                                if(lesson_lookup != null)
+                                                {
+                                                    //if(!((lesson_lookup.getSks() < need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                    if((lesson_lookup.getSks() >= need) || !lesson_lookup.isLessonAllowed(classroom))
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+
+                                                /*
+                                                * Swap lesson id position
+                                                * */
+                                                is_changed = true;
+                                                final int swap_temp = lesson_id[i_lookup];
+                                                lesson_id[i_lookup] = lesson_id[c_lesson];
+                                                lesson_id[c_lesson] = swap_temp;
+
+                                                /*
+                                                * break the lookup
+                                                * */
+                                                break;
+                                            }
+
+                                            // Addition : add function that check in possible classroom that completely equal like function block when lesson is not allowed
+                                            /*
+                                             * If function above fail, find lesson in all possible classrooms [search from its available classroom that already observed]
+                                             * */
+                                            if(!is_changed)
+                                            {
+                                                is_changed = false;
+                                                final int remain = lesson_time - need;
+                                                /*
+                                                 * Lookup all its lesson available classroom
+                                                 * */
+                                                lookup_replacement:
+                                                for(int classroom_lookup : lesson.getAvailableClassroom())
+                                                {
+                                                    /*
+                                                    * Lookup operational day of current classroom
+                                                    * */
+                                                    for(int day_lookup : active_days)
+                                                    {
+                                                        int lookup_start = -1;
+                                                        int lookup_end   = -1;
+                                                        /*
+                                                         * Check if current classroom and day is already observed for lookup_start
+                                                         * */
+                                                        if(rp_absent[classroom_lookup][day_lookup])
+                                                        {
+                                                            /*
+                                                             * Check if current classroom and the day after is already observed for lookup_end
+                                                             * */
+                                                            if((day_lookup + 1) < active_day_size)
+                                                            {
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
+                                                            }
+                                                            /*
+                                                             * Check if current day and the classroom after is already observed for lookup_end
+                                                             * */
+                                                            else if((classroom_lookup + 1) < rp_absent_size)
+                                                            {
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                            }
+                                                            /*
+                                                             * Assign lookup_end in the end of lesson_id list
+                                                             * */
+                                                            else
+                                                            {
+                                                                lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                                lookup_end = lesson_id.length;
+                                                            }
+                                                        }
+
+                                                        /*
+                                                        * Check if lookup bound is discovered
+                                                        * */
+                                                        if(lookup_end != -1)
+                                                        {
+                                                            /*
+                                                            * Try to replace lesson between specified bound
+                                                            * */
+                                                            if(this.exchangeAndReplace(lookup_start, lookup_end, need, remain, classroom, lesson_id, c_lesson, lesson_cluster.getClassroomClusteredTime(classroom_lookup, day_lookup)))
+                                                            {
+                                                                is_changed = true;
+                                                                /*
+                                                                * Shift all cluster index
+                                                                * */
+                                                                do
+                                                                {
+                                                                    if(++day_lookup < active_day_size)
+                                                                    {
+                                                                        repair_property.decrementIndex(classroom_lookup, day_lookup);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        repair_property.decrementIndex(++classroom_lookup, day_lookup = 0);
+                                                                    }
+                                                                }
+                                                                while((classroom_lookup != classroom) || (day_lookup != day));
+
+                                                                /*
+                                                                * Read previous lesson as current lesson
+                                                                * */
+                                                                lesson = this.lessons[lesson_id[--c_lesson]];
+                                                                lesson_time = lesson == null ? 1 : lesson.getSks();
+                                                                break lookup_replacement;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                /*
+                                                 * If function above fail, generate new schedule.
+                                                 * */
+                                                if(!is_changed)
+                                                {
+                                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                                    continue cluster;
+                                                }
+                                            }
+                                            /*
+                                            * If swap lesson successful read current lesson again
+                                            * */
+                                            else
+                                            {
+                                                lesson = this.lessons[lesson_id[c_lesson]];
+                                                lesson_time = lesson == null ? 1 : lesson.getSks();
+                                            }
+                                        }
+                                        /*
+                                        * If swap lesson successful read current lesson again
+                                        * */
+                                        else
+                                        {
+                                            lesson = this.lessons[lesson_id[c_lesson]];
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    /*
+                                    * Why no lookup to allowed classroom that already discovered first ? <<< Next Issues
+                                    * Well that depend on how many allowed classroom that already discovered
+                                    * if none of allowed classroom is already discovered then this function block is skipped
+                                    * */
+                                    final int need       = time_cluster - current_time;
+                                    boolean   is_changed = false;
+                                    /*
+                                     * Find lesson which its sks less or equals than remaining sks [search forward]
+                                     * */
+                                    for(int i_lookup = c_lesson, is_lookup = lesson_id.length; ++i_lookup < is_lookup; )
+                                    {
+                                        /*
+                                        * Get lesson from lookup index
+                                        * */
+                                        @Nullable final DSLesson lesson_lookup = this.lessons[lesson_id[i_lookup]];
+                                        /*
+                                        * Check if lesson satisfy need time
+                                        * */
+                                        if(lesson_lookup != null)
+                                        {
+                                            //if(!((lesson_lookup.getSks() <= need) && lesson_lookup.isLessonAllowed(classroom)))
+                                            if((lesson_lookup.getSks() > need) || !lesson_lookup.isLessonAllowed(classroom))
+                                            {
+                                                continue;
+                                            }
+                                        }
+                                        is_changed = true;
+
+                                        /*
+                                        * Swap lesson id position
+                                        * */
+                                        final int swap_temp = lesson_id[i_lookup];
+                                        lesson_id[i_lookup] = lesson_id[c_lesson];
+                                        lesson_id[c_lesson] = swap_temp;
+
+                                        /*
+                                        * Break the lookup
+                                        * */
+                                        break;
+                                    }
+
+                                    /*
+                                     * If function above fail find lesson that equal current misplaced lesson
+                                     * */
+                                    if(!is_changed)
+                                    {
+                                        is_changed = false;
+                                        /*
+                                         * Lookup all its lesson available classroom
+                                         * */
+                                        /*
+                                        * Try to shuffle available classroom first
+                                        * */
+                                        lookup_replacement:
+                                        for(int classroom_lookup : lesson.getAvailableClassroom())
+                                        {
+                                            /*
+                                            * Lookup operational day of current classroom
+                                            * */
+                                            for(int day_lookup : active_days)
+                                            {
+                                                int lookup_start = -1;
+                                                int lookup_end   = -1;
+                                                /*
+                                                 * Check if current classroom and day is already observed for lookup_start
+                                                 * */
+                                                if(rp_absent[classroom_lookup][day_lookup])
+                                                {
+                                                    /*
+                                                     * Check if current classroom and the day after is already observed for lookup_end
+                                                     * */
+                                                    if((day_lookup + 1) < active_day_size)
+                                                    {
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
+                                                    }
+                                                    /*
+                                                     * Check if current day and the classroom after is already observed for lookup_end
+                                                     * */
+                                                    else if((classroom_lookup + 1) < rp_absent_size)
+                                                    {
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                    }
+                                                    /*
+                                                     * Assign lookup_end in the end of lesson_id list
+                                                     * */
+                                                    else
+                                                    {
+                                                        lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                        lookup_end = lesson_id.length;
+                                                    }
+                                                }
+
+                                                /*
+                                                * Check if lookup bound is discovered
+                                                * */
+                                                if(lookup_end != -1)
+                                                {
+                                                    while(++lookup_start < lookup_end)
+                                                    {
+                                                        /*
+                                                        * Get lesson from lookup index
+                                                        * */
+                                                        @Nullable final DSLesson lesson_lookup = this.lessons[lesson_id[lookup_start]];
+                                                        /*
+                                                        * Check if lesson satisfy need time
+                                                        * */
+                                                        if(lesson_lookup == null)
+                                                        {
+                                                            //if(!(lesson_time == 1))
+                                                            if(lesson_time != 1)
+                                                            {
+                                                                continue;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            //if(!((lesson_lookup.getSks() == lesson_time) && lesson_lookup.isLessonAllowed(classroom)))
+                                                            if((lesson_lookup.getSks() != lesson_time) || !lesson_lookup.isLessonAllowed(classroom))
+                                                            {
+                                                                continue;
+                                                            }
+                                                        }
+                                                        is_changed = true;
+
+                                                        /*
+                                                        * Swap lesson id position
+                                                        * */
+                                                        final int swap_temp = lesson_id[lookup_start];
+                                                        lesson_id[lookup_start] = lesson_id[c_lesson];
+                                                        lesson_id[c_lesson] = swap_temp;
+
+                                                        /*
+                                                        * Break the lookup
+                                                        * */
+                                                        break lookup_replacement;
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        /*
+                                         * If function above fail, find lesson in all possible classrooms [search from its available classroom that already observed]
+                                         * */
+                                        if(!is_changed)
+                                        {
+                                            is_changed = false;
+                                            /*
+                                             * Lookup all its lesson available classroom
+                                             * */
+                                            lookup_replacement:
+                                            for(int classroom_lookup : lesson.getAvailableClassroom())
+                                            {
+                                                /*
+                                                * Lookup operational day of current classroom
+                                                * */
+                                                for(int day_lookup : active_days)
+                                                {
+                                                    int lookup_start = -1;
+                                                    int lookup_end   = -1;
+                                                    /*
+                                                     * Check if current classroom and day is already observed for lookup_start
+                                                     * */
+                                                    if(rp_absent[classroom_lookup][day_lookup])
+                                                    {
+                                                        /*
+                                                         * Check if current classroom and the day after is already observed for lookup_end
+                                                         * */
+                                                        if((day_lookup + 1) < active_day_size)
+                                                        {
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = repair_property.getPosition(classroom_lookup, day_lookup + 1);
+                                                        }
+                                                        /*
+                                                         * Check if current day and the classroom after is already observed for lookup_end
+                                                         * */
+                                                        else if((classroom_lookup + 1) < rp_absent_size)
+                                                        {
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = repair_property.getPosition(classroom_lookup + 1, 0);
+                                                        }
+                                                        /*
+                                                         * Assign lookup_end in the end of lesson_id list
+                                                         * */
+                                                        else
+                                                        {
+                                                            lookup_start = repair_property.getPosition(classroom_lookup, day_lookup) - 1;
+                                                            lookup_end = lesson_id.length;
+                                                        }
+                                                    }
+
+                                                    /*
+                                                    * Check if lookup bound is discovered
+                                                    * */
+                                                    if(lookup_end != -1)
+                                                    {
+                                                        is_changed = false;
+                                                        final int remain = current_time - need;
+                                                        /*
+                                                        * Try to find replacement
+                                                        * */
+                                                        if(this.exchangeAndReplace(lookup_start, lookup_end, need, remain, classroom, lesson_id, c_lesson, lesson_cluster.getClassroomClusteredTime(classroom_lookup, day_lookup)))
+                                                        {
+                                                            is_changed = true;
+                                                            /*
+                                                            * Shift all cluster index
+                                                            * */
+                                                            do
+                                                            {
+                                                                if(++day_lookup < active_day_size)
+                                                                {
+                                                                    repair_property.decrementIndex(classroom_lookup, day_lookup);
+                                                                }
+                                                                else
+                                                                {
+                                                                    repair_property.decrementIndex(++classroom_lookup, day_lookup = 0);
+                                                                }
+                                                            }
+                                                            while((classroom_lookup != classroom) || (day_lookup != day));
+
+                                                            /*
+                                                            * Read previous lesson as current lesson
+                                                            * */
+                                                            lesson = this.lessons[lesson_id[--c_lesson]];
+                                                            lesson_time = lesson == null ? 1 : lesson.getSks();
+                                                            break lookup_replacement;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            /*
+                                             * If function above fail, generate random schedule.
+                                             * */
+                                            if(!is_changed)
+                                            {
+                                                this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                                Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                                continue cluster;
+                                            }
+                                        }
+                                        /*
+                                        * If swap lesson successful read current lesson again
+                                        * */
+                                        else
+                                        {
+                                            lesson = this.lessons[lesson_id[c_lesson]];
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
+                                        }
+                                    }
+                                    /*
+                                    * If swap lesson successful read current lesson again
+                                    * */
+                                    else
+                                    {
+                                        lesson = this.lessons[lesson_id[c_lesson]];
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ignored)
+            {
+                this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+            }
+        }
+    }
+
+    @SuppressWarnings({"Duplicates", "ConstantConditions"}) private boolean exchangeAndReplace(int lookup_start, int lookup_end, int need, int remain, int current_classroom, int[] lesson_id, int lesson_counter, int[] time) throws Exception
+    {
+        boolean is_found         = false;
+        int     need_index       = -1;
+        int     need_cluster     = -1;
+        int     overflow_index   = -1;
+        int     overflow_cluster = -1;
+        int     time_index       = 1;
+        int     current_sks      = 0;
+
+        /*
+         * Find lesson that equals number of sks need and allowed each other if replace happened.
+         * */
+        for(int i_lookup = lookup_start; ++i_lookup < lookup_end; )
+        {
+            /*
+            * Get lesson from lookup index
+            * */
+            @Nullable final DSLesson lesson_need      = this.lessons[lesson_id[i_lookup]];
+            final int                lesson_need_time = lesson_need == null ? 1 : lesson_need.getSks();
+            current_sks += lesson_need_time;
+
+            /*
+            * Check if lesson satisfy need time
+            * */
+            if(lesson_need == null)
+            {
+                //if(!(need == 1))
+                if(need != 1)
+                {
+                    /*
+                    * Shift time cluster
+                    * */
+                    if(current_sks == time[time_index])
+                    {
+                        ++time_index;
+                        current_sks = 0;
+                    }
+                    continue;
+                }
+            }
+            else
+            {
+                //if(!((lesson_need_time == need) && lesson_need.isLessonAllowed(current_classroom)))
+                if((lesson_need_time != need) || !lesson_need.isLessonAllowed(current_classroom))
+                {
+                    /*
+                    * Shift time cluster
+                    * */
+                    if(current_sks == time[time_index])
+                    {
+                        ++time_index;
+                        current_sks = 0;
+                    }
+                    continue;
+                }
+            }
+
+            /*
+            * Swap lesson id position
+            * */
+            need_index = i_lookup;
+            need_cluster = time_index;
+            is_found = true;
+            break;
+        }
+
+        /*
+         * Find lesson that equals number of sks overflow and allowed each other if replace happened.
+         * */
+        if(is_found)
+        {
+            is_found = false;
+            current_sks = 0;
+            time_index = 1;
+            for(int i_lookup = lookup_start; ++i_lookup < lookup_end; )
+            {
+                /*
+                * Get lesson from lookup index
+                * */
+                @Nullable final DSLesson lesson_remain      = this.lessons[lesson_id[i_lookup]];
+                final int                lesson_remain_time = lesson_remain == null ? 1 : lesson_remain.getSks();
+                current_sks += lesson_remain_time;
+
+                /*
+                * Check if lesson satisfy remaining time
+                * */
+                if(lesson_remain == null)
+                {
+                    //if(!((remain == 1) && (i_lookup != need_index)))
+                    if((remain != 1) || (i_lookup == need_index))
+                    {
+                        /*
+                        * Shift time cluster
+                        * */
+                        if(current_sks == time[time_index])
+                        {
+                            ++time_index;
+                            current_sks = 0;
+                        }
+                        continue;
+                    }
+                }
+                else
+                {
+                    //if(!((lesson_remain_time == remain) && (i_lookup != need_index) && lesson_remain.isLessonAllowed(current_classroom)))
+                    if((lesson_remain_time != remain) || (i_lookup == need_index) || !lesson_remain.isLessonAllowed(current_classroom))
+                    {
+                        /*
+                        * Shift time cluster
+                        * */
+                        if(current_sks == time[time_index])
+                        {
+                            ++time_index;
+                            current_sks = 0;
+                        }
+                        continue;
+                    }
+                }
+
+                /*
+                * Swap lesson id position
+                * */
+                overflow_index = i_lookup;
+                overflow_cluster = time_index;
+                is_found = true;
+                break;
+            }
+        }
+
+        /*
+         * check if lesson need and lesson overflow has been found
+         * */
+        if(is_found)
+        {
+            /*
+             * check if both of lesson in same cluster
+             * */
+            if(need_cluster == overflow_cluster)
+            {
+                /*
+                 * check lesson need next to lesson overflow
+                 * */
+                if(FastMath.abs(overflow_index - need_index) == 1)
+                {
+                    /*
+                     * Arrange lesson position so need index < overflow index
+                     * xonxxx -> xnoxxx
+                     * */
+                    if(need_index > overflow_index)
+                    {
+                        int index_temp = lesson_id[need_index];
+                        lesson_id[need_index] = lesson_id[overflow_index];
+                        lesson_id[overflow_index] = index_temp;
+
+                        index_temp = overflow_index;
+                        overflow_index = need_index;
+                        need_index = index_temp;
+                    }
+                }
+                else
+                {
+                    /*
+                     * Arrange lesson position so need index < overflow index
+                     * xoxnxxx -> xnoxxxx
+                     * */
+                    if(need_index > overflow_index)
+                    {
+                        final int index_temp = lesson_id[need_index];
+                        lesson_id[need_index] = lesson_id[overflow_index + 1];
+                        lesson_id[overflow_index + 1] = lesson_id[overflow_index];
+                        lesson_id[overflow_index] = index_temp;
+
+                        need_index = overflow_index;
+                        overflow_index = need_index + 1;
+                    }
+                    /*
+                     * Arrange lesson position so need index < overflow index
+                     * xnxoxxx -> xnoxxxx
+                     * */
+                    else
+                    {
+                        final int index_temp = lesson_id[need_index + 1];
+                        lesson_id[need_index + 1] = lesson_id[overflow_index];
+                        lesson_id[overflow_index] = index_temp;
+
+                        overflow_index = need_index + 1;
+                    }
+                }
+
+                /*
+                 * Begin to exchange and shift position
+                 * */
+                final int need_value     = lesson_id[need_index];
+                final int overflow_value = lesson_id[overflow_index];
+
+                System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, FastMath.abs(lesson_counter - overflow_index));
+
+                lesson_id[need_index] = lesson_id[lesson_counter];
+                lesson_id[lesson_counter - 1] = need_value;
+                lesson_id[lesson_counter] = overflow_value;
+                return true;
+            }
+            /*
+             * lesson need and lesson overflow on different cluster time
+             * xnx|xxx|oxx -> nox|xxx|xxx
+             * */
+            else
+            {
+                return this.simulateExchange(lookup_start, lookup_end, need_index, overflow_index, lesson_counter, time, lesson_id);
+            }
+        }
+
+        /*
+        * Fail to find lesson need and lesson overflow candidate
+        * */
+        return false;
+    }
+
+    @SuppressWarnings("ConstantConditions") private boolean simulateExchange(int lookup_start, int lookup_end, int need_index, int overflow_index, int lesson_counter, final int[] time, final int[] lesson_id) throws Exception
+    {
+        int last_index_sks       = 0;
+        int cumulative_need_size = (this.lessons[lesson_id[need_index]] == null ? 1 : this.lessons[lesson_id[need_index]].getSks()) + (this.lessons[lesson_id[overflow_index]] == null ? 1 : this.lessons[lesson_id[overflow_index]].getSks());
+        //int cumulative_need_size = this.lessons[lesson_id[need_index]].getSks() + this.lessons[lesson_id[overflow_index]].getSks();
+
+        //Priority Queue
+        @NotNull final IntArrayList container = new IntArrayList(lookup_end - lookup_start - 1);
+        @NotNull final IntArrayList fuel      = new IntArrayList(lookup_end - lookup_start - 2);
+
+        /*
+        * Fill fuel with lesson id in one day sort by its sks size descending
+        * */
+        lesson_lookup:
+        for(int lesson_index = lookup_start; ++lesson_index < lookup_end; )
+        {
+            if((lesson_index != need_index) && (lesson_index != overflow_index))
+            {
+                int lesson_sks = (this.lessons[lesson_id[lesson_index]] == null ? 1 : this.lessons[lesson_id[lesson_index]].getSks());
+                for(int fuel_index = -1, fuel_size = fuel.size(); ++fuel_index < fuel_size; )
+                {
+                    if(lesson_sks == last_index_sks)
+                    {
+                        fuel.add(lesson_index);
+                        continue lesson_lookup;
+                    }
+                    if(lesson_sks > (this.lessons[lesson_id[fuel.getInt(fuel_index)]] == null ? 1 : this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks()))
+                    {
+                        fuel.add(fuel_index, lesson_index);
+                        continue lesson_lookup;
+                    }
+                }
+                fuel.add(lesson_index);
+                last_index_sks = lesson_sks;
+            }
+        }
+
+        /*
+        * Fill lesson need and overflow wrapped by -1 lesson
+        * */
+        for(int fuel_index = -1, fuel_size = fuel.size(); ++fuel_index < fuel_size; )
+        {
+            if(cumulative_need_size >= (this.lessons[lesson_id[fuel.getInt(fuel_index)]] == null ? 1 : this.lessons[lesson_id[fuel.getInt(fuel_index)]].getSks()))
+            {
+                fuel.add(fuel_index, -1);
+                break;
+            }
+        }
+
+        /*
+        * Fill container which fit each cluster
+        * */
+        int time_index  = 1;
+        int current_sks = 0;
+        int old_fuel_size;
+        do
+        {
+            old_fuel_size = fuel.size();
+            for(int fuel_index = -1, fuel_size = fuel.size(); ++fuel_index < fuel_size; )
+            {
+                final int fuel_lesson = fuel.getInt(fuel_index);
+                int       temp_sks;
+                /*
+                * fill incoming sks size;
+                * */
+                try
+                {
+                    temp_sks = (this.lessons[lesson_id[fuel_lesson]] == null ? 1 : this.lessons[lesson_id[fuel_lesson]].getSks());
+                }
+                catch(ArrayIndexOutOfBoundsException ignored)
+                {
+                    temp_sks = cumulative_need_size;
+                }
+
+                /*
+                * Check incoming sks fit current cluster time
+                * */
+                if(temp_sks + current_sks <= time[time_index])
+                {
+                    current_sks += temp_sks;
+
+                    if(fuel_lesson == -1)
+                    {
+                        /*
+                        * Add Lesson need and overflow
+                        * */
+                        container.add(need_index);
+                        container.add(overflow_index);
+
+                        /*
+                        * Change need index and overflow index
+                        * */
+                        need_index = container.size() - 1 + lookup_start;
+                        overflow_index = need_index + 1;
+                    }
+                    else
+                    {
+                        /*
+                        * Add ordinary lesson
+                        * */
+                        container.add(fuel_lesson);
+                    }
+
+                    /*
+                    * Shift lesson cluster time
+                    * */
+                    if(current_sks == time[time_index])
+                    {
+                        ++time_index;
+                        current_sks = 0;
+                    }
+
+                    /*
+                    * Remove Fuel
+                    * */
+                    fuel.removeInt(fuel_index);
+
+                    /*
+                    * Skip remaining search
+                    * */
+                    break;
+                }
+            }
+        }
+        while(old_fuel_size != fuel.size());
+
+        /*
+        * Check if arrangement fits all lesson cluster
+        * */
+        if(fuel.size() == 0)
+        {
+            /*
+            * Convert container data with lesson id according to data
+            * */
+            for(int container_index = -1, container_size = container.size(); ++container_index < container_size; )
+            {
+                container.set(container_index, lesson_id[container.getInt(container_index)]);
+            }
+
+            /*
+            * Arrange lesson id according container arrangement
+            * */
+            for(int lesson_id_temp : container)
+            {
+                lesson_id[++lookup_start] = lesson_id_temp;
+            }
+
+            /*
+             * Begin to exchange and shift position
+             * */
+            final int need_value     = lesson_id[need_index];
+            final int overflow_value = lesson_id[overflow_index];
+
+            System.arraycopy(lesson_id, overflow_index + 1, lesson_id, overflow_index, FastMath.abs(lesson_counter - overflow_index));
+
+            lesson_id[need_index] = lesson_id[lesson_counter];
+            lesson_id[lesson_counter - 1] = need_value;
+            lesson_id[lesson_counter] = overflow_value;
+            return true;
+        }
+        else
+        {
+            /*
+            * Fail to arrange lesson id
+            * */
+            return false;
+        }
     }
 
     @Override public Position[] random(@NotNull final DSScheduleShufflingProperty properties)
