@@ -546,14 +546,16 @@ import org.jetbrains.annotations.Nullable;
                                             * */
                                             if(lesson_lookup == null)
                                             {
-                                                if(!(need == 1))
+                                                //if(!(need == 1))
+                                                if(need != 1)
                                                 {
                                                     continue;
                                                 }
                                             }
                                             else
                                             {
-                                                if(!((lesson_lookup.getSks() == need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                //if(!((lesson_lookup.getSks() == need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                if((lesson_lookup.getSks() != need) || !lesson_lookup.isLessonAllowed(classroom))
                                                 {
                                                     continue;
                                                 }
@@ -590,7 +592,8 @@ import org.jetbrains.annotations.Nullable;
                                                 * */
                                                 if(lesson_lookup != null)
                                                 {
-                                                    if(!((lesson_lookup.getSks() < need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                    //if(!((lesson_lookup.getSks() < need) && lesson_lookup.isLessonAllowed(classroom)))
+                                                    if((lesson_lookup.getSks() >= need) || !lesson_lookup.isLessonAllowed(classroom))
                                                     {
                                                         continue;
                                                     }
@@ -752,7 +755,8 @@ import org.jetbrains.annotations.Nullable;
                                         * */
                                         if(lesson_lookup != null)
                                         {
-                                            if(!((lesson_lookup.getSks() <= need) && lesson_lookup.isLessonAllowed(classroom)))
+                                            //if(!((lesson_lookup.getSks() <= need) && lesson_lookup.isLessonAllowed(classroom)))
+                                            if((lesson_lookup.getSks() > need) || !lesson_lookup.isLessonAllowed(classroom))
                                             {
                                                 continue;
                                             }
@@ -841,14 +845,16 @@ import org.jetbrains.annotations.Nullable;
                                                         * */
                                                         if(lesson_lookup == null)
                                                         {
-                                                            if(!(lesson_time == 1))
+                                                            //if(!(lesson_time == 1))
+                                                            if(lesson_time != 1)
                                                             {
                                                                 continue;
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            if(!((lesson_lookup.getSks() == lesson_time) && lesson_lookup.isLessonAllowed(classroom)))
+                                                            //if(!((lesson_lookup.getSks() == lesson_time) && lesson_lookup.isLessonAllowed(classroom)))
+                                                            if((lesson_lookup.getSks() != lesson_time) || !lesson_lookup.isLessonAllowed(classroom))
                                                             {
                                                                 continue;
                                                             }
