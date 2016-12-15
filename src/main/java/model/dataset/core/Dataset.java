@@ -1,10 +1,14 @@
 package model.dataset.core;
 
+import it.unimi.dsi.fastutil.ints.IntArrays;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.component.DSLessonGroup;
+import model.dataset.component.DSScheduleShufflingProperty;
 import model.dataset.component.DSTimeOff;
+import model.method.pso.hdpso.component.ScheduleContainer;
+import model.util.list.IntHList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,5 +141,49 @@ import org.jetbrains.annotations.Nullable;
     public int getClassroomSize()
     {
         return this.classrooms.length;
+    }
+
+    @NotNull public DSScheduleShufflingProperty getShufflingProperty()
+    {
+        @NotNull final DSLessonCluster[] lesson_clusters       = this.lesson_cluster;
+        final int                        lesson_cluster_length = lesson_clusters.length;
+        final int                        period_length         = this.periods.length;
+
+        @NotNull final int[]                   day_set                 = IntArrays.copy(this.days);
+        @NotNull final int[][]                 lesson_null_set         = new int[lesson_cluster_length][];
+        @NotNull final int[][][]               classroom_set           = new int[lesson_cluster_length][][];
+        @NotNull final int[][][]               lesson_set              = new int[lesson_cluster_length][][];
+        @NotNull final int[][][][]             lesson_appender_manager = new int[lesson_cluster_length][][][];
+        @NotNull final ScheduleContainer[][][] schedule_container      = new ScheduleContainer[lesson_cluster_length][][];
+        @NotNull final IntHList[]              full_schedule           = new IntHList[lesson_cluster_length];
+        for(int c_cluster = -1, cs_lesson_cluster = lesson_clusters.length; ++c_cluster < cs_lesson_cluster; )
+        {
+            final DSLessonCluster lesson_cluster = lesson_clusters[c_cluster];
+
+            lesson_null_set[c_cluster] = new int[lesson_cluster.getLessonNullTotal()];
+            classroom_set[c_cluster] = new int[lesson_cluster.getLessonGroupTotal()][];
+            lesson_set[c_cluster] = new int[classroom_set.length][];
+            lesson_appender_manager[c_cluster] = new int[lesson_cluster.getClassroomTotal()][day_set.length][2];
+            schedule_container[c_cluster] = new ScheduleContainer[lesson_cluster.getClassroomTotal()][day_set.length];
+            full_schedule[c_cluster] = new IntHList(lesson_cluster.getLessonTotal() + lesson_cluster.getLessonNullTotal());
+
+            System.arraycopy(lesson_cluster.getLessonNull(), 0, lesson_null_set[c_cluster], 0, lesson_null_set[c_cluster].length);
+            for(int c_group = -1, cs_lesson_group = lesson_cluster.getLessonGroupTotal(); ++c_group < cs_lesson_group; )
+            {
+                final DSLessonGroup lesson_group = lesson_cluster.getLessonGroup(c_group);
+                classroom_set[c_cluster][c_group] = IntArrays.copy(lesson_group.getClassrooms());
+                lesson_set[c_cluster][c_group] = IntArrays.copy(lesson_group.getLessons());
+            }
+
+            for(int c_classroom = -1, cs_classroom = schedule_container[c_cluster].length; ++c_classroom < cs_classroom; )
+            {
+                for(int c_day = -1, cs_day = schedule_container[c_cluster][c_classroom].length; ++c_day < cs_day; )
+                {
+                    schedule_container[c_cluster][c_classroom][c_day] = new ScheduleContainer(period_length);
+                }
+            }
+        }
+
+        return new DSScheduleShufflingProperty(day_set, lesson_null_set, classroom_set, lesson_set, lesson_appender_manager, IntArrays.copy(this.time_distribution), schedule_container, full_schedule);
     }
 }
