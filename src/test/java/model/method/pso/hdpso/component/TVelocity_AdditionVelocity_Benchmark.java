@@ -21,7 +21,7 @@ import org.junit.Test;
     @Before
     public void initialize()
     {
-        final int SIZE   = 30000000;
+        final int SIZE   = 20000000;
         final int SEED   = 100;
         Random    random = ThreadLocalRandom.current();
         this.destination = new Velocity(SIZE);
