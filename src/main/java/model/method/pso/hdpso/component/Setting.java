@@ -1,5 +1,7 @@
 package model.method.pso.hdpso.component;
 
+import model.method.pso.hdpso.core.VelocityCalculator;
+
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.method.pso.hdpso.component> created by : 
  * Name         : syafiq
@@ -9,7 +11,65 @@ package model.method.pso.hdpso.component;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class Setting
 {
-    private static Setting ourInstance = new Setting();
+    public static final VelocityCalculator PURE_PSO;
+    public static final VelocityCalculator PTVPSO;
+    public static final VelocityCalculator PURE_PTVPSO;
+    private static      Setting            ourInstance;
+
+    static
+    {
+        PURE_PSO = new VelocityCalculator()
+        {
+            @Override public double calculateLoc(double... operator)
+            {
+                return operator[0] * operator[1];
+            }
+
+            @Override public double calculateGlob(double... operator)
+            {
+                return operator[0] * operator[1];
+            }
+
+            @Override public double calculateRand(double... operator)
+            {
+                return operator[0] * operator[1];
+            }
+        };
+        PTVPSO = new VelocityCalculator()
+        {
+            @Override public double calculateLoc(double... operator)
+            {
+                return operator[0] * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+            }
+
+            @Override public double calculateGlob(double... operator)
+            {
+                return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+            }
+
+            @Override public double calculateRand(double... operator)
+            {
+                return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+            }
+        };
+        PURE_PTVPSO = new VelocityCalculator()
+        {
+            @Override public double calculateLoc(double... operator)
+            {
+                return (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+            }
+
+            @Override public double calculateGlob(double... operator)
+            {
+                return (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+            }
+
+            @Override public double calculateRand(double... operator)
+            {
+                return (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+            }
+        };
+    }
 
     private int max_particle;
     private int max_epoch;
@@ -21,10 +81,11 @@ package model.method.pso.hdpso.component;
     private double bRand_min;
     private double bRand_max;
 
-    private int     total_core;
-    private int     total_pool;
-    private boolean multi_process;
-    private int     window_size;
+    private int                total_core;
+    private int                total_pool;
+    private boolean            multi_process;
+    private int                window_size;
+    private VelocityCalculator calculator;
 
     private Setting()
     {
@@ -40,10 +101,15 @@ package model.method.pso.hdpso.component;
         this.setTotalCore(Runtime.getRuntime().availableProcessors());
         this.multi_process = false;
         this.window_size = Integer.MAX_VALUE;
+        this.calculator = Setting.PURE_PSO;
     }
 
-    public static Setting getInstance()
+    public static synchronized Setting getInstance()
     {
+        if(Setting.ourInstance == null)
+        {
+            Setting.ourInstance = new Setting();
+        }
         return Setting.ourInstance;
     }
 
@@ -164,5 +230,15 @@ package model.method.pso.hdpso.component;
     public void setWindowSize(int window_size)
     {
         this.window_size = window_size;
+    }
+
+    public VelocityCalculator getCalculator()
+    {
+        return this.calculator;
+    }
+
+    public void setCalculator(VelocityCalculator calculator)
+    {
+        this.calculator = calculator;
     }
 }
