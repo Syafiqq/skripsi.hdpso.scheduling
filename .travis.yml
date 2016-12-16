@@ -23,5 +23,5 @@ cache:
     - $HOME/.gradle/wrapper/
 
 script:
-  - ./gradlew check
+  - ./gradlew travisUnitTest
   - ./gradlew assemble
