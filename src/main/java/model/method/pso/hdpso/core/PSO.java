@@ -139,7 +139,6 @@ import org.jetbrains.annotations.Nullable;
             * Assign new particle
             * */
             this.particles[c_particle] = new Particle(this.shuffling_properties, PSO.this, this.setting, placement_properties, repair);
-            this.calculate(this.particles[c_particle]);
         }
 
         /*
@@ -261,7 +260,12 @@ import org.jetbrains.annotations.Nullable;
                             /*
                             * Indicate if lesson is null
                             * */
-                            if(lesson != null)
+                            if(lesson == null)
+                            {
+                                lecture_fill.add(-1);
+                                class_fill.add(-1);
+                            }
+                            else
                             {
                                 /*
                                 * Get lecture and klass information from current lesson
@@ -285,7 +289,7 @@ import org.jetbrains.annotations.Nullable;
                                 final double fitness_4 = (0.001 * (period));
                                 final double fitness_5 = (5.000 * (lecture == -1 ? 10 : (lecture_placement[lecture].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1)));
                                 final double fitness_6 = (5.000 * (class_placement[klass].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1));
-                                final double fitness_7 = (3.000 * (lesson.getLinkTotal() == 0 ? 10 : class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1));
+                                final double fitness_7 = (3.000 * (lesson.getLinkTotal() == 0 ? 10 : (class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1)));
                                 final double fitness_8 = (0.500 * (lesson.isLessonAllowed(classroom) ? 10 : 0.1));
 
                                 /*
@@ -296,10 +300,8 @@ import org.jetbrains.annotations.Nullable;
                                 /*
                                 * fill lecture and klass for cleaning later
                                 * */
-                                if(lecture != -1)
-                                {
-                                    lecture_fill.add(lecture);
-                                }
+
+                                lecture_fill.add(lecture);
                                 class_fill.add(klass);
                             }
 
@@ -324,6 +326,11 @@ import org.jetbrains.annotations.Nullable;
                                     c_sks = 0;
                                 }
                             }
+                        }
+                        else
+                        {
+                            lecture_fill.add(-1);
+                            class_fill.add(-1);
                         }
                     }
                 }
