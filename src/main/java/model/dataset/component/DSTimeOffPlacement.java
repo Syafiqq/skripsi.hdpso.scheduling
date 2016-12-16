@@ -84,7 +84,7 @@ import org.jetbrains.annotations.NotNull;
         {
             for(final int lesson : link)
             {
-                for(int c_lesson = -1, c_lesson_s = period.size(); ++c_lesson <= c_lesson_s; )
+                for(int c_lesson = -1, c_lesson_s = period.size(); ++c_lesson < c_lesson_s; )
                 {
                     if(period.isSameEntry(c_lesson, lesson))
                     {
