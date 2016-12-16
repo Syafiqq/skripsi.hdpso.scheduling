@@ -41,15 +41,15 @@ import org.junit.Test;
     public void test_UpdatePBestEarly()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 10;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -82,15 +82,15 @@ import org.junit.Test;
     public void test_UpdatePBestLowerPBest()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 10;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -126,15 +126,15 @@ import org.junit.Test;
     public void test_UpdatePBestHigherPBest()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 10;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);

@@ -38,16 +38,15 @@ import org.junit.Test;
     @Test public void testSystem()
     {
         Setting setting = Setting.getInstance();
-        setting.bGlob_min = 0.4;
-        setting.bGlob_max = 0.6;
-        setting.bLoc_min = 0.7;
-        setting.bLoc_max = 0.9;
-        setting.bRand_min = 0.001;
-        setting.bLoc_max = 0.01;
-        setting.total_core = 3;
-        setting.max_particle = 10;
-        setting.max_epoch = 100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.400);
+        setting.setbGlobMax(0.600);
+        setting.setbLocMin(0.700);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.01);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(100);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -61,7 +60,7 @@ import org.junit.Test;
             pso.assignGBest();
             for(@NotNull final Particle particle : pso.getParticles())
             {
-                particle.calculateVelocity(pso.getGBest(), pso.getEpoch(), setting.max_epoch);
+                particle.calculateVelocity(pso.getGBest(), pso.getEpoch(), setting.getMaxEpoch());
                 particle.updateData();
                 pso.repair(particle);
                 pso.calculate(particle);

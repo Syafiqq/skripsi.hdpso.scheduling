@@ -52,7 +52,7 @@ import org.junit.Test;
             pso.assignGBest();
             for(@NotNull final Particle particle : pso.getParticles())
             {
-                particle.calculateVelocity(pso.getGBest(), pso.getEpoch(), setting.max_epoch);
+                particle.calculateVelocity(pso.getGBest(), pso.getEpoch(), setting.getMaxEpoch());
                 particle.updateData();
                 pso.repair(particle);
                 Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, particle.getData().getPositions()));
@@ -68,14 +68,14 @@ import org.junit.Test;
     private void setting501000()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 50;
-        setting.max_epoch = 1000;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(50);
+        setting.setMaxEpoch(1000);
+        setting.setTotalCore(4);
     }
 }

@@ -3,6 +3,9 @@ package model.method.pso.hdpso.core;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.component.DSLessonGroup;
@@ -34,22 +37,24 @@ import org.jetbrains.annotations.Nullable;
  */
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal", "unused"}) public class PSO extends PSOOperation<Data, Velocity, Particle, DSScheduleShufflingProperty> implements ScheduleRandomable<Position[], DSScheduleShufflingProperty>, PositionRepairable<Particle>
 {
-    private final @NotNull int[]                       active_days;
-    private final @NotNull int[]                       shuffled_active_days;
-    private final @NotNull int[]                       active_periods;
-    private final @NotNull int[]                       sks_distribution;
-    private final @NotNull int[][][]                   clustered_classroom_time;
-    private final @NotNull Setting                     setting;
-    private final @NotNull DSTimeOff[]                 classes;
-    private final @NotNull DSTimeOff[]                 classrooms;
-    private final @NotNull DSTimeOff[]                 lecturers;
-    private final @NotNull DSTimeOff[]                 subjects;
-    private final @NotNull DSLesson[]                  lessons;
-    private final @NotNull DSLessonGroup[]             lesson_group;
-    private final @NotNull DSLessonCluster[]           lesson_cluster;
-    private final @NotNull DSScheduleShufflingProperty shuffling_properties;
-    private final @NotNull DatasetConverter            encoder;
-    private final @NotNull DatasetConverter            decoder;
+    private final @NotNull int[]                        active_days;
+    private final @NotNull int[]                        shuffled_active_days;
+    private final @NotNull int[]                        active_periods;
+    private final @NotNull int[]                        sks_distribution;
+    private final @NotNull int[][][]                    clustered_classroom_time;
+    private final @NotNull Setting                      setting;
+    private final @NotNull DSTimeOff[]                  classes;
+    private final @NotNull DSTimeOff[]                  classrooms;
+    private final @NotNull DSTimeOff[]                  lecturers;
+    private final @NotNull DSTimeOff[]                  subjects;
+    private final @NotNull DSLesson[]                   lessons;
+    private final @NotNull DSLessonGroup[]              lesson_group;
+    private final @NotNull DSLessonCluster[]            lesson_cluster;
+    private final @NotNull DSScheduleShufflingProperty  shuffling_properties;
+    private final @NotNull DatasetConverter             encoder;
+    private final @NotNull DatasetConverter             decoder;
+    private final @NotNull ArrayBlockingQueue<Runnable> thread_queue;
+    private final          boolean                      isMultiProcess;
 
     public PSO(@NotNull final DatasetGenerator generator)
     {
@@ -88,9 +93,92 @@ import org.jetbrains.annotations.Nullable;
         this.decoder = generator.getDecoder();
 
         /*
+        * Initialize BlockingQueue
+        * */
+        this.thread_queue = new ArrayBlockingQueue<>((this.setting.getMaxParticle() - this.setting.getTotalCore()) < 1 ? 1 : this.setting.getMaxParticle());
+
+        /*
+        * Mark Multiprocess
+        * */
+        isMultiProcess = this.setting.getMultiProcess();
+
+        /*
         * Initialize current epoch
         * */
         super.cEpoch = 0;
+    }
+
+    public void updatePBest()
+    {
+        if(this.isMultiProcess)
+        {
+            final ThreadPoolExecutor executor = new ThreadPoolExecutor(this.setting.getTotalCore(), this.setting.getTotalPool(), 1, TimeUnit.SECONDS, this.thread_queue);
+            executor.allowCoreThreadTimeOut(true);
+
+            for(final Particle particle : super.particles)
+            {
+                executor.execute(particle::assignPBest);
+            }
+            executor.shutdown();
+            //noinspection StatementWithEmptyBody
+            try
+            {
+                while(!executor.awaitTermination(1, TimeUnit.MINUTES))
+                {
+                }
+            }
+            catch(InterruptedException ignored)
+            {
+            }
+        }
+        else
+        {
+            for(@NotNull final Particle particle : super.particles)
+            {
+                particle.assignPBest();
+            }
+        }
+    }
+
+    public void evaluateParticle()
+    {
+        if(this.isMultiProcess)
+        {
+            final ThreadPoolExecutor executor = new ThreadPoolExecutor(this.setting.getTotalCore(), this.setting.getTotalPool(), 1, TimeUnit.SECONDS, this.thread_queue);
+            executor.allowCoreThreadTimeOut(true);
+
+            for(final Particle particle : super.particles)
+            {
+                executor.execute(() ->
+                {
+                    particle.calculateVelocity(PSO.super.getGBest(), PSO.super.getEpoch(), setting.getMaxEpoch());
+                    particle.updateData();
+                    PSO.this.repair(particle);
+                    PSO.this.calculate(particle);
+                });
+            }
+            executor.shutdown();
+            //noinspection StatementWithEmptyBody
+            try
+            {
+                while(!executor.awaitTermination(1, TimeUnit.MINUTES))
+                {
+                }
+            }
+            catch(InterruptedException ignored)
+            {
+            }
+        }
+        else
+        {
+            for(@NotNull final Particle particle : super.getParticles())
+            {
+                particle.calculateVelocity(super.getGBest(), super.getEpoch(), setting.getMaxEpoch());
+                particle.updateData();
+                this.repair(particle);
+                this.calculate(particle);
+            }
+        }
     }
 
     @Override public void updateStoppingCondition()
@@ -106,7 +194,7 @@ import org.jetbrains.annotations.Nullable;
         /*
         * Check whether current epoch/iteration reach upper limit
         * */
-        return super.cEpoch == setting.max_epoch;
+        return super.cEpoch == setting.getMaxEpoch();
     }
 
     @Override public void initialize()
@@ -114,12 +202,12 @@ import org.jetbrains.annotations.Nullable;
         /*
         * Initialize swarm
         * */
-        super.particles = new Particle[this.setting.max_particle];
+        super.particles = new Particle[this.setting.getMaxParticle()];
 
         /*
         * Initialize particle within swarm
         * */
-        for(int c_particle = -1, cs_particle = this.setting.max_particle; ++c_particle < cs_particle; )
+        for(int c_particle = -1, cs_particle = this.setting.getMaxParticle(); ++c_particle < cs_particle; )
         {
             /*
             * Initialize Repair property to record classroom and its day that already discovered

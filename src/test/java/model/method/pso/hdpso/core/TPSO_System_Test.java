@@ -5,8 +5,6 @@ import java.util.Arrays;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
 import model.dataset.loader.DatasetGenerator;
-import model.method.pso.hdpso.component.Data;
-import model.method.pso.hdpso.component.Particle;
 import model.method.pso.hdpso.component.Position;
 import model.method.pso.hdpso.component.Setting;
 import org.jetbrains.annotations.NotNull;
@@ -42,66 +40,68 @@ import org.junit.Test;
     @Test public void testSystem()
     {
         Setting setting = Setting.getInstance();
-        setting.bGlob_min = 0.4;
-        setting.bGlob_max = 0.6;
-        setting.bLoc_min = 0.7;
-        setting.bLoc_max = 0.9;
-        setting.bRand_min = 0.001;
-        setting.bLoc_max = 0.01;
-        setting.total_core = 3;
-        setting.max_particle = 10;
-        setting.max_epoch = 10000;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.400);
+        setting.setbGlobMax(0.600);
+        setting.setbLocMin(0.700);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.010);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(10000);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
         pso.initialize();
         while(!pso.isConditionSatisfied())
         {
-            for(@NotNull final Particle particle : pso.getParticles())
-            {
-                particle.assignPBest();
-            }
+            pso.updatePBest();
             pso.assignGBest();
-            for(@NotNull final Particle particle : pso.getParticles())
-            {
-                particle.calculateVelocity(pso.getGBest(), pso.getEpoch(), setting.max_epoch);
-                particle.updateData();
-                pso.repair(particle);
-                pso.calculate(particle);
-            }
+            pso.evaluateParticle();
             pso.updateStoppingCondition();
         }
-        int counter = -1;
-        for(@NotNull final Particle particle : pso.getParticles())
+        System.out.printf("GBest %f\n", pso.getFitness());
+    }
+
+    @Test public void testSystemMultiThread()
+    {
+        Setting setting = Setting.getInstance();
+        setting.setbGlobMin(0.400);
+        setting.setbGlobMax(0.600);
+        setting.setbLocMin(0.700);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.010);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(10000);
+        setting.setTotalCore(4);
+        setting.setMultiProcess(true);
+
+        @NotNull final PSO pso = new PSO(this.dsLoader);
+        Assert.assertNotNull(pso);
+        pso.initialize();
+        while(!pso.isConditionSatisfied())
         {
-            System.out.printf("Particle %d %f \n", ++counter, particle.getFitness());
-            for(int i = -1, is = particle.getData().getPositionSize(); ++i < is; )
-            {
-                System.out.printf("%b\t%s\n", Arrays.equals(particle.getData().getPosition(i).getPosition(), particle.getPBest().getPosition(i).getPosition()), Arrays.toString(particle.getData().getPosition(i).getPosition()));
-                System.out.printf("%b\t%s\n", Arrays.equals(particle.getPBest().getPosition(i).getPosition(), particle.getData().getPosition(i).getPosition()), Arrays.toString(particle.getPBest().getPosition(i).getPosition()));
-            }
+            pso.updatePBest();
+            pso.assignGBest();
+            pso.evaluateParticle();
+            pso.updateStoppingCondition();
         }
         System.out.printf("GBest %f\n", pso.getFitness());
-        final Data gBest = pso.getGBest();
-        for(int i = -1, is = gBest.getPositionSize(); ++i < is; )
-        {
-            System.out.println(Arrays.toString(gBest.getPosition(i).getPosition()));
-        }
     }
 
     @Test public void testSoftwareFitness()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 1;
-        setting.max_epoch = 1000;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.4);
+        setting.setbGlobMax(0.6);
+        setting.setbLocMin(0.100);
+        setting.setbLocMax(0.4);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.1);
+        setting.setMaxParticle(1);
+        setting.setMaxEpoch(1000);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
