@@ -11,24 +11,35 @@ package model.method.pso.hdpso.component;
 {
     private static Setting ourInstance = new Setting();
 
-    private int max_particle = 0;
-    private int max_epoch    = 0;
+    private int max_particle;
+    private int max_epoch;
 
-    private double bLoc_min  = 0.0;
-    private double bLoc_max  = 0.0;
-    private double bGlob_min = 0.0;
-    private double bGlob_max = 0.0;
-    private double bRand_min = 0.0;
-    private double bRand_max = 0.0;
+    private double bLoc_min;
+    private double bLoc_max;
+    private double bGlob_min;
+    private double bGlob_max;
+    private double bRand_min;
+    private double bRand_max;
 
     private int     total_core;
     private int     total_pool;
     private boolean multi_process;
+    private int     window_size;
 
     private Setting()
     {
-        this.total_core = Runtime.getRuntime().availableProcessors();
+        this.max_epoch = 0;
+        this.bLoc_min = 0.0;
+        this.bLoc_max = 0.0;
+        this.bGlob_min = 0.0;
+        this.bGlob_max = 0.0;
+        this.bRand_min = 0.0;
+        this.bRand_max = 0.0;
+
+        this.max_particle = 0;
+        this.setTotalCore(Runtime.getRuntime().availableProcessors());
         this.multi_process = false;
+        this.window_size = Integer.MAX_VALUE;
     }
 
     public static Setting getInstance()
@@ -140,8 +151,18 @@ package model.method.pso.hdpso.component;
         return this.multi_process;
     }
 
-    public void setMultiProcess(boolean multiProcess)
+    public void setMultiProcess(boolean multi_process)
     {
-        this.multi_process = multiProcess;
+        this.multi_process = multi_process;
+    }
+
+    public int getWindowSize()
+    {
+        return this.window_size;
+    }
+
+    public void setWindowSize(int window_size)
+    {
+        this.window_size = window_size;
     }
 }
