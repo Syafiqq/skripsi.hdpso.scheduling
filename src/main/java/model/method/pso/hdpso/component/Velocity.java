@@ -213,6 +213,14 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
+    public static void truncate(int window, final Velocity velocity)
+    {
+        if((window < velocity.size()) && (window > 0))
+        {
+            velocity.backward(velocity.size() - window);
+        }
+    }
+
     /**
      * Get distance between two positions
      *
