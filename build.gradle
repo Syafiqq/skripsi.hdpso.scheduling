@@ -35,3 +35,12 @@ test {
         exceptionFormat = 'full'
     }
 }
+
+task travisUnitTest(type: Test) {
+    exclude 'model/method/pso/hdpso/component/TVelocity_AdditionVelocity_Benchmark.class'
+    exclude 'model/method/pso/hdpso/component/TVelocity_CalculateDistance_Benchmark.class'
+    exclude 'model/method/pso/hdpso/component/TVelocity_MultiplicationVelocity_Benchmark.class'
+    exclude 'model/method/pso/hdpso/component/TVelocity_ReverseVelocity_Benchmark.class'
+    exclude 'model/method/pso/hdpso/core/TPSO_System_Test.class'
+    exclude 'model/method/pso/hdpso/core/TPSO_InitializeParticle.class'
+}
