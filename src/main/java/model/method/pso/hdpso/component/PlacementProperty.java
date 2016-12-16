@@ -2,7 +2,6 @@ package model.method.pso.hdpso.component;
 
 import model.dataset.component.DSTimeOffPlacement;
 import model.util.list.IntHList;
-import org.apache.commons.math3.util.FastMath;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.method.pso.hdpso.component> created by : 
@@ -53,42 +52,21 @@ import org.apache.commons.math3.util.FastMath;
 
     public void resetPlacement()
     {
-        final int lecture_fill_size = this.lecture_fill.size();
-        final int class_fill_size   = this.class_fill.size();
-        for(int c_fill = -1, c_fill_s = FastMath.min(lecture_fill_size, class_fill_size); ++c_fill < c_fill_s; )
+        int counter_reset = -1;
+        for(int counter_classroom = -1; ++counter_classroom < this.classroom; )
         {
             for(int counter_day = -1; ++counter_day < this.day; )
             {
                 for(int counter_period = -1; ++counter_period < this.period; )
                 {
-                    this.lecture_placement[this.lecture_fill.get(c_fill)].reset(counter_day, counter_period);
-                    this.class_placement[this.class_fill.get(c_fill)].reset(counter_day, counter_period);
-                }
-            }
-        }
-
-        if(lecture_fill_size < class_fill_size)
-        {
-            for(int c_fill = lecture_fill_size; ++c_fill < class_fill_size; )
-            {
-                for(int counter_day = -1; ++counter_day < this.day; )
-                {
-                    for(int counter_period = -1; ++counter_period < this.period; )
+                    ++counter_reset;
+                    if(this.lecture_fill.get(counter_reset) >= 0)
                     {
-                        this.class_placement[this.class_fill.get(c_fill)].reset(counter_day, counter_period);
+                        this.lecture_placement[this.lecture_fill.get(counter_reset)].reset(counter_day, counter_period);
                     }
-                }
-            }
-        }
-        else
-        {
-            for(int c_fill = class_fill_size; ++c_fill < lecture_fill_size; )
-            {
-                for(int counter_day = -1; ++counter_day < this.day; )
-                {
-                    for(int counter_period = -1; ++counter_period < this.period; )
+                    if(this.class_fill.get(counter_reset) >= 0)
                     {
-                        this.lecture_placement[this.lecture_fill.get(c_fill)].reset(counter_day, counter_period);
+                        this.class_placement[this.class_fill.get(counter_reset)].reset(counter_day, counter_period);
                     }
                 }
             }
