@@ -39,15 +39,15 @@ public class TPSO_InitializeParticle
     public void test_InitializeParticle()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 10;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -58,15 +58,15 @@ public class TPSO_InitializeParticle
     public void test_InitializeParticleWithHugeSize()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 500;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(500);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
@@ -77,22 +77,22 @@ public class TPSO_InitializeParticle
     public void test_InitializeParticle_AndCheck()
     {
         Setting setting = Setting.getInstance();
-        setting.max_particle = 1;
-        setting.max_epoch = 1;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(1);
+        setting.setMaxEpoch(1);
+        setting.setTotalCore(4);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
         Assert.assertNotNull(pso);
         pso.initialize();
 
         final Random random       = new Random();
-        final int    max_particle = Setting.getInstance().max_particle;
+        final int    max_particle = Setting.getInstance().getMaxParticle();
         int          c_particle   = random.nextInt(max_particle);
 
         Assert.assertTrue(TPSO_Particle_StabilityChecker.checkConflict(this.dsLoader, pso.getParticle(c_particle).getData().getPositions()));

@@ -34,15 +34,15 @@ public class TPSO_Instantiation
         Assert.assertNotNull(dsLoader);
 
         Setting setting = Setting.getInstance();
-        setting.max_particle = 10;
-        setting.max_epoch = 10;
-        setting.bLoc_min = 0.600;
-        setting.bLoc_max = 0.900;
-        setting.bGlob_min = 0.100;
-        setting.bGlob_max = 0.400;
-        setting.bRand_min = 0.001;
-        setting.bRand_max = 0.100;
-        setting.total_core = 4;
+        setting.setbGlobMin(0.100);
+        setting.setbGlobMax(0.400);
+        setting.setbLocMin(0.600);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.100);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(10);
+        setting.setTotalCore(4);
     }
 
     @Test
