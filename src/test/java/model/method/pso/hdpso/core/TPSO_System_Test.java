@@ -63,6 +63,33 @@ import org.junit.Test;
         System.out.printf("GBest %f\n", pso.getFitness());
     }
 
+    @Test public void testSystemWithWindow()
+    {
+        Setting setting = Setting.getInstance();
+        setting.setbGlobMin(0.400);
+        setting.setbGlobMax(0.600);
+        setting.setbLocMin(0.700);
+        setting.setbLocMax(0.900);
+        setting.setbRandMin(0.001);
+        setting.setbRandMax(0.010);
+        setting.setMaxParticle(10);
+        setting.setMaxEpoch(10000);
+        setting.setTotalCore(4);
+        setting.setWindowSize(20);
+
+        @NotNull final PSO pso = new PSO(this.dsLoader);
+        Assert.assertNotNull(pso);
+        pso.initialize();
+        while(!pso.isConditionSatisfied())
+        {
+            pso.updatePBest();
+            pso.assignGBest();
+            pso.evaluateParticle();
+            pso.updateStoppingCondition();
+        }
+        System.out.printf("GBest %f\n", pso.getFitness());
+    }
+
     @Test public void testSystemMultiThread()
     {
         Setting setting = Setting.getInstance();

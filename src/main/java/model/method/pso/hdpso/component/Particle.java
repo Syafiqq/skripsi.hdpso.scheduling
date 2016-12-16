@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final PlacementProperty placement_properties;
     @NotNull private final RepairProperty[]  repair_properties;
     @NotNull private final IntHList[]        lesson_conflicts;
+    private final          int               window_size;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
@@ -50,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
         this.placement_properties = placement_properties;
         this.repair_properties = repair_properties;
         this.random = new Random();
+        this.window_size = this.setting.getWindowSize();
     }
 
     public void assignPBest()
@@ -83,6 +85,7 @@ import org.jetbrains.annotations.NotNull;
         {
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            Velocity.truncate(this.window_size, velocity[c_data]);
             Position.update(property.getDLoc(c_data), velocity[c_data]);
         }
 
@@ -93,6 +96,7 @@ import org.jetbrains.annotations.NotNull;
         {
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            Velocity.truncate(this.window_size, velocity[c_data]);
             Position.update(property.getDGlob(c_data), velocity[c_data]);
         }
 
@@ -103,12 +107,14 @@ import org.jetbrains.annotations.NotNull;
         {
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(random_coefficient * constants_coefficient, this.velocity[c_data], v_temp[c_data]);
+            Velocity.truncate(this.window_size, this.velocity[c_data]);
         }
 
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], property.getDLoc(c_data), property.getDGlob(c_data), p_mimic[c_data], p_cont[c_data]);
             Velocity.multiplication(0.5, velocity[c_data], v_temp[c_data]);
+            Velocity.truncate(this.window_size, velocity[c_data]);
             Position.update(property.getDGlob(c_data), velocity[c_data]);
             Position.update(property.getDGlob(c_data), this.velocity[c_data]);
         }
