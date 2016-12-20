@@ -12,6 +12,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
+
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -74,13 +76,24 @@ import org.jetbrains.annotations.NotNull;
         final URL db = ClassLoader.getSystemClassLoader().getResource("db/db.mcrypt");
         if(db != null)
         {
-            final String dbUrl = "jdbc:sqlite:" + db.getPath();
+            final String dbUrl;
+            try
+            {
+                dbUrl = java.net.URLDecoder.decode("jdbc:sqlite:" + db.getPath(), "UTF-8");
+            }
+            catch(UnsupportedEncodingException ignored)
+            {
+                System.err.println("Error Parse DB");
+                System.exit(-1);
+                return;
+            }
             try
             {
                 super.connection = DriverManager.getConnection(dbUrl);
             }
             catch(SQLException ignored)
             {
+                ignored.printStackTrace();
                 System.err.println("Error Activating Database");
                 System.exit(-1);
             }
