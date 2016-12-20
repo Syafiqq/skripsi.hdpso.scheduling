@@ -18,6 +18,11 @@ import model.method.pso.hdpso.core.VelocityCalculator;
 
     static
     {
+        /*
+        * operator : desc
+        * 0 = random val [0 ... 1]
+        * 1 = (max {loc, glob, rand})
+        * */
         PURE_PSO = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
@@ -35,6 +40,14 @@ import model.method.pso.hdpso.core.VelocityCalculator;
                 return operator[0] * operator[1];
             }
         };
+        /*
+        * operator : desc
+        * 0 = random val [0 ... 1]
+        * 1 = (max {loc, glob, rand})
+        * 2 = (min {loc, glob, rand})
+        * 3 = current epoch
+        * 4 = max epoch
+        * */
         PTVPSO = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
@@ -52,21 +65,29 @@ import model.method.pso.hdpso.core.VelocityCalculator;
                 return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
             }
         };
+        /*
+        * tv_weight = time variant weight
+        * operator : desc
+        * 1 = (max {loc, glob, rand})
+        * 2 = (min {loc, glob, rand})
+        * 3 = current epoch
+        * 4 = max epoch
+        * */
         PURE_PTVPSO = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
             {
-                return (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+                return Setting.ourInstance.tv_weight * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
             }
 
             @Override public double calculateGlob(double... operator)
             {
-                return (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
             }
 
             @Override public double calculateRand(double... operator)
             {
-                return (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
             }
         };
     }
@@ -80,6 +101,7 @@ import model.method.pso.hdpso.core.VelocityCalculator;
     private double bGlob_max;
     private double bRand_min;
     private double bRand_max;
+    private double tv_weight;
 
     private int                total_core;
     private int                total_pool;
@@ -96,6 +118,7 @@ import model.method.pso.hdpso.core.VelocityCalculator;
         this.bGlob_max = 0.0;
         this.bRand_min = 0.0;
         this.bRand_max = 0.0;
+        this.tv_weight = 1.0;
 
         this.max_particle = 0;
         this.setTotalCore(Runtime.getRuntime().availableProcessors());
@@ -240,5 +263,15 @@ import model.method.pso.hdpso.core.VelocityCalculator;
     public void setCalculator(VelocityCalculator calculator)
     {
         this.calculator = calculator;
+    }
+
+    public double getTimeVariantWeight()
+    {
+        return this.tv_weight;
+    }
+
+    public void setTimeVariantWeight(double tv_weight)
+    {
+        this.tv_weight = tv_weight;
     }
 }
