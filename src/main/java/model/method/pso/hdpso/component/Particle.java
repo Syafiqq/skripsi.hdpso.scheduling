@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Random;
 import model.dataset.component.DSScheduleShufflingProperty;
 import model.method.pso.hdpso.core.ScheduleRandomable;
+import model.method.pso.hdpso.core.VelocityCalculator;
 import model.util.list.IntHList;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,13 +19,14 @@ import org.jetbrains.annotations.NotNull;
 {
     public static final Comparator<Particle> particlePBestFitnessDescComparator = (p1, p2) -> (int) (p2.pBest.getFitness() - p1.pBest.getFitness());
 
-    @NotNull private final Setting           setting;
-    @NotNull private final Random            random;
-    @NotNull private final VelocityProperty  velocity_properties;
-    @NotNull private final PlacementProperty placement_properties;
-    @NotNull private final RepairProperty[]  repair_properties;
-    @NotNull private final IntHList[]        lesson_conflicts;
-    private final          int               window_size;
+    @NotNull private final Setting            setting;
+    @NotNull private final Random             random;
+    @NotNull private final VelocityProperty   velocity_properties;
+    @NotNull private final PlacementProperty  placement_properties;
+    @NotNull private final RepairProperty[]   repair_properties;
+    @NotNull private final IntHList[]         lesson_conflicts;
+    @NotNull private final VelocityCalculator movement_coefficient;
+    private final          int                window_size;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
@@ -52,6 +54,7 @@ import org.jetbrains.annotations.NotNull;
         this.repair_properties = repair_properties;
         this.random = new Random();
         this.window_size = this.setting.getWindowSize();
+        this.movement_coefficient = this.setting.getCalculator();
     }
 
     public void assignPBest()
@@ -78,35 +81,26 @@ import org.jetbrains.annotations.NotNull;
         property.initializeDLoc(super.data);
         property.initializeDGlob(super.data);
 
-        random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.getbLocMax();
-        //constants_coefficient = ((this.setting.bLoc_max - this.setting.bLoc_min) * (cEpoch * 1f / max_epoch)) + this.setting.bLoc_min;
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], super.pBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
-            Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            Velocity.multiplication(movement_coefficient.calculateLoc(this.random.nextDouble(), this.setting.getbLocMax(), this.setting.getbLocMin(), cEpoch, max_epoch), velocity[c_data], v_temp[c_data]);
             Velocity.truncate(this.window_size, velocity[c_data]);
             Position.update(property.getDLoc(c_data), velocity[c_data]);
         }
 
-        random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.getbGlobMax();
-        //constants_coefficient = this.setting.bGlob_max - ((this.setting.bGlob_max - this.setting.bGlob_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(velocity[c_data], gBest.getPosition(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
-            Velocity.multiplication(random_coefficient * constants_coefficient, velocity[c_data], v_temp[c_data]);
+            Velocity.multiplication(movement_coefficient.calculateGlob(this.random.nextDouble(), this.setting.getbGlobMax(), this.setting.getbLocMin(), cEpoch, max_epoch), velocity[c_data], v_temp[c_data]);
             Velocity.truncate(this.window_size, velocity[c_data]);
             Position.update(property.getDGlob(c_data), velocity[c_data]);
         }
 
-        random_coefficient = this.random.nextDouble();
-        constants_coefficient = this.setting.getbRandMax();
-        //constants_coefficient = this.setting.bRand_max - ((this.setting.bRand_max - this.setting.bRand_min) * (cEpoch * 1f / max_epoch));
         for(int c_data = -1; ++c_data < position_length; )
         {
             Velocity.calculateDistance(this.velocity[c_data], property.getPRand(c_data), super.data.getPosition(c_data), p_mimic[c_data], p_cont[c_data]);
-            Velocity.multiplication(random_coefficient * constants_coefficient, this.velocity[c_data], v_temp[c_data]);
+            Velocity.multiplication(movement_coefficient.calculateRand(this.random.nextDouble(), this.setting.getbRandMax(), this.setting.getbRandMin(), cEpoch, max_epoch), this.velocity[c_data], v_temp[c_data]);
             Velocity.truncate(this.window_size, this.velocity[c_data]);
         }
 
