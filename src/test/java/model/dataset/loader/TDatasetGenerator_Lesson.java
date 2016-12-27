@@ -190,4 +190,29 @@ import org.junit.Test;
             }
         }
     }
+
+
+    @SuppressWarnings("ConstantConditions") @Test
+    public void test_lesson_001()
+    {
+        int nullTotal = 0;
+        int nonnulTotal = 0;
+        int counter = 0;
+        for(final DSLesson lesson : this.dsLoader.getDataset().getLessons())
+        {
+            System.out.println(++counter + "  " + (lesson == null));
+            if(lesson == null)
+            {
+                ++nullTotal;
+            }
+            else
+            {
+                nonnulTotal += lesson.getSks();
+            }
+        }
+
+        System.out.println("nullTotal = " + nullTotal);
+        System.out.println("nonnulTotal = " + nonnulTotal);
+        System.out.println(nonnulTotal + nullTotal);
+    }
 }
