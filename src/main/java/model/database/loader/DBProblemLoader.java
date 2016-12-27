@@ -92,7 +92,6 @@ import org.jetbrains.annotations.NotNull;
             }
             catch(SQLException ignored)
             {
-                ignored.printStackTrace();
                 System.err.println("Error Activating Database");
                 System.exit(-1);
             }
