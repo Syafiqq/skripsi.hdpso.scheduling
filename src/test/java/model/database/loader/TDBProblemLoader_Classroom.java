@@ -45,6 +45,7 @@ public class TDBProblemLoader_Classroom
         {
             Assert.assertNotNull(db_classroom);
 
+            System.out.println(db_classroom.getId());
             System.out.println(db_classroom.getName());
             System.out.println(db_classroom.getTimeoff());
             System.out.println();
