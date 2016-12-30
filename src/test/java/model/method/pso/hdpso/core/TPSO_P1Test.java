@@ -112,11 +112,31 @@ import java.util.Arrays;
             }
         }
 
+
+
         //this.printClusterClassroomMember();
         //this.printClusterGroupClassroomMember();
         //this.printParticleAsc(pso);
-        this.printParticle(pso);
+        //this.printParticlePosition(pso);
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            pso.repair(particle);
+            pso.calculate(particle);
+            particle.assignPBest();
+        }
+        pso.assignGBest();
+        this.printParticleFitness(pso);
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            particle.calculateVelocity(pso.gBest, 1, 10000);
+            pso.repair(particle);
+            pso.calculate(particle);
+            particle.updateData();
+        }
+        this.printParticleFitness(pso);
+
     }
+
 
     private void printClusterGroupClassroomMember()
     {
@@ -175,17 +195,43 @@ import java.util.Arrays;
     }
 
 
-    private void printParticle(@NotNull PSO pso)
+    private void printParticlePosition(@NotNull PSO pso)
     {
         for(final Particle p : pso.getParticles())
         {
             for(final Position pp : p.getData().getPositions())
             {
+                for(int i = -1, is = 8; ++i < is;)
+                {
+                    System.out.printf("%d", pp.getPosition()[i]);
+                    System.out.printf("\t");
+                }
+                System.out.printf("⋯");
+                System.out.printf("\t");
+                System.out.printf("%d\n", pp.getPosition()[pp.getPositionSize()-1]);
+                /*
                 //System.out.println(Arrays.toString(pp.getPosition()));
                 Arrays.stream(pp.getPosition()).forEach(value -> System.out.printf("%d\t", value));
-                System.out.println();
+                System.out.println();*/
             }
             System.out.println();
+        }
+    }
+
+
+    private void printParticleFitness(@NotNull final PSO pso)
+    {
+        for(final Particle p : pso.getParticles())
+        {
+            System.out.printf("%f\n", p.getFitness());
+        }
+    }
+
+    private void printParticlePBestFitness(@NotNull final PSO pso)
+    {
+        for(final Particle p : pso.getParticles())
+        {
+            System.out.printf("%f\n", p.getPBest().getFitness());
         }
     }
 
