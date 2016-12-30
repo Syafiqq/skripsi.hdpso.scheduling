@@ -120,9 +120,9 @@ import org.jetbrains.annotations.Nullable;
                 executor.execute(particle::assignPBest);
             }
             executor.shutdown();
-            //noinspection StatementWithEmptyBody
             try
             {
+                //noinspection StatementWithEmptyBody
                 while(!executor.awaitTermination(1, TimeUnit.MINUTES))
                 {
                 }
@@ -158,9 +158,9 @@ import org.jetbrains.annotations.Nullable;
                 });
             }
             executor.shutdown();
-            //noinspection StatementWithEmptyBody
             try
             {
+                //noinspection StatementWithEmptyBody
                 while(!executor.awaitTermination(1, TimeUnit.MINUTES))
                 {
                 }
@@ -560,6 +560,12 @@ import org.jetbrains.annotations.Nullable;
                                     * Try to shift time cluster
                                     * */
                                     time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
+                                }
+                                else
+                                {
+                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                    continue cluster;
                                 }
                             }
                             /*
@@ -1754,6 +1760,7 @@ import org.jetbrains.annotations.Nullable;
                                                 * Search that lesson
                                                 * */
                                                 int c_lesson_remaining = c_lesson;
+                                                //noinspection StatementWithEmptyBody
                                                 while(lessons[lesson_set[++c_lesson_remaining]].getSks() != c_remaining)
                                                 {
 
