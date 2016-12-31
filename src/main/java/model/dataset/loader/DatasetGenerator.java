@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.ThreadLocalRandom;
 import model.database.component.DBAvailability;
 import model.database.component.DBClass;
 import model.database.component.DBClassroom;
@@ -459,12 +460,14 @@ import org.jetbrains.annotations.NotNull;
         {
             try
             {
-                final @NotNull int[]     available_classroom = lesson.getAvailableClassroom();
-                final @NotNull boolean[] allowed_classroom   = lesson.getAllowedClassroom();
+                final @NotNull int[]     shuffled_available_classroom = lesson.getShuffledAvailableClassroom(ThreadLocalRandom.current());
+                final @NotNull int[]     available_classroom          = lesson.getAvailableClassroom();
+                final @NotNull boolean[] allowed_classroom            = lesson.getAllowedClassroom();
                 for(int c_available_classroom = -1, cs_available_classroom = available_classroom.length; ++c_available_classroom < cs_available_classroom; )
                 {
                     allowed_classroom[available_classroom[c_available_classroom]] = false;
                     available_classroom[c_available_classroom] = globalConverter[available_classroom[c_available_classroom]];
+                    shuffled_available_classroom[c_available_classroom] = available_classroom[c_available_classroom];
                     allowed_classroom[available_classroom[c_available_classroom]] = true;
                 }
             }
