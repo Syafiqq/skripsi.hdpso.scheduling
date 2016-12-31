@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal", "unused"}) public class PSO extends PSOOperation<Data, Velocity, Particle, DSScheduleShufflingProperty> implements ScheduleRandomable<Position[], DSScheduleShufflingProperty>, PositionRepairable<Particle>
 {
     private final @NotNull int[]                        active_days;
-    private final @NotNull int[]                        shuffled_active_days;
     private final @NotNull int[]                        active_periods;
     private final @NotNull int[]                        sks_distribution;
     private final @NotNull int[][][]                    clustered_classroom_time;
@@ -69,7 +68,6 @@ import org.jetbrains.annotations.Nullable;
         * Retrieve dataset
         * */
         this.active_days = dataset.getDays();
-        this.shuffled_active_days = IntArrays.copy(this.active_days);
         this.active_periods = dataset.getPeriods();
         this.classes = dataset.getClasses();
         this.classrooms = dataset.getClassrooms();
@@ -100,7 +98,7 @@ import org.jetbrains.annotations.Nullable;
         /*
         * Mark Multiprocess
         * */
-        isMultiProcess = this.setting.getMultiProcess();
+        this.isMultiProcess = this.setting.getMultiProcess();
 
         /*
         * Initialize current epoch
@@ -215,7 +213,7 @@ import org.jetbrains.annotations.Nullable;
             @NotNull final RepairProperty[] repair = new RepairProperty[this.lesson_cluster.length];
             for(int c_cluster = -1, pool_size = this.lesson_cluster.length; ++c_cluster < pool_size; )
             {
-                repair[c_cluster] = new RepairProperty(this.lesson_cluster[c_cluster].getClassroomTotal(), this.active_days.length);
+                repair[c_cluster] = new RepairProperty(this.lesson_cluster[c_cluster].getClassroomTotal(), this.active_days);
             }
 
             /*
@@ -726,19 +724,19 @@ import org.jetbrains.annotations.Nullable;
                                                  * Lookup all its lesson available classroom
                                                  * */
                                                 lookup_replacement:
-                                                for(int classroom_lookup : lesson.getAvailableClassroom())
+                                                for(int classroom_lookup : lesson.getShuffledAvailableClassroom(particle.getRandom()))
                                                 {
                                                     /*
                                                     * Lookup operational day of current classroom
                                                     * */
-                                                    for(int day_lookup : active_days)
+                                                    for(int day_lookup : repair_property.getShuffledDay(particle.getRandom()))
                                                     {
                                                         int lookup_start = -1;
                                                         int lookup_end   = -1;
                                                         /*
                                                          * Check if current classroom and day is already observed for lookup_start
                                                          * */
-                                                        if(rp_absent[classroom_lookup][day_lookup])
+                                                        if(rp_absent[classroom_lookup][day_lookup] && ((classroom_lookup < classroom) || (day_lookup < day)))
                                                         {
                                                             /*
                                                              * Check if current classroom and the day after is already observed for lookup_end
@@ -890,19 +888,19 @@ import org.jetbrains.annotations.Nullable;
                                         * Try to shuffle available classroom first
                                         * */
                                         lookup_replacement:
-                                        for(int classroom_lookup : lesson.getAvailableClassroom())
+                                        for(int classroom_lookup : lesson.getShuffledAvailableClassroom(particle.getRandom()))
                                         {
                                             /*
                                             * Lookup operational day of current classroom
                                             * */
-                                            for(int day_lookup : active_days)
+                                            for(int day_lookup : repair_property.getShuffledDay(particle.getRandom()))
                                             {
                                                 int lookup_start = -1;
                                                 int lookup_end   = -1;
                                                 /*
                                                  * Check if current classroom and day is already observed for lookup_start
                                                  * */
-                                                if(rp_absent[classroom_lookup][day_lookup])
+                                                if(rp_absent[classroom_lookup][day_lookup] && ((classroom_lookup < classroom) || (day_lookup < day)))
                                                 {
                                                     /*
                                                      * Check if current classroom and the day after is already observed for lookup_end
@@ -988,19 +986,19 @@ import org.jetbrains.annotations.Nullable;
                                              * Lookup all its lesson available classroom
                                              * */
                                             lookup_replacement:
-                                            for(int classroom_lookup : lesson.getAvailableClassroom())
+                                            for(int classroom_lookup : lesson.getShuffledAvailableClassroom(particle.getRandom()))
                                             {
                                                 /*
                                                 * Lookup operational day of current classroom
                                                 * */
-                                                for(int day_lookup : active_days)
+                                                for(int day_lookup : repair_property.getShuffledDay(particle.getRandom()))
                                                 {
                                                     int lookup_start = -1;
                                                     int lookup_end   = -1;
                                                     /*
                                                      * Check if current classroom and day is already observed for lookup_start
                                                      * */
-                                                    if(rp_absent[classroom_lookup][day_lookup])
+                                                    if(rp_absent[classroom_lookup][day_lookup] && ((classroom_lookup < classroom) || (day_lookup < day)))
                                                     {
                                                         /*
                                                          * Check if current classroom and the day after is already observed for lookup_end
