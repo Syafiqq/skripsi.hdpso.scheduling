@@ -1,6 +1,8 @@
 package model.dataset.component;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import java.util.Random;
 import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.dataset.core.DatasetConverter;
@@ -23,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
     final private int[]     lesson_link;
     final private int[]     available_classroom;
     final private boolean[] allowed_classroom;
+    final private int[]     shuffled_available_classroom;
+    private       int       shuffle_cycle;
 
     public DSLesson(int klass, int subject, int lecture, int sks, int lesson_parent, int[] lesson_link, int[] available_classroom, boolean[] allowed_classroom)
     {
@@ -33,7 +37,10 @@ import org.jetbrains.annotations.NotNull;
         this.lesson_parent = lesson_parent;
         this.lesson_link = lesson_link;
         this.available_classroom = available_classroom;
+        this.shuffled_available_classroom = new int[available_classroom.length];
+        System.arraycopy(this.available_classroom, 0, this.shuffled_available_classroom, 0, available_classroom.length);
         this.allowed_classroom = allowed_classroom;
+        this.shuffle_cycle = -1;
     }
 
     public static DSLesson newInstance(final @NotNull DatasetConverter encoder, final @NotNull DBLesson lesson, int[] lesson_link)
@@ -106,6 +113,16 @@ import org.jetbrains.annotations.NotNull;
     public int[] getAvailableClassroom()
     {
         return this.available_classroom;
+    }
+
+    public int[] getShuffledAvailableClassroom(@NotNull final Random random)
+    {
+        if(++this.shuffle_cycle > 5)
+        {
+            IntArrays.shuffle(this.shuffled_available_classroom, random);
+            this.shuffle_cycle = -1;
+        }
+        return this.shuffled_available_classroom;
     }
 
     public boolean[] getAllowedClassroom()
