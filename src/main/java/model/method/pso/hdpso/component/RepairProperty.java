@@ -1,6 +1,8 @@
 package model.method.pso.hdpso.component;
 
+import it.unimi.dsi.fastutil.ints.IntArrays;
 import java.util.Arrays;
+import java.util.Random;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -14,11 +16,16 @@ import org.jetbrains.annotations.NotNull;
 {
     @NotNull private final boolean[][] absent;
     @NotNull private final int[][]     index;
+    @NotNull private final int[]       shuffled_day;
+    private                int         shuffle_cycle;
 
-    public RepairProperty(int classroom_length, int day_length)
+    public RepairProperty(int classroom_length, @NotNull int[] day)
     {
-        this.absent = new boolean[classroom_length][day_length];
-        this.index = new int[classroom_length][day_length];
+        this.absent = new boolean[classroom_length][day.length];
+        this.index = new int[classroom_length][day.length];
+        this.shuffled_day = new int[day.length];
+        System.arraycopy(day, 0, this.shuffled_day, 0, day.length);
+        this.shuffle_cycle = -1;
     }
 
     public void resetAbsent()
@@ -47,6 +54,16 @@ import org.jetbrains.annotations.NotNull;
 
     public void decrementIndex(final int classroom, final int day) throws ArrayIndexOutOfBoundsException
     {
-        --index[classroom][day];
+        --this.index[classroom][day];
+    }
+
+    public @NotNull int[] getShuffledDay(@NotNull final Random random)
+    {
+        if(++this.shuffle_cycle > 5)
+        {
+            IntArrays.shuffle(this.shuffled_day, random);
+            this.shuffle_cycle = -1;
+        }
+        return this.shuffled_day;
     }
 }
