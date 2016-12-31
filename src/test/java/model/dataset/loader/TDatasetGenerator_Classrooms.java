@@ -73,4 +73,18 @@ public class TDatasetGenerator_Classrooms
     {
         System.out.println(this.dsLoader.getEncoder().getClassrooms().keySet());
     }
+
+    @Test public void nonactiveClassroomTimeoff()
+    {
+        final @NotNull Dataset dataset = this.dsLoader.getDataset();
+        long size = 0;
+        for(final DSTimeOff timeOff : dataset.getClassrooms())
+        {
+            for(double [] tmpTimeOff : timeOff.getTimeoff())
+            {
+                size += Arrays.stream(tmpTimeOff).filter(value -> value == 0.2).count();
+            }
+        }
+        System.out.println(size);
+    }
 }
