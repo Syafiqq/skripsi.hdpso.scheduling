@@ -169,4 +169,9 @@ import org.jetbrains.annotations.NotNull;
     {
         return this.repair_properties[cluster];
     }
+
+    public @NotNull Random getRandom()
+    {
+        return this.random;
+    }
 }
