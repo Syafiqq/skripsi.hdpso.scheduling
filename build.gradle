@@ -57,7 +57,7 @@ task travisUnitTest(type: Test) {
     exclude 'model/method/pso/hdpso/core/TPSO_System_Test.class'
     exclude 'model/method/pso/hdpso/core/TPSO_InitializeParticle.class'
     exclude 'model/method/pso/hdpso/core/TPSO_SystemComparison.class'
-    exclude 'controller/main/TMain.class'
+    exclude 'view/THome.class'
 }
 
 apply plugin: 'javafx-gradle-plugin'
@@ -69,7 +69,7 @@ apply plugin: 'javafx-gradle-plugin'
 // for all available settings please look at the class "JavaFXGradlePluginExtension"
 jfx {
     // minimal requirement for jfxJar-task
-    mainClass = 'main.Main'
+    mainClass = 'view.IHome'
 
     // minimal requirement for jfxNative-task
     vendor = 'YourName'
