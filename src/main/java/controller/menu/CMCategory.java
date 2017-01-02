@@ -291,7 +291,7 @@ public class CMCategory implements Initializable
 
     @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatConflict(@NotNull final Particle particle, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
-                /*
+        /*
         * Initialize Conflict placement property
         * */
         @NotNull final PlacementProperty placement_property = particle.getPlacementProperty();
@@ -319,9 +319,6 @@ public class CMCategory implements Initializable
         @NotNull final DBClass   empty_class   = new DBClass(-1, "—", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
-        @NotNull final DSTimeOff[]                timeoff_subject       = dsLoader.getDataset().getSubjects();
-        @NotNull final DSTimeOff[]                timeoff_lecture       = dsLoader.getDataset().getLecturers();
-        @NotNull final DSTimeOff[]                timeoff_class         = dsLoader.getDataset().getClasses();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
         @NotNull final Int2IntMap                 day_decoder           = dsLoader.getDecoder().getActiveDays();
         @NotNull final Int2IntMap                 period_decoder        = dsLoader.getDecoder().getActivePeriods();
