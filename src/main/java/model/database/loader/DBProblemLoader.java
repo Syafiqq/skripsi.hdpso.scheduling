@@ -1031,4 +1031,18 @@ import org.jetbrains.annotations.NotNull;
         return this.operating_classroom_allowed_lesson;
     }
 
+    public int getClassroomSize()
+    {
+        return this.classrooms.size();
+    }
+
+    public int getDaySize()
+    {
+        return this.days.size();
+    }
+
+    public DBClassroom getClassroom(final int classroom)
+    {
+        return this.classrooms.get(classroom);
+    }
 }
