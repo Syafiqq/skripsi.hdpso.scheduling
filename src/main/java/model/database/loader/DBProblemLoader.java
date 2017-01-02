@@ -1045,4 +1045,24 @@ import org.jetbrains.annotations.NotNull;
     {
         return this.classrooms.get(classroom);
     }
+
+    public int getLessonSize()
+    {
+        return this.lessons.size();
+    }
+
+    public int getLectureSize()
+    {
+        return this.lecturers.size();
+    }
+
+    public int getClassSize()
+    {
+        return this.classes.size();
+    }
+
+    public int getSubjectSize()
+    {
+        return this.subjects.size();
+    }
 }
