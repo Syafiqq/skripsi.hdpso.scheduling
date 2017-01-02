@@ -73,7 +73,8 @@
             </graphic>
         </Button>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Button alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" text="Generate">
+        <Button fx:id="mc_button_generate" alignment="CENTER" contentDisplay="TOP" minWidth="80.0"
+                mnemonicParsing="false" onAction="#onMenuCategoryGenerateClick" text="Generate">
             <graphic>
                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                     <image>
