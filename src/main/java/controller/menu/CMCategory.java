@@ -94,16 +94,16 @@ public class CMCategory implements Initializable
                 particle.assignPBest();
             }
             pso.assignGBest();
-            System.out.println(pso.getFitness());
             @NotNull final Observer webContent = (o, arg) ->
             {
                 if(arg instanceof String)
                 {
-                    @NotNull final WebView result = new WebView();
-                    result.getEngine().loadContent((String) arg, "text/html");
-                    if(content != null)
+                    @NotNull final WebView web_content = new WebView();
+                    web_content.getEngine().loadContent((String) arg, "text/html");
+                    web_content.getEngine().setJavaScriptEnabled(true);
+                    if(this.content != null)
                     {
-                        content.update(null, result);
+                        this.content.update(null, new Object[] {web_content, Double.valueOf(pso.getFitness())});
                     }
                 }
             };
@@ -180,11 +180,28 @@ public class CMCategory implements Initializable
         sb.append("padding: 5px 0;");
         sb.append("border-radius: 6px;");
         sb.append("");
-        sb.append("");
         sb.append("/* Position the tooltip text - see examples below! */");
         sb.append("position: absolute;");
         sb.append("z-index: 1;");
         sb.append("}");
+        sb.append("");
+        sb.append("");
+        sb.append("");
+        sb.append("");
+        sb.append("");
+        sb.append("#header-wrap {");
+        sb.append("background: #eeeeff;");
+        sb.append("position: fixed;");
+        sb.append("width: 100%;");
+        sb.append("height: 50px;");
+        sb.append("top: 0;");
+        sb.append("z-index: 1;");
+        sb.append("}");
+        sb.append("#container{");
+        sb.append("margin-top: 50px;");
+        sb.append("}");
+        sb.append("");
+        sb.append("/* Position the tooltip text - see examples below! */");
         sb.append("");
         sb.append("/* Show the tooltip text when you mouse over the tooltip container */");
         sb.append(".tooltip:hover .tooltiptext {");
@@ -192,6 +209,24 @@ public class CMCategory implements Initializable
         sb.append("}");
         sb.append("</style>");
         sb.append("<body>");
+        sb.append("<div id=\"header-wrap\">");
+        sb.append("Tampilkan : &nbsp;&nbsp;&nbsp;");
+        sb.append("<select id=\"s_t\">");
+        sb.append("<option value=\"t_0\">Pelajaran</option>");
+        sb.append("<option value=\"t_1\">Dosen</option>");
+        sb.append("<option value=\"t_2\">Kelas</option>");
+        sb.append("<option value=\"t_3\">Matakuliah</option>");
+        sb.append("<option value=\"t_4\">Constraint1</option>");
+        sb.append("<option value=\"t_5\">Constraint2</option>");
+        sb.append("<option value=\"t_6\">Constraint3</option>");
+        sb.append("<option value=\"t_7\">Constraint4</option>");
+        sb.append("<option value=\"t_8\">Constraint5</option>");
+        sb.append("<option value=\"t_9\">Constraint6</option>");
+        sb.append("<option value=\"t_10\">Constraint7</option>");
+        sb.append("<option value=\"t_11\">Constraint8</option>");
+        sb.append("</select>");
+        sb.append("</div>");
+        sb.append("<div id=\"container\">");
         @NotNull final ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> sb.append(this._formatLesson(gBest, dsLoader, dbLoader)));
         executor.shutdown();
@@ -205,6 +240,13 @@ public class CMCategory implements Initializable
         catch(InterruptedException ignored)
         {
         }
+        sb.append("</div>");
+        sb.append("");
+        sb.append("<script type=\"text/javascript\">");
+        sb.append("var tt=[\"tt_0\"],filter=document.getElementById(\"s_t\"),changeHandler=function(){for(var a=-1,b=tt.length;++a<b;)null!==document.getElementById(tt[a])&&(document.getElementById(tt[a]).style.display=\"none\");var c=this.value.split(\"_\");null!==document.getElementById(\"tt_\"+c[1])&&(document.getElementById(\"tt_\"+c[1]).style.display=\"table\")};filter.addEventListener?filter.addEventListener(\"change\",changeHandler,!1):filter.attachEvent?filter.attachEvent(\"onchange\",changeHandler):filter.onchange=changeHandler,document.getElementById(\"tt_0\").style.display=\"table\";");
+        sb.append("</script>");
+        sb.append("");
+        sb.append("");
         sb.append("");
         sb.append("</body>");
         sb.append("</html>");
@@ -422,9 +464,9 @@ public class CMCategory implements Initializable
         }
 
         @NotNull final StringBuilder combined = new StringBuilder();
-        combined.append("<table width=\"")
+        combined.append("<table id=\"tt_0\" width=\"")
                 .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
-                .append("px\">");
+                .append("px\" style=\"display:none\">");
         combined.append("<tr>");
         for(int c_d = -1, c_ds = arranged_day.length; ++c_d < c_ds; )
         {
