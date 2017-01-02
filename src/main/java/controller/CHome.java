@@ -5,6 +5,7 @@ import controller.menu.CMDeveloper;
 import controller.menu.CMHome;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Observer;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,6 +29,7 @@ public class CHome implements Initializable
     @FXML public Button     home_menu_home;
     @FXML public Button     home_menu_configuration;
     @FXML public Button     home_menu_development;
+    @FXML public BorderPane home_container;
 
     @Override public void initialize(URL location, ResourceBundle resources)
     {
@@ -61,9 +63,17 @@ public class CHome implements Initializable
 
     public void onConfigurationClick()
     {
+        Observer content = (o, arg) ->
+        {
+            if(arg instanceof Node)
+            {
+                this.home_container.setCenter(null);
+                this.home_container.setCenter((Node) arg);
+            }
+        };
         try
         {
-            this.setRibbon(IMCategory.load(new CMCategory()).load());
+            this.setRibbon(IMCategory.load(new CMCategory(content)).load());
         }
         catch(IOException ignored)
         {
