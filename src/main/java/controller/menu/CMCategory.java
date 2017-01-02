@@ -445,6 +445,7 @@ public class CMCategory implements Initializable
                 {
                     @NotNull final StringBuilder tmp_query = new StringBuilder();
                     dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1);
+                    //noinspection unchecked
                     for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
                     {
                         if(timeoff.getAvailability().getId() == 1)
