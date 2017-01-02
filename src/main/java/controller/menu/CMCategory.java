@@ -256,7 +256,7 @@ public class CMCategory implements Initializable
         callback.update(null, sb.toString());
     }
 
-    @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatSubject(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatSubject(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
         /*
         * Initialize Container
@@ -450,6 +450,7 @@ public class CMCategory implements Initializable
             arranged_day[_day.getPosition() - 1] = _day.getId();
         }
 
+        //noinspection Convert2streamapi
         for(final int _classroom : dbLoader.getClassrooms().keySet())
         {
             if(!query.containsKey(_classroom))
@@ -525,7 +526,7 @@ public class CMCategory implements Initializable
         return combined.toString();
     }
 
-    @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatClass(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatClass(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
         /*
         * Initialize Container
@@ -719,6 +720,7 @@ public class CMCategory implements Initializable
             arranged_day[_day.getPosition() - 1] = _day.getId();
         }
 
+        //noinspection Convert2streamapi
         for(final int _classroom : dbLoader.getClassrooms().keySet())
         {
             if(!query.containsKey(_classroom))
@@ -794,7 +796,7 @@ public class CMCategory implements Initializable
         return combined.toString();
     }
 
-    @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatLecture(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatLecture(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
         /*
         * Initialize Container
@@ -821,9 +823,9 @@ public class CMCategory implements Initializable
         @NotNull final Int2ObjectMap<DBPeriod>    decoded_period        = dbLoader.getPeriods();
 
         @NotNull final Int2ObjectMap<ColorPair> lectureColor = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getLectureSize());
-        for(final int _lesson : dbLoader.getLecturers().keySet())
+        for(final int _lecturer : dbLoader.getLecturers().keySet())
         {
-            lectureColor.put(_lesson, new ColorPair(new Color(Color.HSBtoRGB((float) FastMath.random(), (float) FastMath.random(), 0.5F + ((float) FastMath.random()) / 2F))));
+            lectureColor.put(_lecturer, new ColorPair(new Color(Color.HSBtoRGB((float) FastMath.random(), (float) FastMath.random(), 0.5F + ((float) FastMath.random()) / 2F))));
         }
 
         int i_cluster = -1;
@@ -988,6 +990,7 @@ public class CMCategory implements Initializable
             arranged_day[_day.getPosition() - 1] = _day.getId();
         }
 
+        //noinspection Convert2streamapi
         for(final int _classroom : dbLoader.getClassrooms().keySet())
         {
             if(!query.containsKey(_classroom))
@@ -1063,7 +1066,7 @@ public class CMCategory implements Initializable
         return combined.toString();
     }
 
-    @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatLesson(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatLesson(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
         /*
         * Initialize Container
@@ -1258,6 +1261,7 @@ public class CMCategory implements Initializable
             arranged_day[_day.getPosition() - 1] = _day.getId();
         }
 
+        //noinspection Convert2streamapi
         for(final int _classroom : dbLoader.getClassrooms().keySet())
         {
             if(!query.containsKey(_classroom))
