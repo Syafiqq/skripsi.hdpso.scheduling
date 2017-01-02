@@ -27,12 +27,15 @@ import model.database.component.DBTimeOff;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
+import model.dataset.component.DSTimeOff;
+import model.dataset.component.DSTimeOffPlacement;
 import model.dataset.loader.DatasetGenerator;
 import model.method.pso.hdpso.component.Data;
 import model.method.pso.hdpso.component.Particle;
-import model.method.pso.hdpso.component.Position;
+import model.method.pso.hdpso.component.PlacementProperty;
 import model.method.pso.hdpso.component.Setting;
 import model.method.pso.hdpso.core.PSO;
+import model.util.list.IntHList;
 import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +76,7 @@ public class CMCategory implements Initializable
             @NotNull final DBProblemLoader dbLoader = new DBProblemLoader(school);
             dbLoader.loadData();
             @NotNull final DatasetGenerator dsLoader = new DatasetGenerator(dbLoader);
-            @NotNull final Setting          setting  = Setting.getInstance();
+            /*@NotNull final Setting          setting  = Setting.getInstance();
             setting.setbGlobMin(0.4);
             setting.setbGlobMax(0.6);
             setting.setbLocMin(0.100);
@@ -96,7 +99,35 @@ public class CMCategory implements Initializable
             {
                 particle.assignPBest();
             }
+            pso.assignGBest();*/
+            Setting setting = Setting.getInstance();
+            setting.setbGlobMin(0.400);
+            setting.setbGlobMax(0.600);
+            setting.setbLocMin(0.700);
+            setting.setbLocMax(0.900);
+            setting.setbRandMin(0.001);
+            setting.setbRandMax(0.010);
+            setting.setMaxParticle(10);
+            setting.setMaxEpoch(10000);
+            setting.setTimeVariantWeight(1);
+            setting.setTotalCore(Runtime.getRuntime().availableProcessors());
+            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setMultiProcess(false);
+
+            @NotNull final PSO pso = new PSO(dsLoader);
+            pso.initialize();
+            while(!pso.isConditionSatisfied())
+            {
+                pso.updatePBest();
+                pso.assignGBest();
+                pso.evaluateParticle();
+                pso.updateStoppingCondition();
+            }
+            pso.updatePBest();
             pso.assignGBest();
+            Data.replaceData(pso.getParticle(0).getData(), pso.getGBest());
+            pso.repair(pso.getParticle(0));
+            pso.calculate(pso.getParticle(0));
             @NotNull final Observer webContent = (o, arg) ->
             {
                 if(arg instanceof String)
@@ -110,11 +141,11 @@ public class CMCategory implements Initializable
                     }
                 }
             };
-            Platform.runLater(() -> CMCategory.this.createResultResourceFile(webContent, pso.getGBest(), dsLoader, dbLoader));
+            Platform.runLater(() -> CMCategory.this.createResultResourceFile(webContent, pso.getParticle(0), dsLoader, dbLoader));
         });
     }
 
-    private void createResultResourceFile(final Observer callback, @NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    private void createResultResourceFile(@NotNull final Observer callback, @NotNull final Particle particle, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
     {
         @NotNull final StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>");
@@ -227,10 +258,12 @@ public class CMCategory implements Initializable
         sb.append("</div>");
         sb.append("<div id=\"container\">");
         @NotNull final ExecutorService executor = Executors.newCachedThreadPool();
-        executor.execute(() -> sb.append(this._formatLesson(gBest, dsLoader, dbLoader)));
-        executor.execute(() -> sb.append(this._formatLecture(gBest, dsLoader, dbLoader)));
-        executor.execute(() -> sb.append(this._formatClass(gBest, dsLoader, dbLoader)));
-        executor.execute(() -> sb.append(this._formatSubject(gBest, dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatLesson(particle.getData(), dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatLecture(particle.getData(), dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatClass(particle.getData(), dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatSubject(particle.getData(), dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatTimeoff(particle, dsLoader, dbLoader)));
+        executor.execute(() -> sb.append(this._formatConflict(particle, dsLoader, dbLoader)));
         executor.shutdown();
         try
         {
@@ -254,6 +287,866 @@ public class CMCategory implements Initializable
         sb.append("</html>");
 
         callback.update(null, sb.toString());
+    }
+
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatConflict(@NotNull final Particle particle, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    {
+                /*
+        * Initialize Conflict placement property
+        * */
+        @NotNull final PlacementProperty placement_property = particle.getPlacementProperty();
+        final DSTimeOffPlacement[]       lecture_placement  = placement_property.getLecturePlacement();
+        final DSTimeOffPlacement[]       class_placement    = placement_property.getClassPlacement();
+        final IntHList                   lecture_fill       = placement_property.getLectureFill();
+        final IntHList                   class_fill         = placement_property.getClassFill();
+
+        /*
+        * Initialize fitness value
+        * */
+        double[] fitness = {0.0, 0.0, 0.0, 0.0};
+
+        /*
+        * Initialize Container
+        * */
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_subject = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_lecture = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_class   = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_period  = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+
+        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject empty_subject = new DBSubject(-1, "—", "", empty_school);
+        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "—", empty_school);
+        @NotNull final DBClass   empty_class   = new DBClass(-1, "—", empty_school);
+
+        @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
+        @NotNull final DSTimeOff[]                timeoff_subject       = dsLoader.getDataset().getSubjects();
+        @NotNull final DSTimeOff[]                timeoff_lecture       = dsLoader.getDataset().getLecturers();
+        @NotNull final DSTimeOff[]                timeoff_class         = dsLoader.getDataset().getClasses();
+        @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
+        @NotNull final Int2IntMap                 day_decoder           = dsLoader.getDecoder().getActiveDays();
+        @NotNull final Int2IntMap                 period_decoder        = dsLoader.getDecoder().getActivePeriods();
+        @NotNull final Int2IntMap                 subject_decoder       = dsLoader.getDecoder().getSubjects();
+        @NotNull final Int2IntMap                 lecture_decoder       = dsLoader.getDecoder().getLecturers();
+        @NotNull final Int2IntMap                 class_decoder         = dsLoader.getDecoder().getClasses();
+        @NotNull final Int2ObjectMap<DBClassroom> decoded_classrooms    = dbLoader.getClassrooms();
+        @NotNull final Int2ObjectMap<DBDay>       decoded_days          = dbLoader.getDays();
+        @NotNull final Int2ObjectMap<DBSubject>   decoded_subjects      = dbLoader.getSubjects();
+        @NotNull final Int2ObjectMap<DBLecture>   decoded_lecturers     = dbLoader.getLecturers();
+        @NotNull final Int2ObjectMap<DBClass>     decoded_classes       = dbLoader.getClasses();
+        @NotNull final Int2ObjectMap<DBPeriod>    decoded_period        = dbLoader.getPeriods();
+
+        final ColorPair[] timeOffColor = new ColorPair[3];
+        timeOffColor[0] = new ColorPair(new Color(0xE5, 0x73, 0x73));
+        timeOffColor[1] = new ColorPair(new Color(0x81, 0xC7, 0x84));
+
+        int i_cluster = -1;
+        for(@NotNull final DSLessonCluster lesson_cluster : dsLoader.getDataset().getLessonClusters())
+        {
+            /*
+            * Increment day index
+            * */
+            ++i_cluster;
+            @NotNull final Int2IntMap classroom_lv1_decoder = lesson_cluster.getClassroomDecoder();
+
+            /*
+            * Get lessons data in current cluster
+            * */
+            final int[] lessons = particle.getData().getPosition(i_cluster).getPosition();
+
+            /*
+            * Initialize lesson counter
+            * */
+            int c_lesson = -1;
+
+            /*
+            * Get lesson according to lesson counter
+            * */
+            DSLesson lesson = encoded_lessons[lessons[++c_lesson]];
+
+            /*
+            * Get current lesson sks
+            * */
+            int lesson_sks = lesson == null ? 1 : lesson.getSks();
+
+            /*
+            * Initialize sks counter
+            * */
+            int c_sks = 0;
+
+            /*
+            * Foreach classroom in current cluster
+            * */
+            for(final int classroom : lesson_cluster.getClassrooms())
+            {
+                final int    decoded_classroom_id = classroom_lv0_decoder.get(classroom_lv1_decoder.get(classroom));
+                final String classroom_name       = decoded_classrooms.get(decoded_classroom_id).getName();
+                if(!query_subject.containsKey(decoded_classroom_id))
+                {
+                    query_subject.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_lecture.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_class.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_period.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                }
+
+                /*
+                * Initialize day index
+                * Foreach day in current classroom
+                * */
+                int i_day = -1;
+                for(final double[] day : lesson_cluster.getClassroomsTimeoff(classroom).getTimeoff())
+                {
+                    /*
+                    * Increment day index
+                    * */
+                    ++i_day;
+
+                    final int    decoded_day_id = day_decoder.get(i_day);
+                    final String day_name       = decoded_days.get(decoded_day_id).getName();
+
+                    if(!query_subject.get(decoded_classroom_id).containsKey(decoded_day_id))
+                    {
+                        query_subject.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_lecture.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_class.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_period.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                    }
+                    @SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
+                    @NotNull final StringBuilder[] tmp_query = new StringBuilder[4];
+                    tmp_query[0] = query_subject.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[1] = query_lecture.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[2] = query_class.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[3] = query_period.get(decoded_classroom_id).get(decoded_day_id);
+
+                    /*
+                    * Initialize period index
+                    * Foreach all period within day
+                    * */
+                    int i_period = -1;
+                    for(final double period : day)
+                    {
+                       /*
+                        * Increment period index
+                        * */
+                        ++i_period;
+
+                        /*
+                        * If current period time off is available
+                        * */
+                        if(period != 0.2)
+                        {
+                            /*
+                            * Get lecture and klass information from current lesson
+                            * */
+                            if(lesson == null)
+                            {
+                                lecture_fill.add(-1);
+                                class_fill.add(-1);
+                            }
+                            else
+                            {
+                                final int lecture = lesson.getLecture();
+                                final int klass   = lesson.getKlass();
+
+                                fitness[0] += (lecture == -1 ? 10 : (lecture_placement[lecture].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1));
+                                fitness[1] += (class_placement[klass].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1);
+                                fitness[2] += (lesson.getLinkTotal() == 0 ? 10 : (class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1));
+                                fitness[3] += (lesson.isLessonAllowed(classroom) ? 10 : 0.1);
+
+                                lecture_fill.add(lecture);
+                                class_fill.add(klass);
+                            }
+
+                            /*
+                            * check if counter sks have same value with lesson sks
+                            * */
+                            if(++c_sks == lesson_sks)
+                            {
+                                for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                {
+                                    tmp_query[c_tmp].append("<td class=\"tooltip\" colspan=\"")
+                                                    .append(lesson_sks)
+                                                    .append("\" style=\"color: ")
+                                                    .append(lesson != null ?
+                                                            (fitness[c_tmp] >= (lesson_sks * 10) ?
+                                                                    ColorPair.parseColor(timeOffColor[1].foreground) :
+                                                                    (fitness[c_tmp] >= (lesson_sks * 0.1) ?
+                                                                            ColorPair.parseColor(timeOffColor[0].foreground) :
+                                                                            "#000000"
+                                                                    )
+                                                            ) :
+                                                            "#000000")
+                                                    .append("; background-color: ")
+                                                    .append(lesson != null ?
+                                                            (fitness[c_tmp] >= (lesson_sks * 10) ?
+                                                                    ColorPair.parseColor(timeOffColor[1].background) :
+                                                                    (fitness[c_tmp] >= (lesson_sks * 0.1) ?
+                                                                            ColorPair.parseColor(timeOffColor[0].background) :
+                                                                            "#FFFFFF"
+                                                                    )
+                                                            ) :
+                                                            "#FFFFFF")
+                                                    .append("\">");
+                                }
+                                if(lesson != null)
+                                {
+                                    @NotNull final String[]      splitted_class = decoded_classes.getOrDefault(class_decoder.get(lesson.getKlass()), empty_class).getName().split("-");
+                                    @NotNull final StringBuilder _tmp_query     = new StringBuilder();
+                                    _tmp_query.append("<strong class=\"content\">")
+                                              .append(decoded_subjects.getOrDefault(subject_decoder.get(lesson.getSubject()), empty_subject).getName())
+                                              .append("</strong>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<span class=\"content\">")
+                                              .append(decoded_lecturers.getOrDefault(lecture_decoder.get(lesson.getLecture()), empty_lecture).getName())
+                                              .append("</span>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<span class=\"content\">")
+                                              .append("Kelas - ")
+                                              .append(splitted_class[splitted_class.length - 1])
+                                              .append("</span>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<strong class=\"content-time\">")
+                                              .append(decoded_period.get(period_decoder.get(i_period - (lesson_sks - 1))).getStart())
+                                              .append(" - ")
+                                              .append(decoded_period.get(period_decoder.get(i_period)).getEnd())
+                                              .append("</strong>");
+                                    _tmp_query.append("<div class=\"tooltiptext\">")
+                                              .append(day_name)
+                                              .append(" - ")
+                                              .append(classroom_name)
+                                              .append("</div>");
+                                    for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                    {
+                                        tmp_query[c_tmp].append(_tmp_query);
+                                    }
+                                }
+                                for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                {
+                                    tmp_query[c_tmp].append("</td>");
+                                }
+
+                                /*
+                                * Refill current lesson data
+                                * */
+                                try
+                                {
+                                    lesson = encoded_lessons[lessons[++c_lesson]];
+                                }
+                                catch(ArrayIndexOutOfBoundsException ignored)
+                                {
+                                }
+                                finally
+                                {
+                                    lesson_sks = lesson == null ? 1 : lesson.getSks();
+                                    c_sks = 0;
+                                    fitness[0] = fitness[1] = fitness[2] = fitness[3] = 0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                            {
+                                tmp_query[c_tmp].append("<td class=\"tooltip _not_available\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                                tmp_query[c_tmp].append("</td>");
+                            }
+                            lecture_fill.add(-1);
+                            class_fill.add(-1);
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+        * generated arranged day
+        * */
+        @NotNull final int[] arranged_day = new int[decoded_days.size()];
+        for(@NotNull final DBDay _day : dbLoader.getDays().values())
+        {
+            arranged_day[_day.getPosition() - 1] = _day.getId();
+        }
+
+        //noinspection Convert2streamapi
+        for(final int _classroom : dbLoader.getClassrooms().keySet())
+        {
+            if(!query_subject.containsKey(_classroom))
+            {
+                query_subject.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_lecture.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_class.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_period.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                for(final int _day : arranged_day)
+                {
+                    @NotNull final StringBuilder tmp_query = new StringBuilder();
+                    //noinspection unchecked
+                    for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
+                    {
+                        if(timeoff.getAvailability().getId() == 1)
+                        {
+                            tmp_query.append("<td class=\"tooltip _not_available\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                            tmp_query.append("</td>");
+                        }
+                        else
+                        {
+                            tmp_query.append("<td class=\"tooltip\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                            tmp_query.append("</td>");
+                        }
+                    }
+                    query_subject.get(_classroom).put(_day, tmp_query);
+                    query_lecture.get(_classroom).put(_day, tmp_query);
+                    query_class.get(_classroom).put(_day, tmp_query);
+                    query_period.get(_classroom).put(_day, tmp_query);
+                }
+            }
+        }
+
+        @NotNull final StringBuilder combined_subject = new StringBuilder();
+        @NotNull final StringBuilder combined_lecture = new StringBuilder();
+        @NotNull final StringBuilder combined_class   = new StringBuilder();
+        @NotNull final StringBuilder combined_period  = new StringBuilder();
+        combined_subject.append("<table id=\"tt_8\" width=\"")
+                        .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                        .append("px\" style=\"display:none\">");
+        combined_subject.append("<tr>");
+        combined_lecture.append("<table id=\"tt_9\" width=\"")
+                        .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                        .append("px\" style=\"display:none\">");
+        combined_lecture.append("<tr>");
+        combined_class.append("<table id=\"tt_10\" width=\"")
+                      .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                      .append("px\" style=\"display:none\">");
+        combined_class.append("<tr>");
+        combined_period.append("<table id=\"tt_11\" width=\"")
+                       .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                       .append("px\" style=\"display:none\">");
+        combined_period.append("<tr>");
+        for(int c_d = -1, c_ds = arranged_day.length; ++c_d < c_ds; )
+        {
+            combined_subject.append("<th class=\"_dummy\"></th>");
+            combined_lecture.append("<th class=\"_dummy\"></th>");
+            combined_class.append("<th class=\"_dummy\"></th>");
+            combined_period.append("<th class=\"_dummy\"></th>");
+            for(int c_p = -1, c_ps = decoded_period.size(); ++c_p < c_ps; )
+            {
+                combined_subject.append("<th class=\"_dummy\"></th>");
+                combined_lecture.append("<th class=\"_dummy\"></th>");
+                combined_class.append("<th class=\"_dummy\"></th>");
+                combined_period.append("<th class=\"_dummy\"></th>");
+            }
+        }
+        combined_subject.append("</tr>");
+        combined_subject.append("<tr>");
+        combined_subject.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_lecture.append("</tr>");
+        combined_lecture.append("<tr>");
+        combined_lecture.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_class.append("</tr>");
+        combined_class.append("<tr>");
+        combined_class.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_period.append("</tr>");
+        combined_period.append("<tr>");
+        combined_period.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        for(int c_d = -1, c_ds = arranged_day.length, c_ps = decoded_period.size(), c_cs = decoded_classrooms.size(); ++c_d < c_ds; )
+        {
+            combined_subject.append("<th colspan=\"")
+                            .append(c_ps)
+                            .append("\">")
+                            .append(decoded_days.get(arranged_day[c_d]).getName())
+                            .append("</th>");
+            combined_lecture.append("<th colspan=\"")
+                            .append(c_ps)
+                            .append("\">")
+                            .append(decoded_days.get(arranged_day[c_d]).getName())
+                            .append("</th>");
+            combined_class.append("<th colspan=\"")
+                          .append(c_ps)
+                          .append("\">")
+                          .append(decoded_days.get(arranged_day[c_d]).getName())
+                          .append("</th>");
+            combined_period.append("<th colspan=\"")
+                           .append(c_ps)
+                           .append("\">")
+                           .append(decoded_days.get(arranged_day[c_d]).getName())
+                           .append("</th>");
+            if((c_d + 1) != c_ds)
+            {
+                combined_subject.append("<th class=\"divider\" rowspan=\"")
+                                .append(c_cs + 1)
+                                .append("\"></th>");
+                combined_lecture.append("<th class=\"divider\" rowspan=\"")
+                                .append(c_cs + 1)
+                                .append("\"></th>");
+                combined_class.append("<th class=\"divider\" rowspan=\"")
+                              .append(c_cs + 1)
+                              .append("\"></th>");
+                combined_period.append("<th class=\"divider\" rowspan=\"")
+                               .append(c_cs + 1)
+                               .append("\"></th>");
+            }
+        }
+        combined_subject.append("</tr>");
+        combined_lecture.append("</tr>");
+        combined_class.append("</tr>");
+        combined_period.append("</tr>");
+        for(final int _classroom : decoded_classrooms.keySet())
+        {
+            combined_subject.append("<tr>");
+            combined_subject.append("<th>")
+                            .append(decoded_classrooms.get(_classroom).getName())
+                            .append("</th>");
+            combined_lecture.append("<tr>");
+            combined_lecture.append("<th>")
+                            .append(decoded_classrooms.get(_classroom).getName())
+                            .append("</th>");
+            combined_class.append("<tr>");
+            combined_class.append("<th>")
+                          .append(decoded_classrooms.get(_classroom).getName())
+                          .append("</th>");
+            combined_period.append("<tr>");
+            combined_period.append("<th>")
+                           .append(decoded_classrooms.get(_classroom).getName())
+                           .append("</th>");
+            for(final int _day : arranged_day)
+            {
+                combined_subject.append(query_subject.get(_classroom).get(_day));
+                combined_lecture.append(query_lecture.get(_classroom).get(_day));
+                combined_class.append(query_class.get(_classroom).get(_day));
+                combined_period.append(query_period.get(_classroom).get(_day));
+            }
+            combined_subject.append("</tr>");
+            combined_lecture.append("</tr>");
+            combined_class.append("</tr>");
+            combined_period.append("</tr>");
+        }
+        combined_subject.append("</table>");
+        combined_lecture.append("</table>");
+        combined_class.append("</table>");
+        combined_period.append("</table>");
+        return combined_subject.append(combined_lecture).append(combined_class).append(combined_period).toString();
+    }
+
+    @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatTimeoff(@NotNull final Particle particle, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
+    {
+        /*
+        * Initialize fitness value
+        * */
+        double[] fitness = {0.0, 0.0, 0.0, 0.0};
+
+        /*
+        * Initialize Container
+        * */
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_subject = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_lecture = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_class   = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+        @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_period  = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
+
+        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject empty_subject = new DBSubject(-1, "—", "", empty_school);
+        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "—", empty_school);
+        @NotNull final DBClass   empty_class   = new DBClass(-1, "—", empty_school);
+
+        @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
+        @NotNull final DSTimeOff[]                timeoff_subject       = dsLoader.getDataset().getSubjects();
+        @NotNull final DSTimeOff[]                timeoff_lecture       = dsLoader.getDataset().getLecturers();
+        @NotNull final DSTimeOff[]                timeoff_class         = dsLoader.getDataset().getClasses();
+        @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
+        @NotNull final Int2IntMap                 day_decoder           = dsLoader.getDecoder().getActiveDays();
+        @NotNull final Int2IntMap                 period_decoder        = dsLoader.getDecoder().getActivePeriods();
+        @NotNull final Int2IntMap                 subject_decoder       = dsLoader.getDecoder().getSubjects();
+        @NotNull final Int2IntMap                 lecture_decoder       = dsLoader.getDecoder().getLecturers();
+        @NotNull final Int2IntMap                 class_decoder         = dsLoader.getDecoder().getClasses();
+        @NotNull final Int2ObjectMap<DBClassroom> decoded_classrooms    = dbLoader.getClassrooms();
+        @NotNull final Int2ObjectMap<DBDay>       decoded_days          = dbLoader.getDays();
+        @NotNull final Int2ObjectMap<DBSubject>   decoded_subjects      = dbLoader.getSubjects();
+        @NotNull final Int2ObjectMap<DBLecture>   decoded_lecturers     = dbLoader.getLecturers();
+        @NotNull final Int2ObjectMap<DBClass>     decoded_classes       = dbLoader.getClasses();
+        @NotNull final Int2ObjectMap<DBPeriod>    decoded_period        = dbLoader.getPeriods();
+
+        final ColorPair[] timeOffColor = new ColorPair[3];
+        timeOffColor[0] = new ColorPair(new Color(0xE5, 0x73, 0x73));
+        timeOffColor[1] = new ColorPair(new Color(0x81, 0xC7, 0x84));
+        timeOffColor[2] = new ColorPair(new Color(0xFF, 0xF1, 0x76));
+
+        int i_cluster = -1;
+        for(@NotNull final DSLessonCluster lesson_cluster : dsLoader.getDataset().getLessonClusters())
+        {
+            /*
+            * Increment day index
+            * */
+            ++i_cluster;
+            @NotNull final Int2IntMap classroom_lv1_decoder = lesson_cluster.getClassroomDecoder();
+
+            /*
+            * Get lessons data in current cluster
+            * */
+            final int[] lessons = particle.getData().getPosition(i_cluster).getPosition();
+
+            /*
+            * Initialize lesson counter
+            * */
+            int c_lesson = -1;
+
+            /*
+            * Get lesson according to lesson counter
+            * */
+            DSLesson lesson = encoded_lessons[lessons[++c_lesson]];
+
+            /*
+            * Get current lesson sks
+            * */
+            int lesson_sks = lesson == null ? 1 : lesson.getSks();
+
+            /*
+            * Initialize sks counter
+            * */
+            int c_sks = 0;
+
+            /*
+            * Foreach classroom in current cluster
+            * */
+            for(final int classroom : lesson_cluster.getClassrooms())
+            {
+                final int    decoded_classroom_id = classroom_lv0_decoder.get(classroom_lv1_decoder.get(classroom));
+                final String classroom_name       = decoded_classrooms.get(decoded_classroom_id).getName();
+                if(!query_subject.containsKey(decoded_classroom_id))
+                {
+                    query_subject.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_lecture.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_class.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                    query_period.put(decoded_classroom_id, new Int2ObjectLinkedOpenHashMap<>(decoded_days.size()));
+                }
+
+                /*
+                * Initialize day index
+                * Foreach day in current classroom
+                * */
+                int i_day = -1;
+                for(final double[] day : lesson_cluster.getClassroomsTimeoff(classroom).getTimeoff())
+                {
+                    /*
+                    * Increment day index
+                    * */
+                    ++i_day;
+
+                    final int    decoded_day_id = day_decoder.get(i_day);
+                    final String day_name       = decoded_days.get(decoded_day_id).getName();
+
+                    if(!query_subject.get(decoded_classroom_id).containsKey(decoded_day_id))
+                    {
+                        query_subject.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_lecture.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_class.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                        query_period.get(decoded_classroom_id).put(decoded_day_id, new StringBuilder());
+                    }
+                    @SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
+                    @NotNull final StringBuilder[] tmp_query = new StringBuilder[4];
+                    tmp_query[0] = query_subject.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[1] = query_lecture.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[2] = query_class.get(decoded_classroom_id).get(decoded_day_id);
+                    tmp_query[3] = query_period.get(decoded_classroom_id).get(decoded_day_id);
+
+                    /*
+                    * Initialize period index
+                    * Foreach all period within day
+                    * */
+                    int i_period = -1;
+                    for(final double period : day)
+                    {
+                       /*
+                        * Increment period index
+                        * */
+                        ++i_period;
+
+                        /*
+                        * If current period time off is available
+                        * */
+                        if(period != 0.2)
+                        {
+                            /*
+                            * Get lecture and klass information from current lesson
+                            * */
+                            if(lesson != null)
+                            {
+                                final int lecture = lesson.getLecture();
+                                final int klass   = lesson.getKlass();
+
+                                fitness[0] += (timeoff_subject[lesson.getSubject()].get(i_day, i_period));
+                                fitness[1] += (lecture == -1 ? 10 : (timeoff_lecture[lecture].get(i_day, i_period)));
+                                fitness[2] += (timeoff_class[klass].get(i_day, i_period));
+                                fitness[3] += (period);
+                            }
+
+                            /*
+                            * check if counter sks have same value with lesson sks
+                            * */
+                            if(++c_sks == lesson_sks)
+                            {
+                                for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                {
+                                    tmp_query[c_tmp].append("<td class=\"tooltip\" colspan=\"")
+                                                    .append(lesson_sks)
+                                                    .append("\" style=\"color: ")
+                                                    .append(lesson != null ?
+                                                            (fitness[c_tmp] >= (lesson_sks * 10) ?
+                                                                    ColorPair.parseColor(timeOffColor[1].foreground) :
+                                                                    (fitness[c_tmp] >= (lesson_sks * 10) ?
+                                                                            ColorPair.parseColor(timeOffColor[2].foreground) :
+                                                                            (fitness[c_tmp] >= (lesson_sks * 0.2) ?
+                                                                                    ColorPair.parseColor(timeOffColor[0].foreground) :
+                                                                                    "#000000"
+                                                                            )
+                                                                    )
+                                                            ) :
+                                                            "#000000")
+                                                    .append("; background-color: ")
+                                                    .append(lesson != null ?
+                                                            (fitness[c_tmp] >= (lesson_sks * 10) ?
+                                                                    ColorPair.parseColor(timeOffColor[1].background) :
+                                                                    (fitness[c_tmp] >= (lesson_sks) ?
+                                                                            ColorPair.parseColor(timeOffColor[2].background) :
+                                                                            (fitness[c_tmp] >= (lesson_sks * 0.2) ?
+                                                                                    ColorPair.parseColor(timeOffColor[0].background) :
+                                                                                    "#FFFFFF"
+                                                                            )
+                                                                    )
+                                                            ) :
+                                                            "#FFFFFF")
+                                                    .append("\">");
+                                }
+                                if(lesson != null)
+                                {
+                                    @NotNull final String[]      splitted_class = decoded_classes.getOrDefault(class_decoder.get(lesson.getKlass()), empty_class).getName().split("-");
+                                    @NotNull final StringBuilder _tmp_query     = new StringBuilder();
+                                    _tmp_query.append("<strong class=\"content\">")
+                                              .append(decoded_subjects.getOrDefault(subject_decoder.get(lesson.getSubject()), empty_subject).getName())
+                                              .append("</strong>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<span class=\"content\">")
+                                              .append(decoded_lecturers.getOrDefault(lecture_decoder.get(lesson.getLecture()), empty_lecture).getName())
+                                              .append("</span>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<span class=\"content\">")
+                                              .append("Kelas - ")
+                                              .append(splitted_class[splitted_class.length - 1])
+                                              .append("</span>");
+                                    _tmp_query.append("<br>");
+                                    _tmp_query.append("<strong class=\"content-time\">")
+                                              .append(decoded_period.get(period_decoder.get(i_period - (lesson_sks - 1))).getStart())
+                                              .append(" - ")
+                                              .append(decoded_period.get(period_decoder.get(i_period)).getEnd())
+                                              .append("</strong>");
+                                    _tmp_query.append("<div class=\"tooltiptext\">")
+                                              .append(day_name)
+                                              .append(" - ")
+                                              .append(classroom_name)
+                                              .append("</div>");
+                                    for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                    {
+                                        tmp_query[c_tmp].append(_tmp_query);
+                                    }
+                                }
+                                for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                                {
+                                    tmp_query[c_tmp].append("</td>");
+                                }
+
+                                /*
+                                * Refill current lesson data
+                                * */
+                                try
+                                {
+                                    lesson = encoded_lessons[lessons[++c_lesson]];
+                                }
+                                catch(ArrayIndexOutOfBoundsException ignored)
+                                {
+                                }
+                                finally
+                                {
+                                    lesson_sks = lesson == null ? 1 : lesson.getSks();
+                                    c_sks = 0;
+                                    fitness[0] = fitness[1] = fitness[2] = fitness[3] = 0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for(int c_tmp = -1, c_tmps = tmp_query.length; ++c_tmp < c_tmps; )
+                            {
+                                tmp_query[c_tmp].append("<td class=\"tooltip _not_available\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                                tmp_query[c_tmp].append("</td>");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+        * generated arranged day
+        * */
+        @NotNull final int[] arranged_day = new int[decoded_days.size()];
+        for(@NotNull final DBDay _day : dbLoader.getDays().values())
+        {
+            arranged_day[_day.getPosition() - 1] = _day.getId();
+        }
+
+        //noinspection Convert2streamapi
+        for(final int _classroom : dbLoader.getClassrooms().keySet())
+        {
+            if(!query_subject.containsKey(_classroom))
+            {
+                query_subject.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_lecture.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_class.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                query_period.put(_classroom, new Int2ObjectLinkedOpenHashMap<>(arranged_day.length));
+                for(final int _day : arranged_day)
+                {
+                    @NotNull final StringBuilder tmp_query = new StringBuilder();
+                    //noinspection unchecked
+                    for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
+                    {
+                        if(timeoff.getAvailability().getId() == 1)
+                        {
+                            tmp_query.append("<td class=\"tooltip _not_available\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                            tmp_query.append("</td>");
+                        }
+                        else
+                        {
+                            tmp_query.append("<td class=\"tooltip\" colspan=\"").append(1).append("\" style=\"color: black\">");
+                            tmp_query.append("</td>");
+                        }
+                    }
+                    query_subject.get(_classroom).put(_day, tmp_query);
+                    query_lecture.get(_classroom).put(_day, tmp_query);
+                    query_class.get(_classroom).put(_day, tmp_query);
+                    query_period.get(_classroom).put(_day, tmp_query);
+                }
+            }
+        }
+
+        @NotNull final StringBuilder combined_subject = new StringBuilder();
+        @NotNull final StringBuilder combined_lecture = new StringBuilder();
+        @NotNull final StringBuilder combined_class   = new StringBuilder();
+        @NotNull final StringBuilder combined_period  = new StringBuilder();
+        combined_subject.append("<table id=\"tt_4\" width=\"")
+                        .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                        .append("px\" style=\"display:none\">");
+        combined_subject.append("<tr>");
+        combined_lecture.append("<table id=\"tt_5\" width=\"")
+                        .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                        .append("px\" style=\"display:none\">");
+        combined_lecture.append("<tr>");
+        combined_class.append("<table id=\"tt_6\" width=\"")
+                      .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                      .append("px\" style=\"display:none\">");
+        combined_class.append("<tr>");
+        combined_period.append("<table id=\"tt_7\" width=\"")
+                       .append(((decoded_period.size() * decoded_days.size() + 1) * 60) + ((decoded_days.size() - 1) * 85))
+                       .append("px\" style=\"display:none\">");
+        combined_period.append("<tr>");
+        for(int c_d = -1, c_ds = arranged_day.length; ++c_d < c_ds; )
+        {
+            combined_subject.append("<th class=\"_dummy\"></th>");
+            combined_lecture.append("<th class=\"_dummy\"></th>");
+            combined_class.append("<th class=\"_dummy\"></th>");
+            combined_period.append("<th class=\"_dummy\"></th>");
+            for(int c_p = -1, c_ps = decoded_period.size(); ++c_p < c_ps; )
+            {
+                combined_subject.append("<th class=\"_dummy\"></th>");
+                combined_lecture.append("<th class=\"_dummy\"></th>");
+                combined_class.append("<th class=\"_dummy\"></th>");
+                combined_period.append("<th class=\"_dummy\"></th>");
+            }
+        }
+        combined_subject.append("</tr>");
+        combined_subject.append("<tr>");
+        combined_subject.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_lecture.append("</tr>");
+        combined_lecture.append("<tr>");
+        combined_lecture.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_class.append("</tr>");
+        combined_class.append("<tr>");
+        combined_class.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        combined_period.append("</tr>");
+        combined_period.append("<tr>");
+        combined_period.append("<th colspan=\"1\">Hari --> <br>Ruangan</th>");
+        for(int c_d = -1, c_ds = arranged_day.length, c_ps = decoded_period.size(), c_cs = decoded_classrooms.size(); ++c_d < c_ds; )
+        {
+            combined_subject.append("<th colspan=\"")
+                            .append(c_ps)
+                            .append("\">")
+                            .append(decoded_days.get(arranged_day[c_d]).getName())
+                            .append("</th>");
+            combined_lecture.append("<th colspan=\"")
+                            .append(c_ps)
+                            .append("\">")
+                            .append(decoded_days.get(arranged_day[c_d]).getName())
+                            .append("</th>");
+            combined_class.append("<th colspan=\"")
+                          .append(c_ps)
+                          .append("\">")
+                          .append(decoded_days.get(arranged_day[c_d]).getName())
+                          .append("</th>");
+            combined_period.append("<th colspan=\"")
+                           .append(c_ps)
+                           .append("\">")
+                           .append(decoded_days.get(arranged_day[c_d]).getName())
+                           .append("</th>");
+            if((c_d + 1) != c_ds)
+            {
+                combined_subject.append("<th class=\"divider\" rowspan=\"")
+                                .append(c_cs + 1)
+                                .append("\"></th>");
+                combined_lecture.append("<th class=\"divider\" rowspan=\"")
+                                .append(c_cs + 1)
+                                .append("\"></th>");
+                combined_class.append("<th class=\"divider\" rowspan=\"")
+                              .append(c_cs + 1)
+                              .append("\"></th>");
+                combined_period.append("<th class=\"divider\" rowspan=\"")
+                               .append(c_cs + 1)
+                               .append("\"></th>");
+            }
+        }
+        combined_subject.append("</tr>");
+        combined_lecture.append("</tr>");
+        combined_class.append("</tr>");
+        combined_period.append("</tr>");
+        for(final int _classroom : decoded_classrooms.keySet())
+        {
+            combined_subject.append("<tr>");
+            combined_subject.append("<th>")
+                            .append(decoded_classrooms.get(_classroom).getName())
+                            .append("</th>");
+            combined_lecture.append("<tr>");
+            combined_lecture.append("<th>")
+                            .append(decoded_classrooms.get(_classroom).getName())
+                            .append("</th>");
+            combined_class.append("<tr>");
+            combined_class.append("<th>")
+                          .append(decoded_classrooms.get(_classroom).getName())
+                          .append("</th>");
+            combined_period.append("<tr>");
+            combined_period.append("<th>")
+                           .append(decoded_classrooms.get(_classroom).getName())
+                           .append("</th>");
+            for(final int _day : arranged_day)
+            {
+                combined_subject.append(query_subject.get(_classroom).get(_day));
+                combined_lecture.append(query_lecture.get(_classroom).get(_day));
+                combined_class.append(query_class.get(_classroom).get(_day));
+                combined_period.append(query_period.get(_classroom).get(_day));
+            }
+            combined_subject.append("</tr>");
+            combined_lecture.append("</tr>");
+            combined_class.append("</tr>");
+            combined_period.append("</tr>");
+        }
+        combined_subject.append("</table>");
+        combined_lecture.append("</table>");
+        combined_class.append("</table>");
+        combined_period.append("</table>");
+        return combined_subject.append(combined_lecture).append(combined_class).append(combined_period).toString();
     }
 
     @NotNull @SuppressWarnings({"ConstantConditions", "Duplicates"}) private String _formatSubject(@NotNull final Data gBest, @NotNull final DatasetGenerator dsLoader, @NotNull final DBProblemLoader dbLoader)
@@ -459,7 +1352,7 @@ public class CMCategory implements Initializable
                 for(final int _day : arranged_day)
                 {
                     @NotNull final StringBuilder tmp_query = new StringBuilder();
-                    dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1);
+
                     //noinspection unchecked
                     for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
                     {
@@ -729,7 +1622,7 @@ public class CMCategory implements Initializable
                 for(final int _day : arranged_day)
                 {
                     @NotNull final StringBuilder tmp_query = new StringBuilder();
-                    dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1);
+
                     //noinspection unchecked
                     for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
                     {
@@ -999,7 +1892,7 @@ public class CMCategory implements Initializable
                 for(final int _day : arranged_day)
                 {
                     @NotNull final StringBuilder tmp_query = new StringBuilder();
-                    dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1);
+
                     //noinspection unchecked
                     for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
                     {
@@ -1270,7 +2163,7 @@ public class CMCategory implements Initializable
                 for(final int _day : arranged_day)
                 {
                     @NotNull final StringBuilder tmp_query = new StringBuilder();
-                    dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1);
+
                     //noinspection unchecked
                     for(final DBTimeOff timeoff : (ObjectList<DBTimeOff>) dbLoader.getClassroom(_classroom).getTimeoff().getAvailabilities().get(_day - 1))
                     {
