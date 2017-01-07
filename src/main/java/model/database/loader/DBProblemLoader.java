@@ -79,6 +79,7 @@ import org.jetbrains.annotations.NotNull;
             try
             {
                 dbUrl = java.net.URLDecoder.decode("jdbc:sqlite:" + db.getPath(), "UTF-8");
+                //dbUrl = java.net.URLDecoder.decode("jdbc:sqlite::resource:jar:" + db.getPath(), "UTF-8");
             }
             catch(UnsupportedEncodingException ignored)
             {
