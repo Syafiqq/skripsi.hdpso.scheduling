@@ -52,17 +52,20 @@ import model.method.pso.hdpso.core.VelocityCalculator;
         {
             @Override public double calculateLoc(double... operator)
             {
-                return operator[0] * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+                //return operator[0] * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+                return operator[0] * (((operator[2] - operator[1]) * (operator[3] / operator[4])) + operator[1]);
             }
 
             @Override public double calculateGlob(double... operator)
             {
-                return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                //return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return operator[0] * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
             }
 
             @Override public double calculateRand(double... operator)
             {
-                return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                //return operator[0] * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return operator[0] * (((operator[2] - operator[1]) * (operator[3] / operator[4])) + operator[1]);
             }
         };
         /*
@@ -77,17 +80,20 @@ import model.method.pso.hdpso.core.VelocityCalculator;
         {
             @Override public double calculateLoc(double... operator)
             {
-                return Setting.ourInstance.tv_weight * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+                //return Setting.ourInstance.tv_weight * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
+                return Setting.ourInstance.tv_weight * (((operator[2] - operator[1]) * (operator[3] / operator[4])) + operator[1]);
             }
 
             @Override public double calculateGlob(double... operator)
             {
-                return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                //return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return Setting.ourInstance.tv_weight * (((operator[1] - operator[2]) * (operator[3] / operator[4])) + operator[2]);
             }
 
             @Override public double calculateRand(double... operator)
             {
-                return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                //return Setting.ourInstance.tv_weight * (operator[1] - ((operator[1] - operator[2]) * (operator[3] / operator[4])));
+                return Setting.ourInstance.tv_weight * (((operator[2] - operator[1]) * (operator[3] / operator[4])) + operator[1]);
             }
         };
     }
