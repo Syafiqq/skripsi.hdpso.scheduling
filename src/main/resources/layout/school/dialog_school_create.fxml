@@ -8,20 +8,11 @@
  * Github       : syafiqq
  -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" alignment="center" hgap="20.0" vgap="20.0"
-          xmlns="http://javafx.com/javafx/8.0.65">
+          xmlns="http://javafx.com/javafx/8.0.60">
     <columnConstraints>
         <ColumnConstraints/>
         <ColumnConstraints/>
@@ -45,32 +36,32 @@
         <Label text="Semester" GridPane.rowIndex="4"/>
         <Label text="Active Day" GridPane.rowIndex="5"/>
         <Label text="Active Period" GridPane.rowIndex="6"/>
-        <TextField GridPane.columnIndex="1">
+        <TextField fx:id="name" GridPane.columnIndex="1">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
         </TextField>
-        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <TextField fx:id="nick" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
         </TextField>
-        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <TextField fx:id="address" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
         </TextField>
-        <TextField GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <TextField fx:id="academicYear" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
         </TextField>
-        <TextField GridPane.columnIndex="1" GridPane.rowIndex="5">
+        <TextField fx:id="activeDay" GridPane.columnIndex="1" GridPane.rowIndex="5">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
         </TextField>
-        <TextField GridPane.columnIndex="1" GridPane.rowIndex="6">
+        <TextField fx:id="activePeriod" GridPane.columnIndex="1" GridPane.rowIndex="6">
             <opaqueInsets>
                 <Insets/>
             </opaqueInsets>
@@ -78,18 +69,20 @@
         <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
             <children>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <Button defaultButton="true" mnemonicParsing="false" text="Create"/>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onCreateTimetablePressed"
+                        text="Create"/>
             </children>
         </HBox>
-        <Button cancelButton="true" mnemonicParsing="false" text="Cancel" GridPane.rowIndex="7"/>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelCreatePressed" text="Cancel"
+                GridPane.rowIndex="7"/>
         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
             <children>
-                <RadioButton mnemonicParsing="false" text="Odd">
+                <RadioButton mnemonicParsing="false" selected="true" text="Odd">
                     <toggleGroup>
-                        <ToggleGroup fx:id="toggle_group_semester"/>
+                        <ToggleGroup fx:id="semesterGroup"/>
                     </toggleGroup>
                 </RadioButton>
-                <RadioButton mnemonicParsing="false" text="Even" toggleGroup="$toggle_group_semester"/>
+                <RadioButton mnemonicParsing="false" text="Even" toggleGroup="$semesterGroup"/>
             </children>
         </VBox>
     </children>
