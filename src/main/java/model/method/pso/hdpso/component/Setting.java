@@ -1,6 +1,10 @@
 package model.method.pso.hdpso.component;
 
+import model.database.core.DBType;
 import model.method.pso.hdpso.core.VelocityCalculator;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.method.pso.hdpso.component> created by : 
@@ -14,6 +18,7 @@ import model.method.pso.hdpso.core.VelocityCalculator;
     public static final VelocityCalculator PURE_PSO;
     public static final VelocityCalculator PTVPSO;
     public static final VelocityCalculator PURE_PTVPSO;
+    public static final URL defaultDB;
     private static      Setting            ourInstance;
 
     static
@@ -96,6 +101,8 @@ import model.method.pso.hdpso.core.VelocityCalculator;
                 return Setting.ourInstance.tv_weight * (((operator[2] - operator[1]) * (operator[3] / operator[4])) + operator[1]);
             }
         };
+
+        defaultDB = ClassLoader.getSystemClassLoader().getResource("db/db.mcrypt");
     }
 
     private int max_particle;
@@ -140,6 +147,20 @@ import model.method.pso.hdpso.core.VelocityCalculator;
             Setting.ourInstance = new Setting();
         }
         return Setting.ourInstance;
+    }
+
+    public static String getDBUrl(URL path, DBType type) throws UnsupportedEncodingException {
+        final String dbUrl;
+        switch (type) {
+            case JAR: {
+                dbUrl = java.net.URLDecoder.decode("jdbc:sqlite::resource:jar:" + path.getPath(), "UTF-8");
+            }
+            break;
+            default: {
+                dbUrl = java.net.URLDecoder.decode("jdbc:sqlite:" + path.getPath(), "UTF-8");
+            }
+        }
+        return dbUrl;
     }
 
     public int getTotalCore()
