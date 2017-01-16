@@ -521,4 +521,67 @@ public class TPSO_SystemTest_ForReporting {
         }
     }
 
+    @Test
+    public void testIterationWithReport() {
+        @NotNull final int[] params = new int[]
+                {
+                        50,
+                        50,
+                        100,
+                        100,
+                        200,
+                        200,
+                        500,
+                        500,
+                        1000,
+                        1000,
+                        2000,
+                        2000,
+                        5000,
+                        5000,
+                        10000,
+                        10000,
+                        20000,
+                        20000,
+                        50000,
+                        50000,
+                        100000,
+                        100000,
+                        500000,
+                        500000
+                };
+
+        for (final int param : params) {
+            System.runFinalization();
+            System.gc();
+            Setting setting = Setting.getInstance();
+            setting.setbGlobMin(0.6);
+            setting.setbGlobMax(1);
+            setting.setbLocMin(0.6);
+            setting.setbLocMax(1);
+            setting.setbRandMin(0.000);
+            setting.setbRandMax(0.002);
+            setting.setMaxParticle(20);
+            setting.setMaxEpoch(param);
+            setting.setTimeVariantWeight(1);
+            setting.setTotalCore(Runtime.getRuntime().availableProcessors());
+            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setMultiProcess(false);
+
+            final long c1 = System.currentTimeMillis();
+            @NotNull final PSO pso = new PSO(this.dsLoader);
+            Assert.assertNotNull(pso);
+            pso.initialize();
+            while (!pso.isConditionSatisfied()) {
+                pso.updatePBest();
+                pso.assignGBest();
+                pso.evaluateParticle();
+                pso.updateStoppingCondition();
+            }
+            final long c2 = System.currentTimeMillis();
+            System.out.printf("%6d\t%f\t%d,\n", param, pso.getFitness(), c2 - c1);
+            System.runFinalization();
+            System.gc();
+        }
+    }
 }
