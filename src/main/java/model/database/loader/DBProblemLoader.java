@@ -1,40 +1,21 @@
 package model.database.loader;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
+import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.*;
+import model.database.component.*;
+import model.database.core.DBComponent;
+import model.database.core.DBType;
+import model.method.pso.hdpso.component.Setting;
+import org.apache.commons.math3.util.FastMath;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import model.database.component.DBAvailability;
-import model.database.component.DBClass;
-import model.database.component.DBClassroom;
-import model.database.component.DBDay;
-import model.database.component.DBLecture;
-import model.database.component.DBLesson;
-import model.database.component.DBLessonCluster;
-import model.database.component.DBLessonGroup;
-import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
-import model.database.component.DBSubject;
-import model.database.component.DBTimeOff;
-import model.database.core.DBComponent;
-import org.apache.commons.math3.util.FastMath;
-import org.jetbrains.annotations.NotNull;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.loader> created by : 
@@ -72,26 +53,12 @@ import org.jetbrains.annotations.NotNull;
 
     @Override public void activateDatabase()
     {
-        final URL db = ClassLoader.getSystemClassLoader().getResource("db/db.mcrypt");
-        if(db != null)
+        if (Setting.defaultDB != null)
         {
-            final String dbUrl;
             try
             {
-                dbUrl = java.net.URLDecoder.decode("jdbc:sqlite:" + db.getPath(), "UTF-8");
-                //dbUrl = java.net.URLDecoder.decode("jdbc:sqlite::resource:jar:" + db.getPath(), "UTF-8");
-            }
-            catch(UnsupportedEncodingException ignored)
-            {
-                System.err.println("Error Parse DB");
-                System.exit(-1);
-                return;
-            }
-            try
-            {
-                super.connection = DriverManager.getConnection(dbUrl);
-            }
-            catch(SQLException ignored)
+                super.connection = DriverManager.getConnection(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            } catch (SQLException | UnsupportedEncodingException ignored)
             {
                 System.err.println("Error Activating Database");
                 System.exit(-1);
