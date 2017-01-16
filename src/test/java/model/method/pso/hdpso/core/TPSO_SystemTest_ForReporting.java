@@ -584,4 +584,66 @@ public class TPSO_SystemTest_ForReporting {
             System.gc();
         }
     }
+
+    @Test
+    public void testParticleCountWithReport() {
+        @NotNull final int[] params = new int[]
+                {
+                        2,
+                        2,
+                        4,
+                        4,
+                        6,
+                        6,
+                        8,
+                        8,
+                        10,
+                        10,
+                        20,
+                        20,
+                        35,
+                        35,
+                        50,
+                        50,
+                        100,
+                        100,
+                        150,
+                        150,
+                        200,
+                        200,
+                };
+
+        for (final int param : params) {
+            System.runFinalization();
+            System.gc();
+            Setting setting = Setting.getInstance();
+            setting.setbGlobMin(0.6);
+            setting.setbGlobMax(1);
+            setting.setbLocMin(0.6);
+            setting.setbLocMax(1);
+            setting.setbRandMin(0.000);
+            setting.setbRandMax(0.002);
+            setting.setMaxParticle(param);
+            setting.setMaxEpoch(20000);
+            setting.setTimeVariantWeight(1);
+            setting.setTotalCore(Runtime.getRuntime().availableProcessors());
+            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setMultiProcess(false);
+
+            final long c1 = System.currentTimeMillis();
+            @NotNull final PSO pso = new PSO(this.dsLoader);
+            Assert.assertNotNull(pso);
+            pso.initialize();
+            while (!pso.isConditionSatisfied()) {
+                pso.updatePBest();
+                pso.assignGBest();
+                pso.evaluateParticle();
+                pso.updateStoppingCondition();
+            }
+            final long c2 = System.currentTimeMillis();
+            System.out.printf("%6d\t%f\t%d,\n", param, pso.getFitness(), c2 - c1);
+            System.runFinalization();
+            System.gc();
+        }
+    }
 }
