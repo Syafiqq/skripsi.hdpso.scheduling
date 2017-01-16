@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 16 January 2017, 6:33 AM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+    <right>
+        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets left="10.0"/>
+            </BorderPane.margin>
+            <children>
+                <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false"
+                        onAction="#onTimetableLoadPressed" text="Load"/>
+                <VBox VBox.vgrow="ALWAYS"/>
+                <Button mnemonicParsing="false" onAction="#onTimetableDeletePressed" style="-fx-background-color: red;"
+                        text="Delete" textFill="WHITE"/>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onListCancelPressed" text="Cancel"/>
+            </children>
+        </VBox>
+    </right>
+    <center>
+        <TableView fx:id="schoolList" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="columnName" minWidth="200.0" prefWidth="200.0" text="Name"/>
+                <TableColumn fx:id="columnAcademicYear" minWidth="100.0" prefWidth="100.0" text="Academic Year"/>
+                <TableColumn fx:id="columnSemester" prefWidth="75.0" text="Semester"/>
+                <TableColumn fx:id="columnPeriod" prefWidth="75.0" text="Period"/>
+                <TableColumn fx:id="columnDay" prefWidth="75.0" text="Day"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>
