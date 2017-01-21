@@ -28,6 +28,10 @@ public class ObservableDBSchool extends Observable {
 
     public void setSchool(@Nullable DBSchool school) {
         this.school = school;
+        this.update();
+    }
+
+    public void update() {
         this.setChanged();
         this.notifyObservers();
     }
