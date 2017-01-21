@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("SuspiciousMethodCalls")
+@SuppressWarnings({"SuspiciousMethodCalls", "unused"})
 public class Session {
     private static Session ourInstance = new Session();
 
@@ -35,5 +35,9 @@ public class Session {
 
     public boolean containsKey(Object key) {
         return sessions.containsKey(key);
+    }
+
+    public Object getOrDefault(Object key, Object defaultValue) {
+        return this.sessions.getOrDefault(key, defaultValue);
     }
 }
