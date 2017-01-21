@@ -19,7 +19,6 @@ import view.school.ISchoolNew;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Observer;
 import java.util.ResourceBundle;
 
 /*
@@ -29,42 +28,37 @@ import java.util.ResourceBundle;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class CMHome implements Initializable
-{
+public class CMHome implements Initializable {
     public Button buttonNew;
     public Button buttonLoad;
-    private BooleanProperty disableListener;
 
     public CMHome() {
 
     }
 
-    @Override public void initialize(URL location, ResourceBundle resources)
-    {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         if (!Session.getInstance().containsKey("school")) {
             Session.getInstance().put("school", new ObservableDBSchool(null));
         }
-        this.disableListener = new SimpleBooleanProperty(true);
-        this.buttonNew.disableProperty().bindBidirectional(new SimpleBooleanProperty());
-        @NotNull final Observer observer = (o, arg) -> {
+        @NotNull final BooleanProperty disableListener = new SimpleBooleanProperty(false);
+        this.buttonNew.disableProperty().bind(disableListener);
+        this.buttonLoad.disableProperty().bind(disableListener);
+/*        @NotNull final Observer observer = (o, arg) -> {
             if (o instanceof ObservableDBSchool) {
                 this.disableListener.setValue(((ObservableDBSchool) o).getSchool() != null);
             }
         };
-
-        this.buttonNew.disableProperty().bind(this.disableListener);
-        this.buttonLoad.disableProperty().bind(this.disableListener);
-        ((ObservableDBSchool) Session.getInstance().get("school")).addObserver(observer);
+        ((ObservableDBSchool) Session.getInstance().get("school")).addObserver(observer);*/
     }
 
-    public void onButtonExitPressed(ActionEvent actionEvent)
-    {
+    public void onButtonExitPressed(ActionEvent actionEvent) {
         ((Node) actionEvent.getSource()).getScene().getWindow().hide();
     }
 
     public void onButtonCreateNewPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Create new Timetable");
+        dialog.setTitle("Buat Jadwal Baru");
 
         try {
             dialog.setScene(new Scene(ISchoolNew.load(new CSchoolNew()).load()));
@@ -78,7 +72,7 @@ public class CMHome implements Initializable
 
     public void onSchoolListPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Load Timetable");
+        dialog.setTitle("Load Jadwal");
 
         try {
             dialog.setScene(new Scene(ISchoolList.load(new CSchoolList()).load()));
