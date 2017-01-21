@@ -1,6 +1,7 @@
 package model.method.pso.hdpso.core;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.IntArrays;
 import model.database.component.DBSchool;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
@@ -16,13 +17,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Created by Muhammad Syafiq on 12/27/2016.
  * Email : Syafiq.rezpector@gmail.com
  * GitHub : Syafiqq
  */
-@SuppressWarnings("Duplicates") public class TPSO_P1Test
+@SuppressWarnings({"Duplicates", "unused"})
+public class TPSO_P1Test
 {
     private DatasetGenerator dsLoader;
     private int[][][] data;
@@ -59,7 +62,7 @@ import java.util.Arrays;
         Assert.assertNotNull(pso);
         pso.initialize();
         
-        this.data = new int[15][][];
+/*        this.data = new int[15][][];
         for(int i = -1, is = data.length; ++i < is;)
         {
             data[i] = new int[5][];
@@ -110,30 +113,61 @@ import java.util.Arrays;
             {
                 System.arraycopy(data[_cr][++_cc], 0, pp.getPosition(), 0, data[_cr][_cc].length);
             }
-        }
+        }*/
 
 
 
         //this.printClusterClassroomMember();
         //this.printClusterGroupClassroomMember();
-        //this.printParticleAsc(pso);
-        //this.printParticlePosition(pso);
+
         for(@NotNull final Particle particle : pso.getParticles())
         {
-            pso.repair(particle);
-            pso.calculate(particle);
-            particle.assignPBest();
+            pso.updatePBest();
         }
         pso.assignGBest();
-        this.printParticleFitness(pso);
+        //this.printParticleFitness(pso);
+
         for(@NotNull final Particle particle : pso.getParticles())
         {
             particle.calculateVelocity(pso.gBest, 1, 10000);
-            pso.repair(particle);
-            pso.calculate(particle);
-            particle.updateData();
         }
-        this.printParticleFitness(pso);
+        this.printParticleAsc(pso);
+        System.out.println();
+        System.out.println();
+        this.printParticlePosition(pso);
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            pso.repair(particle);
+        }
+        System.out.println();
+        System.out.println();
+        this.printParticlePosition(pso);
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            particle.updateData();
+            pso.calculate(particle);
+        }
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            pso.updatePBest();
+        }
+        pso.assignGBest();
+
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            particle.calculateVelocity(pso.gBest, 1, 10000);
+        }
+        System.out.println();
+        System.out.println();
+        this.printParticlePosition(pso);
+        for(@NotNull final Particle particle : pso.getParticles())
+        {
+            pso.repair(particle);
+        }
+        System.out.println();
+        System.out.println();
+        this.printParticlePosition(pso);
+        /*this.printParticleFitness(pso);*/
 
     }
 
@@ -183,39 +217,71 @@ import java.util.Arrays;
 
     private void printParticleAsc(@NotNull PSO pso)
     {
+        StringBuilder sbl = new StringBuilder();
+        StringBuilder sbf = new StringBuilder();
         for(final Particle p : pso.getParticles())
         {
             for(final Position pp : p.getData().getPositions())
             {
-                Arrays.stream(pp.getPosition()).sorted().forEach(value -> System.out.printf("%d\t", value));
-                System.out.println();
+                final int[] tmp = IntArrays.copy(pp.getPosition());
+                IntArrays.mergeSort(tmp);
+                sbl.append(this.printLimited(tmp));
+                sbl.append('\n');
+                sbf.append(this.printFull(tmp));
+                sbf.append('\n');
             }
-            System.out.println();
+            sbf.append('\n');
         }
+        System.out.println(sbl);
+        System.out.println();
+        System.out.println(sbf);
+    }
+
+    private StringBuilder printFull(int[] tmp) {
+        StringBuilder sb = new StringBuilder();
+        int c = -1;
+        for(int t : tmp)
+        {
+            sb.append(String.format(Locale.getDefault(), "%d\t", t));
+            if(++c == 18)
+            {
+                sb.append('\n');
+                c = -1;
+            }
+        }
+        return sb;
+    }
+
+    private StringBuilder printLimited(int[] tmp)
+    {
+        StringBuilder sb = new StringBuilder();
+        for(int i = -1, is = 8; ++i < is;)
+        {
+            sb.append(String.format(Locale.getDefault(), "%d\t", tmp[i]));
+        }
+        sb.append(String.format(Locale.getDefault(), "⋯\t%d", tmp[tmp.length-1]));
+        return sb;
     }
 
 
     private void printParticlePosition(@NotNull PSO pso)
     {
+        StringBuilder sbl = new StringBuilder();
+        StringBuilder sbf = new StringBuilder();
         for(final Particle p : pso.getParticles())
         {
             for(final Position pp : p.getData().getPositions())
             {
-                for(int i = -1, is = 8; ++i < is;)
-                {
-                    System.out.printf("%d", pp.getPosition()[i]);
-                    System.out.printf("\t");
-                }
-                System.out.printf("⋯");
-                System.out.printf("\t");
-                System.out.printf("%d\n", pp.getPosition()[pp.getPositionSize()-1]);
-                /*
-                //System.out.println(Arrays.toString(pp.getPosition()));
-                Arrays.stream(pp.getPosition()).forEach(value -> System.out.printf("%d\t", value));
-                System.out.println();*/
+                sbl.append(this.printLimited(pp.getPosition()));
+                sbl.append('\n');
+                sbf.append(this.printFull(pp.getPosition()));
+                sbf.append('\n');
             }
-            System.out.println();
+            sbf.append('\n');
         }
+        System.out.println(sbl);
+        System.out.println();
+        System.out.println(sbf);
     }
 
 
