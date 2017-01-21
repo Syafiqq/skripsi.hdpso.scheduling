@@ -39,7 +39,7 @@ public class ISchoolNew extends Application {
     private void buildStage(Stage primaryStage, CSchoolNew controller) {
         try {
             @NotNull final FXMLLoader loader = ISchoolNew.load(controller);
-            primaryStage.setTitle("Home");
+            primaryStage.setTitle("Utama");
             primaryStage.setScene(new Scene(loader.load()));
             primaryStage.show();
         } catch (IOException ignored) {
