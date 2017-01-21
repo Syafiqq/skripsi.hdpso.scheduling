@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 21 January 2017, 11:46 AM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+
+<!--suppress JavaFxDefaultTag -->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane alignment="center" hgap="20.0" vgap="20.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+    <children>
+        <Label text="Nama" />
+        <Label text="Nama Pendek" GridPane.rowIndex="1" />
+        <Label text="Posisi" GridPane.rowIndex="2" />
+        <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <children>
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onDayEditSavePressed" text="Simpan" />
+            </children>
+        </HBox>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onDayEditClosePressed" text="Tutup" GridPane.rowIndex="3" />
+        <TextField fx:id="tfName" GridPane.columnIndex="1" />
+        <TextField fx:id="tfNickname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <TextField fx:id="tfOrder" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</GridPane>
