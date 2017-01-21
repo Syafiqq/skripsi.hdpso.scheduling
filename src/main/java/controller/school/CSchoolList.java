@@ -19,6 +19,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import model.database.component.DBSchool;
 import model.database.core.DBType;
+import model.database.model.MDay;
+import model.database.model.MPeriod;
+import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
 import model.util.pattern.observer.ObservableDBSchool;
@@ -27,8 +30,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class CSchoolList implements Initializable {
     public TableView<DBSchool> schoolList;
@@ -53,27 +59,8 @@ public class CSchoolList implements Initializable {
 
     private List<DBSchool> populateSchool() {
         try {
-            @NotNull final Connection connection = DriverManager.getConnection(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            @NotNull final PreparedStatement statement = connection.prepareStatement("SELECT `id`, `name`, `nick`, `address`, `academic_year`, `semester`, `active_period`, `active_day` FROM `school` ORDER BY `id` ASC ");
-            @NotNull final ResultSet result = statement.executeQuery();
-            @NotNull List<DBSchool> dbSchoolList = new LinkedList<>();
-            while (result.next()) {
-                dbSchoolList.add(
-                        new DBSchool(
-                                result.getInt("id"),
-                                result.getString("name"),
-                                result.getString("nick"),
-                                result.getString("address"),
-                                result.getString("academic_year"),
-                                result.getInt("semester"),
-                                result.getInt("active_period"),
-                                result.getInt("active_day")
-                        ));
-            }
-            result.close();
-            statement.close();
-            connection.close();
-            return dbSchoolList;
+            @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            return mSchool.getAll();
         } catch (SQLException | UnsupportedEncodingException ignored) {
             System.err.println("Error Activating Database");
             System.exit(-1);
@@ -96,25 +83,23 @@ public class CSchoolList implements Initializable {
     }
 
     public void onTimetableDeletePressed() {
-        @Nullable DBSchool school = this.schoolList.getSelectionModel().getSelectedItem();
+        @Nullable final DBSchool school = this.schoolList.getSelectionModel().getSelectedItem();
         if (school == null) {
             this.notifySelectFirst();
         } else {
             @NotNull Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation Dialog");
+            alert.setTitle("Konfirmasi");
             alert.setHeaderText(null);
-            alert.setContentText("Are you sure to delete this?");
+            alert.setContentText("Apakah Anda yakin untuk menghapus data ini ? ");
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
                     try {
-                        @NotNull final Connection connection = DriverManager.getConnection(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                        @NotNull final PreparedStatement statement = connection.prepareStatement("DELETE FROM `school` WHERE `id`=?");
-                        statement.setInt(1, school.getId());
-                        statement.execute();
-                        statement.close();
-                        connection.close();
+                        @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        mSchool.delete(school);
+                        MDay.deleteFromSchool(mSchool, school);
+                        MPeriod.deleteFromSchool(mSchool, school);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
@@ -129,8 +114,7 @@ public class CSchoolList implements Initializable {
         @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Info");
         alert.setHeaderText(null);
-        alert.setContentText("Select some item first");
-
+        alert.setContentText("Pilih salah satu");
         alert.showAndWait();
     }
 
