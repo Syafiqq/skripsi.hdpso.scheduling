@@ -14,12 +14,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
+import model.AbstractModel;
 import model.database.component.DBDay;
+import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MDay;
 import model.method.pso.hdpso.component.Setting;
+import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -30,66 +32,57 @@ import java.util.ResourceBundle;
 @SuppressWarnings("WeakerAccess")
 public class CDayEdit implements Initializable {
 
-    @Nullable private final DBDay day;
-    @FXML public TextField tfName;
-    @FXML public TextField tfNickname;
-    @FXML public TextField tfOrder;
+    @NotNull
+    private final DBDay day;
+    @FXML
+    public TextField tfName;
+    @FXML
+    public TextField tfNickname;
 
-    public CDayEdit()
-    {
-        this(null);
-    }
-
-    public CDayEdit(@Nullable DBDay day) {
+    public CDayEdit(@NotNull final DBDay day) {
         this.day = day;
     }
 
+    public CDayEdit() throws UnsupportedEncodingException, SQLException {
+        @NotNull final AbstractModel model = new MDay(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
+        this.day = MDay.getFromMetadata(model, schoolMetadata, MDay.getAllMetadataFromSchool(model, schoolMetadata).get(0));
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if(this.day != null)
-        {
-            this.tfName.setText(this.day.getName());
-            this.tfNickname.setText(this.day.getNickname());
-            this.tfOrder.setText(String.valueOf(this.day.getPosition()));
-        }
+        this.tfName.setText(this.day.getName());
+        this.tfNickname.setText(this.day.getNickname());
     }
 
     public void onDayEditSavePressed(ActionEvent actionEvent) {
-        if(this.day != null)
-        {
-            try {
-                @NotNull final MDay mDay = new MDay(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                mDay.update(
-                        this.day,
-                        this.tfName.getText(),
-                        this.tfNickname.getText(),
-                        Integer.parseInt(this.tfOrder.getText()));
-                @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Berhasil");
-                alert.setHeaderText(null);
-                alert.setContentText("Data Berhasil Dirubah !");
+        try {
+            @NotNull final AbstractModel model = new MDay(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            MDay.update(model,
+                    this.day,
+                    this.tfName.getText(),
+                    this.tfNickname.getText(),
+                    this.day.getPosition());
+            @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Berhasil");
+            alert.setHeaderText(null);
+            alert.setContentText("Data Berhasil Dirubah !");
 
-                @NotNull final Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent()) {
-                    if (result.get() == ButtonType.OK) {
-                        this.dayUpdated();
-                        this.onDayEditClosePressed(actionEvent);
-                    }
+            @NotNull final Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == ButtonType.OK) {
+                    this.dayUpdated(this.day, this.tfName.getText(), this.tfNickname.getText(), this.day.getPosition());
+                    this.onDayEditClosePressed(actionEvent);
                 }
-            } catch (SQLException | UnsupportedEncodingException ignored) {
-                System.err.println("Error Activating Database");
-                System.exit(-1);
             }
+        } catch (SQLException | UnsupportedEncodingException ignored) {
+            System.err.println("Error Activating Database");
+            System.exit(-1);
         }
     }
 
-    public void dayUpdated() {
-        if(this.day != null) {
-            this.day.setName(this.tfName.getText());
-            this.day.setNickname(this.tfNickname.getText());
-            this.day.setPosition(Integer.parseInt(this.tfOrder.getText()));
-        }
+    public void dayUpdated(@NotNull final DBDay id, String name, String nickname, int position) {
+
     }
 
     public void onDayEditClosePressed(ActionEvent actionEvent) {

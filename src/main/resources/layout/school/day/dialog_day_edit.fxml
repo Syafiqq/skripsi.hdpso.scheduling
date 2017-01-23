@@ -7,8 +7,8 @@
   Email        : syafiq.rezpector@gmail.com
   Github       : syafiqq
 -->
-
 <!--suppress JavaFxDefaultTag -->
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -21,22 +21,19 @@
         <RowConstraints />
         <RowConstraints />
         <RowConstraints />
-        <RowConstraints />
     </rowConstraints>
     <children>
         <Label text="Nama" />
         <Label text="Nama Pendek" GridPane.rowIndex="1" />
-        <Label text="Posisi" GridPane.rowIndex="2" />
-        <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <children>
                 <Pane HBox.hgrow="ALWAYS" />
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#onDayEditSavePressed" text="Simpan" />
             </children>
         </HBox>
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#onDayEditClosePressed" text="Tutup" GridPane.rowIndex="3" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onDayEditClosePressed" text="Tutup" GridPane.rowIndex="2" />
         <TextField fx:id="tfName" GridPane.columnIndex="1" />
         <TextField fx:id="tfNickname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <TextField fx:id="tfOrder" GridPane.columnIndex="1" GridPane.rowIndex="2" />
     </children>
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

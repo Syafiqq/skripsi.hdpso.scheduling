@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class IPeriodEdit extends Application {
@@ -32,7 +34,7 @@ public class IPeriodEdit extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws UnsupportedEncodingException, SQLException {
         buildStage(primaryStage, new CPeriodEdit());
     }
 
