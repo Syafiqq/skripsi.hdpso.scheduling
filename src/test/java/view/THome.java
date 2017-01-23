@@ -9,44 +9,35 @@ package view;
  */
 
 import javafx.application.Application;
-import model.database.component.DBSchool;
+import model.AbstractModel;
+import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
-import model.database.model.MSchool;
+import model.database.model.*;
 import model.method.pso.hdpso.component.Setting;
+import model.util.Dump;
 import model.util.Session;
-import model.util.pattern.observer.ObservableDBSchool;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
-@SuppressWarnings("Duplicates") public class THome
-{
+@SuppressWarnings("Duplicates")
+public class THome {
     @BeforeClass
-    public static void setUpClass() throws InterruptedException
-    {
-        try {
-            @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+    public static void setUpClass() throws InterruptedException, UnsupportedEncodingException, SQLException {
+        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final Session session = Session.getInstance();
+        @NotNull final DBMSchool school = Dump.schoolMetadata();
+        session.put("school", Dump.schoolMetadata());
+        session.put("day", MDay.getAllMetadataFromSchool(model, school));
+        session.put("period", MPeriod.getAllMetadataFromSchool(model, school));
+        session.put("subject", MSubject.getAllMetadataFromSchool(model, school));
+        session.put("availability", MAvailability.getAll(model));
 
-            @Nullable DBSchool school = mSchool.select(2);
-            if (school != null) {
-                if (!Session.getInstance().containsKey("school")) {
-                    Session.getInstance().put("school", new ObservableDBSchool(school));
-                } else {
-                    ((ObservableDBSchool) Session.getInstance().get("school")).setSchool(school);
-                }
-            }
-        } catch (SQLException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        Thread t = new Thread()
-        {
-            public void run()
-            {
+        Thread t = new Thread() {
+            public void run() {
                 Application.launch(IHome.class);
             }
         };
@@ -55,8 +46,8 @@ import java.sql.SQLException;
         t.join();
     }
 
-    @Test public void Test()
-    {
+    @Test
+    public void Test() {
 
     }
 }
