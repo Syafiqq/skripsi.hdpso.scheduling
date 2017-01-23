@@ -20,13 +20,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.AbstractModel;
 import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MPeriod;
+import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
-import model.util.Session;
-import model.util.pattern.observer.ObservableDBSchool;
+import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.school.period.IPeriodEdit;
@@ -35,71 +37,87 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class CPeriodList implements Initializable {
-    @FXML public TableView<DBPeriod> periodList;
-    @FXML public TableColumn<DBPeriod, String> columnName;
-    @FXML public TableColumn<DBPeriod, String> columnNickname;
-    @FXML public TableColumn<DBPeriod, String> columnStart;
-    @FXML public TableColumn<DBPeriod, String> columnEnd;
-    @FXML public TableColumn<DBPeriod, Integer> columnOrder;
-    @Nullable private ObservableDBSchool oSchool;
+    @NotNull
+    private final DBMSchool schoolMetadata;
+    @NotNull
+    private final List<DBMPeriod> periodMetadata;
+    @FXML
+    public TableView<DBMPeriod> periodList;
+    @FXML
+    public TableColumn<DBMPeriod, String> columnName;
+    @FXML
+    public TableColumn<DBMPeriod, String> columnNickname;
+    @FXML
+    public TableColumn<DBMPeriod, String> columnStart;
+    @FXML
+    public TableColumn<DBMPeriod, String> columnEnd;
+    @FXML
+    public TableColumn<DBMPeriod, Integer> columnOrder;
+
+    public CPeriodList(@NotNull final DBMSchool schoolMetadata, @NotNull final List<DBMPeriod> periodMetadata) {
+        this.schoolMetadata = schoolMetadata;
+        this.periodMetadata = periodMetadata;
+    }
+
+    public CPeriodList() throws UnsupportedEncodingException, SQLException {
+        @NotNull final AbstractModel model = new MPeriod(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
+        this.schoolMetadata = MSchool.getFromMetadata(model, schoolMetadata);
+        this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, this.schoolMetadata);
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        @NotNull final Session session = Session.getInstance();
-        if (session.containsKey("school")) {
-            this.oSchool = ((ObservableDBSchool) Session.getInstance().get("school"));
-        }
         this.columnName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         this.columnNickname.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getNickname()));
         this.columnStart.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStart().toString()));
         this.columnEnd.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getEnd().toString()));
         this.columnOrder.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getPosition()).asObject());
-        this.periodList.setItems(FXCollections.observableList(this.populatePeriod()));
-    }
-
-    private List<DBPeriod> populatePeriod() {
-        if(this.oSchool != null) {
-            @Nullable final DBSchool school = this.oSchool.getSchool();
-            if (school != null) {
-                try {
-                    @NotNull final MPeriod mPeriod = new MPeriod(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                    return mPeriod.getAllFromSchool(school);
-                } catch (SQLException | UnsupportedEncodingException ignored) {
-                    System.err.println("Error Activating Database");
-                    System.exit(-1);
-                }
-            }
-        }
-        return Collections.emptyList();
+        this.periodList.setItems(FXCollections.observableList(this.periodMetadata));
     }
 
     public void onPeriodListEditPressed(ActionEvent actionEvent) {
-        @Nullable final DBPeriod period = this.periodList.getSelectionModel().getSelectedItem();
-        if (period == null) {
+        @Nullable final DBMPeriod periodMetadata = this.periodList.getSelectionModel().getSelectedItem();
+        if (periodMetadata == null) {
             this.notifySelectFirst();
         } else {
-            @NotNull final Stage dialog = new Stage();
-            dialog.setTitle("Edit Periode");
-
             try {
-                dialog.setScene(new Scene(IPeriodEdit.load(new CPeriodEdit(period){
-                    @Override
-                    public void periodChanged() {
-                        CPeriodList.this.periodList.setItems(FXCollections.observableList(CPeriodList.this.populatePeriod()));
-                        super.periodChanged();
-                    }
-                }).load()));
-            } catch (IOException ignored) {
+                @NotNull final AbstractModel model = new MPeriod(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                @NotNull final DBPeriod period = MPeriod.getFromMetadata(model, this.schoolMetadata, periodMetadata);
+                @NotNull final Stage dialog = new Stage();
+                dialog.setTitle("Edit Periode");
+
+                try {
+                    dialog.setScene(new Scene(IPeriodEdit.load(new CPeriodEdit(period) {
+                        @Override
+                        public void periodUpdated(@NotNull DBPeriod _period, String name, String nickname, String start, String end, int position) {
+                            CPeriodList.this.periodMetadata.stream()
+                                    .filter(metadata -> metadata.getId() == _period.getId())
+                                    .forEach(metadata -> {
+                                        metadata.setName(name);
+                                        metadata.setNickname(nickname);
+                                        metadata.setPosition(position);
+                                        metadata.setStartLesson(start);
+                                        metadata.setEndLesson(end);
+                                    });
+                            CPeriodList.this.periodList.refresh();
+                            super.periodUpdated(period, name, nickname, start, end, position);
+                        }
+                    }).load()));
+                } catch (IOException ignored) {
+                }
+
+                dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.showAndWait();
+            } catch (SQLException | UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
 
-            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.showAndWait();
         }
     }
 
@@ -113,6 +131,5 @@ public class CPeriodList implements Initializable {
 
     public void onPeriodListClosePressed(ActionEvent actionEvent) {
         ((Node) actionEvent.getSource()).getScene().getWindow().hide();
-
     }
 }
