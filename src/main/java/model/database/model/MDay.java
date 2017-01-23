@@ -10,7 +10,10 @@ package model.database.model;
 import model.AbstractModel;
 import model.database.component.DBDay;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +21,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "Duplicates"})
 public class MDay extends AbstractModel {
     public MDay(@NotNull String dbPath) throws SQLException {
         super(dbPath);
@@ -44,12 +47,20 @@ public class MDay extends AbstractModel {
         MDay.update(this, day, name, nickname, position);
     }
 
+    public List<DBMDay> getAllMetadataFromSchool(@NotNull final DBMSchool school) {
+        return MDay.getAllMetadataFromSchool(this, school);
+    }
+
     public List<DBDay> getAllFromSchool(@NotNull final DBSchool school) {
         return MDay.getAllFromSchool(this, school);
     }
 
     public void deleteFromSchool(@NotNull final DBSchool school) {
         this.deleteFromSchool(school.getId());
+    }
+
+    public void deleteFromSchool(@NotNull final DBMSchool school) {
+        MDay.deleteFromSchool(this, school);
     }
 
     public void deleteFromSchool(int schoolId) {
@@ -106,6 +117,10 @@ public class MDay extends AbstractModel {
         MDay.deleteFromSchool(model, school.getId());
     }
 
+    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        MDay.deleteFromSchool(model, school.getId());
+    }
+
     public static void deleteFromSchool(@NotNull final AbstractModel model, int schoolId) {
         try {
             if (model.isClosed()) {
@@ -121,7 +136,7 @@ public class MDay extends AbstractModel {
         }
     }
 
-    private static List<DBDay> getAllFromSchool(@NotNull final AbstractModel model, @NotNull DBSchool school) {
+    public static List<DBDay> getAllFromSchool(@NotNull final AbstractModel model, @NotNull DBSchool school) {
         @NotNull List<DBDay> dbDayList = new LinkedList<>();
         try {
             if (model.isClosed()) {
@@ -149,7 +164,34 @@ public class MDay extends AbstractModel {
         return dbDayList;
     }
 
-    private static void update(@NotNull final AbstractModel model, @NotNull final DBDay day, String name, String nickname, int position) {
+    public static List<DBMDay> getAllMetadataFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        @NotNull List<DBMDay> dbDayList = new LinkedList<>();
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `nick`, `position` FROM active_day WHERE school = ? ORDER BY `position` ASC ");
+            statement.setInt(1, school.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                dbDayList.add(
+                        new DBMDay(
+                                result.getInt("id"),
+                                result.getInt("position"),
+                                result.getString("name"),
+                                result.getString("nick")
+                        ));
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dbDayList;
+    }
+
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBDay day, String name, String nickname, int position) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -166,5 +208,34 @@ public class MDay extends AbstractModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @NotNull
+    public static DBDay getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool school, @NotNull final DBMDay metadata) {
+        @Nullable DBDay day = null;
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `nick`, `position`, `school` FROM active_day WHERE `id` = ? ORDER BY `position` ASC LIMIT 1");
+            statement.setInt(1, metadata.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                day = new DBDay(
+                        result.getInt("id"),
+                        result.getInt("position"),
+                        result.getString("name"),
+                        result.getString("nick"),
+                        school
+                );
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        assert day != null;
+        return day;
     }
 }
