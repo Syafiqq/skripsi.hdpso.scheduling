@@ -53,8 +53,8 @@ public class CSchoolNew implements Initializable {
 
     public void onCreateTimetablePressed(ActionEvent actionEvent) {
         try {
-            @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            @Nullable DBSchool school = mSchool.insert(
+            @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            @Nullable DBSchool school = MSchool.insert(model,
                     name.getText(),
                     nick.getText(),
                     address.getText(),
@@ -65,7 +65,7 @@ public class CSchoolNew implements Initializable {
 
             if(school != null)
             {
-                this.generateSchoolData(mSchool, school);
+                this.generateSchoolData(model, school);
             }
 
             @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);

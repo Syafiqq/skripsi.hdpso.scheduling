@@ -17,14 +17,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import model.database.component.DBSchool;
+import model.AbstractModel;
+import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
-import model.database.model.MDay;
-import model.database.model.MPeriod;
-import model.database.model.MSchool;
+import model.database.model.*;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
-import model.util.pattern.observer.ObservableDBSchool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,12 +35,12 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class CSchoolList implements Initializable {
-    public TableView<DBSchool> schoolList;
-    public TableColumn<DBSchool, String> columnName;
-    public TableColumn<DBSchool, String> columnAcademicYear;
-    public TableColumn<DBSchool, String> columnSemester;
-    public TableColumn<DBSchool, Integer> columnPeriod;
-    public TableColumn<DBSchool, Integer> columnDay;
+    public TableView<DBMSchool> schoolList;
+    public TableColumn<DBMSchool, String> columnName;
+    public TableColumn<DBMSchool, String> columnAcademicYear;
+    public TableColumn<DBMSchool, String> columnSemester;
+    public TableColumn<DBMSchool, Integer> columnPeriod;
+    public TableColumn<DBMSchool, Integer> columnDay;
 
     public CSchoolList() {
     }
@@ -57,10 +55,10 @@ public class CSchoolList implements Initializable {
         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
     }
 
-    private List<DBSchool> populateSchool() {
+    private List<DBMSchool> populateSchool() {
         try {
-            @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            return mSchool.getAll();
+            @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            return MSchool.getAllMetadata(model);
         } catch (SQLException | UnsupportedEncodingException ignored) {
             System.err.println("Error Activating Database");
             System.exit(-1);
@@ -69,21 +67,26 @@ public class CSchoolList implements Initializable {
     }
 
     public void onTimetableLoadPressed(ActionEvent actionEvent) {
-        @Nullable DBSchool school = this.schoolList.getSelectionModel().getSelectedItem();
+        @Nullable DBMSchool school = this.schoolList.getSelectionModel().getSelectedItem();
         if (school == null) {
             this.notifySelectFirst();
         } else {
-            if (!Session.getInstance().containsKey("school")) {
-                Session.getInstance().put("school", new ObservableDBSchool(school));
-            } else {
-                ((ObservableDBSchool) Session.getInstance().get("school")).setSchool(school);
+            try {
+                @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                Session.getInstance().put("school", school);
+                Session.getInstance().put("day", MDay.getAllMetadataFromSchool(model, school));
+                Session.getInstance().put("period", MPeriod.getAllMetadataFromSchool(model, school));
+                Session.getInstance().put("subject", MSubject.getAllMetadataFromSchool(model, school));
+                Session.getInstance().put("availability", MAvailability.getAll(model));
+            } catch (SQLException | UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
             this.onListCancelPressed(actionEvent);
         }
     }
 
     public void onTimetableDeletePressed() {
-        @Nullable final DBSchool school = this.schoolList.getSelectionModel().getSelectedItem();
+        @Nullable final DBMSchool school = this.schoolList.getSelectionModel().getSelectedItem();
         if (school == null) {
             this.notifySelectFirst();
         } else {
@@ -96,10 +99,10 @@ public class CSchoolList implements Initializable {
             if (result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
                     try {
-                        @NotNull final MSchool mSchool = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                        mSchool.delete(school);
-                        MDay.deleteFromSchool(mSchool, school);
-                        MPeriod.deleteFromSchool(mSchool, school);
+                        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        MSchool.delete(model, school);
+                        MDay.deleteFromSchool(model, school);
+                        MPeriod.deleteFromSchool(model, school);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");

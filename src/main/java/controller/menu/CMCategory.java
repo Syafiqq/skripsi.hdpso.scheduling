@@ -1,6 +1,7 @@
 package controller.menu;
 
 import controller.school.CSchoolDetail;
+import controller.subject.CSubjectList;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -11,14 +12,26 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.AbstractModel;
+import model.database.component.DBAvailability;
+import model.database.component.DBSchool;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
+import model.database.core.DBType;
+import model.database.model.MSchool;
+import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
-import model.util.pattern.observer.ObservableDBSchool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.school.ISchoolDetail;
+import view.subject.ISubjectList;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Observer;
 import java.util.ResourceBundle;
 
@@ -29,7 +42,7 @@ import java.util.ResourceBundle;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class CMCategory implements Initializable {
     @Nullable
     private final Observer content;
@@ -48,13 +61,41 @@ public class CMCategory implements Initializable {
     @FXML
     public Button bLesson;
 
+    @Nullable
+    private DBMSchool schoolMetadata;
+
+    @Nullable
+    private List<DBMDay> dayMetadata;
+
+    @Nullable
+    private List<DBMPeriod> periodMetadata;
+
+    @Nullable
+    private List<DBMSubject> subjectMetadata;
+
+    @Nullable
+    private List<DBAvailability> availability;
+
+
     public CMCategory() {
-        this.content = null;
+        this(null);
     }
 
 
+    @SuppressWarnings("unchecked")
     public CMCategory(@Nullable Observer rootContentCallback) {
         this.content = rootContentCallback;
+        this.setData();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setData() {
+        final Session session = Session.getInstance();
+        this.schoolMetadata = (DBMSchool) session.get("school");
+        this.dayMetadata = (List<DBMDay>) session.get("day");
+        this.periodMetadata = (List<DBMPeriod>) session.get("period");
+        this.subjectMetadata = (List<DBMSubject>) session.get("subject");
+        this.availability = (List<DBAvailability>) session.get("availability");
     }
 
     @Override
@@ -66,11 +107,16 @@ public class CMCategory implements Initializable {
     private void bindSchoolData() {
         @NotNull final BooleanProperty schoolExistenceListener = new SimpleBooleanProperty(true);
         @NotNull final Observer schoolExistenceObserver = (o, arg) -> {
-            if (o instanceof ObservableDBSchool) {
-                schoolExistenceListener.setValue(((ObservableDBSchool) o).getSchool() == null);
+            schoolExistenceListener.setValue(!Session.getInstance().containsKey("school"));
+            if (arg != null) {
+                if (arg instanceof String) {
+                    if (((String) arg).contentEquals("school")) {
+                        CMCategory.this.setData();
+                    }
+                }
             }
         };
-        ((ObservableDBSchool) Session.getInstance().get("school")).addObserver(schoolExistenceObserver);
+        Session.getInstance().addObserver(schoolExistenceObserver);
         this.mc_button_generate.disableProperty().bind(schoolExistenceListener);
         this.bSchool.disableProperty().bind(schoolExistenceListener);
         this.bSubject.disableProperty().bind(schoolExistenceListener);
@@ -80,22 +126,54 @@ public class CMCategory implements Initializable {
         this.bLesson.disableProperty().bind(schoolExistenceListener);
     }
 
-
     public void onSchoolButtonPressed(ActionEvent actionEvent) {
-        @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Detail Jadwal");
+        if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Detail Jadwal");
 
-        try {
-            dialog.setScene(new Scene(ISchoolDetail.load(new CSchoolDetail()).load()));
-        } catch (IOException ignored) {
+            try {
+
+                @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                @NotNull final DBSchool school = MSchool.getFromMetadata(model, this.schoolMetadata);
+                dialog.setScene(new Scene(ISchoolDetail.load(new CSchoolDetail(school, this.dayMetadata, this.periodMetadata) {
+                    @Override
+                    public void schoolUpdated(String name, String nickname, String address, String academicYear, int semester, int activeDay, int activePeriod) {
+                        if (CMCategory.this.schoolMetadata != null) {
+                            CMCategory.this.schoolMetadata.setName(name);
+                            CMCategory.this.schoolMetadata.setAcademicYear(academicYear);
+                            CMCategory.this.schoolMetadata.setSemester(semester);
+                            CMCategory.this.schoolMetadata.setActiveDay(activeDay);
+                            CMCategory.this.schoolMetadata.setActivePeriod(activePeriod);
+                        }
+                        super.schoolUpdated(name, nickname, address, academicYear, semester, activeDay, activePeriod);
+                    }
+                }).load()));
+            } catch (IOException | SQLException ignored) {
+                ignored.printStackTrace();
+            }
+
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
         }
-
-        dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.showAndWait();
     }
 
     public void onMenuCategoryGenerateClick(ActionEvent actionEvent) {
 
+    }
+
+    public void onSubjectButtonPressed(ActionEvent actionEvent) {
+        if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null) && (this.subjectMetadata != null) && (this.availability != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Daftar Mata Kuliah");
+            try {
+                dialog.setScene(new Scene(ISubjectList.load(new CSubjectList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.subjectMetadata)).load()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
     }
 }

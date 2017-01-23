@@ -2,17 +2,12 @@ package controller.menu;
 
 import controller.school.CSchoolList;
 import controller.school.CSchoolNew;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import model.util.Session;
-import model.util.pattern.observer.ObservableDBSchool;
 import org.jetbrains.annotations.NotNull;
 import view.school.ISchoolList;
 import view.school.ISchoolNew;
@@ -29,8 +24,6 @@ import java.util.ResourceBundle;
  * Github       : syafiqq
  */
 public class CMHome implements Initializable {
-    public Button buttonNew;
-    public Button buttonLoad;
 
     public CMHome() {
 
@@ -38,18 +31,6 @@ public class CMHome implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (!Session.getInstance().containsKey("school")) {
-            Session.getInstance().put("school", new ObservableDBSchool(null));
-        }
-        @NotNull final BooleanProperty disableListener = new SimpleBooleanProperty(false);
-        this.buttonNew.disableProperty().bind(disableListener);
-        this.buttonLoad.disableProperty().bind(disableListener);
-/*        @NotNull final Observer observer = (o, arg) -> {
-            if (o instanceof ObservableDBSchool) {
-                this.disableListener.setValue(((ObservableDBSchool) o).getSchool() != null);
-            }
-        };
-        ((ObservableDBSchool) Session.getInstance().get("school")).addObserver(observer);*/
     }
 
     public void onButtonExitPressed(ActionEvent actionEvent) {
