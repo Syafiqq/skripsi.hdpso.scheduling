@@ -10,7 +10,10 @@ package model.database.model;
 import model.AbstractModel;
 import model.database.component.DBPeriod;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,8 +51,16 @@ public class MPeriod extends AbstractModel {
         return MPeriod.getAllFromSchool(this, school);
     }
 
+    public List<DBMPeriod> getAllMetadataFromSchool(@NotNull final DBMSchool school){
+        return MPeriod.getAllMetadataFromSchool(this, school);
+    }
+
     public void deleteFromSchool(@NotNull final DBSchool school) {
         MPeriod.deleteFromSchool(this, school.getId());
+    }
+
+    public void deleteFromSchool(@NotNull final DBMSchool school) {
+        MPeriod.deleteFromSchool(this, school);
     }
 
     public void deleteFromSchool(int schoolId) {
@@ -110,6 +121,10 @@ public class MPeriod extends AbstractModel {
         MPeriod.deleteFromSchool(model, school.getId());
     }
 
+    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        MPeriod.deleteFromSchool(model, school.getId());
+    }
+
     public static void deleteFromSchool(@NotNull final AbstractModel model, int schoolId) {
         try {
             if (model.isClosed()) {
@@ -125,7 +140,7 @@ public class MPeriod extends AbstractModel {
         }
     }
 
-    private static List<DBPeriod> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static List<DBPeriod> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
         @NotNull List<DBPeriod> dbPeriodList = new LinkedList<>();
         try {
             if (model.isClosed()) {
@@ -155,7 +170,36 @@ public class MPeriod extends AbstractModel {
         return dbPeriodList;
     }
 
-    private static void update(@NotNull final AbstractModel model, @NotNull final DBPeriod period, String name, String nickname, String start, String end, int position) {
+    public static List<DBMPeriod> getAllMetadataFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        @NotNull List<DBMPeriod> dbPeriodList = new LinkedList<>();
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `nick`, `start`, `end`, `position`  FROM `active_period` WHERE school = ? ORDER BY `position` ASC ");
+            statement.setInt(1, school.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                dbPeriodList.add(
+                        new DBMPeriod(
+                                result.getInt("id"),
+                                result.getInt("position"),
+                                result.getString("name"),
+                                result.getString("nick"),
+                                result.getString("start"),
+                                result.getString("end")
+                        ));
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dbPeriodList;
+    }
+
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBPeriod period, String name, String nickname, String start, String end, int position) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -174,5 +218,34 @@ public class MPeriod extends AbstractModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static DBPeriod getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool school, @NotNull final DBMPeriod metadata) {
+        @Nullable DBPeriod period = null;
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `nick`, `start`, `end`, `position`, `school` FROM `active_period` WHERE `id` = ? ORDER BY `position` ASC LIMIT 1");
+            statement.setInt(1, metadata.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                period = new DBPeriod(
+                                result.getInt("id"),
+                                result.getInt("position"),
+                                result.getString("name"),
+                                result.getString("nick"),
+                                result.getString("start"),
+                                result.getString("end"),
+                                school
+                        );
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return period;
     }
 }

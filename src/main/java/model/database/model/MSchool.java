@@ -9,6 +9,7 @@ package model.database.model;
 
 import model.AbstractModel;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +43,16 @@ public class MSchool extends AbstractModel {
         return MSchool.getAll(this);
     }
 
+    public List<DBMSchool> getAllMetadata() {
+        return MSchool.getAllMetadata(this);
+    }
+
     public void delete(@NotNull final DBSchool school) {
         this.delete(school.getId());
+    }
+
+    public void delete(@NotNull final DBMSchool school) {
+        MSchool.delete(this, school);
     }
 
     public void delete(int schoolId) {
@@ -155,7 +164,39 @@ public class MSchool extends AbstractModel {
         return dbSchoolList;
     }
 
+    public static List<DBMSchool> getAllMetadata(@NotNull final AbstractModel model) {
+        @NotNull List<DBMSchool> list = new LinkedList<>();
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `academic_year`, `semester`, `active_period`, `active_day` FROM `school` ORDER BY `id` ASC ");
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                list.add(
+                        new DBMSchool(
+                                result.getInt("id"),
+                                result.getString("name"),
+                                result.getString("academic_year"),
+                                result.getInt("semester"),
+                                result.getInt("active_period"),
+                                result.getInt("active_day")
+                        ));
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public static void delete(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+        MSchool.delete(model, school.getId());
+    }
+
+    public static void delete(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
         MSchool.delete(model, school.getId());
     }
 
@@ -200,4 +241,34 @@ public class MSchool extends AbstractModel {
         }
     }
 
+    @NotNull public static DBSchool getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool metadata) {
+        @Nullable DBSchool school = null;
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `nick`, `address`, `academic_year`, `semester`, `active_period`, `active_day` FROM `school` WHERE `id` = ? LIMIT 1");
+            statement.setInt(1, metadata.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                school = new DBSchool(
+                        result.getInt("id"),
+                        result.getString("name"),
+                        result.getString("nick"),
+                        result.getString("address"),
+                        result.getString("academic_year"),
+                        result.getInt("semester"),
+                        result.getInt("active_period"),
+                        result.getInt("active_day")
+                );
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        assert school != null;
+        return school;
+    }
 }
