@@ -41,7 +41,7 @@ public class ISubjectDetail extends Application {
     private void buildStage(Stage primaryStage, CSubjectDetail controller) {
         try {
             @NotNull final FXMLLoader loader = ISubjectDetail.load(controller);
-            primaryStage.setTitle("Daftar Mata Kuliah");
+            primaryStage.setTitle("Detail Mata Kuliah");
             primaryStage.setScene(new Scene(loader.load()));
             primaryStage.show();
         } catch (IOException ignored) {
