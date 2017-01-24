@@ -7,6 +7,8 @@ package controller.subject;
  * Github       : syafiqq
  */
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -22,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
+import model.database.component.DBSubject;
 import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
@@ -33,6 +36,7 @@ import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.subject.ISubjectCreate;
+import view.subject.ISubjectDetail;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -150,7 +154,54 @@ public class CSubjectList implements Initializable {
     }
 
     public void onSubjectListDetailPressed(ActionEvent actionEvent) {
+        @Nullable final DBMSubject subjectMetadata = this.subjectList.getSelectionModel().getSelectedItem();
+        if (subjectMetadata == null) {
+            this.notifySelectFirst();
+        } else {
+            try {
+                @NotNull final AbstractModel model = new MSubject(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                @NotNull final DBSubject subject = MSubject.getFromMetadata(model, this.schoolMetadata, subjectMetadata);
+                @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
+                @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
+                @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
+                for(@NotNull final DBMDay _day : this.dayMetadata)
+                {
+                    mapDay.put(_day.getId(), _day);
+                }
+                for(@NotNull final DBMPeriod _period : this.periodMetadata)
+                {
+                    mapPeriod.put(_period.getId(), _period);
+                }
+                for(@NotNull final DBAvailability _availability : this.availabilities)
+                {
+                    mapAvailability.put(_availability.getId(), _availability);
+                }
+                MSubject.getTimeOff(model, subject, mapDay, mapPeriod, mapAvailability);
+                @NotNull final Stage dialog = new Stage();
+                dialog.setTitle("Detail Mata Kuliah");
 
+                try {
+                    dialog.setScene(new Scene(ISubjectDetail.load(new CSubjectDetail(subject, this.dayMetadata, this.periodMetadata, this.availabilities) {
+                        @Override
+                        public void subjectUpdated(@NotNull final DBMSubject _subject, @NotNull final String name, @NotNull final String code) {
+                            CSubjectList.this.subjectMetadata.stream().filter(vSubject -> vSubject.getId() == _subject.getId()).forEach(vSubject -> {
+                                vSubject.setName(name);
+                                vSubject.setSubjectId(code);
+                            });
+                            CSubjectList.this.subjectList.refresh();
+                            super.subjectUpdated(_subject, name, code);
+                        }
+                    }).load()));
+                } catch (IOException ignored) {
+                }
+
+                dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.showAndWait();
+            } catch (SQLException | UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void onSubjectListClosePressed(ActionEvent actionEvent) {
