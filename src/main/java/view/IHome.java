@@ -39,7 +39,7 @@ public class IHome extends Application {
     private void buildStage(Stage primaryStage, CHome controller) {
         try {
             @NotNull final FXMLLoader loader = IHome.load(controller);
-            primaryStage.setTitle("Utama");
+            primaryStage.setTitle("Penjadwalan");
             primaryStage.setScene(new Scene(loader.load()));
             primaryStage.show();
         } catch (IOException ignored) {
