@@ -118,6 +118,7 @@ public class CSubjectList implements Initializable {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void notifySelectFirst() {
         @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Info");

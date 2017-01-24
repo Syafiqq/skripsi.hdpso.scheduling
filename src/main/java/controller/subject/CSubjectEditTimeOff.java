@@ -156,6 +156,7 @@ public class CSubjectEditTimeOff implements Initializable {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void processChanged(@NotNull final Label[][] organizedLabel, int row, int column) {
         if ((row == 0) && (column == 0)) {
             if ((this.dayMetadata.size() > 0) && (this.periodMetadata.size() > 0)) {

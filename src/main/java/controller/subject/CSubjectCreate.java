@@ -112,6 +112,7 @@ public class CSubjectCreate implements Initializable {
 
     }
 
+    @SuppressWarnings("Duplicates")
     private void generateSubjectData(@NotNull final AbstractModel model, @NotNull DBMSubject subject, @NotNull final DBMSchool schoolMetadata, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata) {
         @NotNull final DBSubject.TimeOffContainer container = DBSubject.TimeOffContainer.generateNew(subject, schoolMetadata);
 
