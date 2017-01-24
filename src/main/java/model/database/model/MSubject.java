@@ -7,11 +7,13 @@ package model.database.model;
  * Github       : syafiqq
  */
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import model.AbstractModel;
-import model.database.component.DBSchool;
-import model.database.component.DBSubject;
-import model.database.component.DBTimeOff;
+import model.database.component.*;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import org.jetbrains.annotations.NotNull;
@@ -194,6 +196,135 @@ public class MSubject extends AbstractModel {
             statement.setInt(1, subject.getId());
             statement.execute();
             statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DBSubject getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, @NotNull final DBMSubject subjectMetadata) {
+        @Nullable DBSubject subject = null;
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `code`, `school` FROM `subject` WHERE `id` = ? LIMIT 1");
+            statement.setInt(1, subjectMetadata.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                subject = new DBSubject(
+                        result.getInt("id"),
+                        result.getString("name"),
+                        result.getString("code"),
+                        schoolMetadata
+                );
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return subject;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBSubject subject, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `subject_timeoff`.`id`, `subject_timeoff`.`subject`, `subject_timeoff`.`day`, `subject_timeoff`.`period`, `subject_timeoff`.`availability` FROM `subject_timeoff` LEFT OUTER JOIN `subject` ON `subject_timeoff`.`subject` = `subject`.`id` LEFT OUTER JOIN `active_day` ON `subject_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `subject_timeoff`.`period` = `active_period`.`id` WHERE `subject`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
+            statement.setInt(1, subject.getId());
+            @NotNull final ResultSet result = statement.executeQuery();
+            int                                       dayIndex       = -1;
+            int                                       periodIndex    = -1;
+            ObjectListIterator<ObjectList<DBTimeOff>> subject_db      = subject.getTimeoff().getAvailabilities().listIterator();
+            ObjectList<DBTimeOff>                     current_timeOff = null;
+            while(result.next())
+            {
+                if(dayIndex != result.getInt("day"))
+                {
+                    dayIndex = result.getInt("day");
+                    periodIndex = -1;
+                    current_timeOff = subject_db.next();
+                }
+
+                assert current_timeOff != null;
+                current_timeOff.set(++periodIndex, new DBTimeOff(result.getInt("id"), mapDay.get(result.getInt("day")), mapPeriod.get(result.getInt("period")), mapAvailability.get(result.getInt("availability"))));
+            }
+            result.close();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBMSubject subject, @NotNull final String name, @NotNull final String code) {
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `subject` SET `name` = ?, `code` = ? WHERE `id` = ?");
+            statement.setString(1, name);
+            statement.setString(2, code);
+            statement.setInt(3, subject.getId());
+            statement.execute();
+            statement.close();
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateTimeOff(@NotNull final AbstractModel model, @NotNull final DBTimeOffContainer<DBSubject> timeOff) {
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            model.connection.setAutoCommit(false);
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `subject_timeoff` SET `availability` = ? WHERE `id` = ? ");
+            for (@NotNull final ObjectList<DBTimeOff> day : timeOff.getAvailabilities()) {
+                for (@NotNull final DBTimeOff period : day) {
+                    statement.setInt(1, period.getAvailability().getId());
+                    statement.setInt(2, period.getId());
+                    statement.addBatch();
+                }
+            }
+            statement.executeBatch();
+            statement.close();
+            model.connection.commit();
+            model.connection.setAutoCommit(true);
+            model.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteBunch(@NotNull final AbstractModel model, @NotNull final List<DBMSubject> subjectMetadata) {
+        try {
+            if (model.isClosed()) {
+                model.reconnect();
+            }
+            model.connection.setAutoCommit(false);
+            @NotNull PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `subject_timeoff` WHERE `subject` = ?");
+            for (@NotNull final DBMSubject subject : subjectMetadata) {
+                    statement.setInt(1, subject.getId());
+                    statement.addBatch();
+            }
+            statement.executeBatch();
+            statement.close();
+            model.connection.commit();
+            statement = model.connection.prepareStatement("DELETE FROM `subject` WHERE `id` = ?");
+            for (@NotNull final DBMSubject subject : subjectMetadata) {
+                statement.setInt(1, subject.getId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            statement.close();
+            model.connection.commit();
+            model.connection.setAutoCommit(true);
             model.close();
         } catch (SQLException e) {
             e.printStackTrace();
