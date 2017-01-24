@@ -146,6 +146,7 @@ public class MSubject extends AbstractModel {
         return subject;
     }
 
+    @SuppressWarnings("Duplicates")
     public static void insertTimeOff(@NotNull final AbstractModel model, @NotNull final DBMSubject subject, @NotNull final DBSubject.TimeOffContainer container) {
         try {
             if (model.isClosed()) {
@@ -228,7 +229,7 @@ public class MSubject extends AbstractModel {
         return subject;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "Duplicates"})
     public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBSubject subject, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
         try {
             if (model.isClosed()) {
