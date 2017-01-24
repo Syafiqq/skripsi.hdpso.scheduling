@@ -16,7 +16,7 @@ public class DBTimeOff
     private final          int            id;
     @NotNull private final DBMDay         day;
     @NotNull private final DBMPeriod      period;
-    @NotNull private final DBAvailability availability;
+    @NotNull private DBAvailability availability;
 
     public DBTimeOff(int id, @NotNull DBMDay day, @NotNull DBMPeriod period, @NotNull DBAvailability availability)
     {
@@ -44,5 +44,9 @@ public class DBTimeOff
     @NotNull public DBAvailability getAvailability()
     {
         return this.availability;
+    }
+
+    public void setAvailability(@NotNull final DBAvailability availability) {
+        this.availability = availability;
     }
 }
