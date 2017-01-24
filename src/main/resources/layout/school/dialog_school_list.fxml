@@ -25,7 +25,7 @@
                 <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onTimetableLoadPressed" text="Load" />
                 <VBox VBox.vgrow="ALWAYS" />
                 <Button mnemonicParsing="false" onAction="#onTimetableDeletePressed" style="-fx-background-color: red;" text="Hapus" textFill="WHITE" />
-                <Button cancelButton="true" mnemonicParsing="false" onAction="#onListCancelPressed" text="Batal" />
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onListCancelPressed" text="Tutup" />
             </children>
         </VBox>
     </right>

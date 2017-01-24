@@ -38,7 +38,7 @@
         <Button defaultButton="true" mnemonicParsing="false" onAction="#onSchoolEditSavePressed" text="Simpan" />
     </children>
 </HBox>
-<Button cancelButton="true" mnemonicParsing="false" onAction="#onSchoolEditClosePressed" text="Close" GridPane.rowIndex="5" />
+<Button cancelButton="true" mnemonicParsing="false" onAction="#onSchoolEditClosePressed" text="Tutup" GridPane.rowIndex="5" />
 <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
             <children>
                 <Pane HBox.hgrow="ALWAYS" />

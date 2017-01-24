@@ -26,7 +26,6 @@
         <RowConstraints />
         <RowConstraints />
         <RowConstraints />
-        <RowConstraints />
     </rowConstraints>
     <children>
         <Label text="Nama" />
@@ -72,7 +71,7 @@
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#onCreateTimetablePressed" text="Buat Baru" />
             </children>
         </HBox>
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelCreatePressed" text="Batal" GridPane.rowIndex="7" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelCreatePressed" text="Tutup" GridPane.rowIndex="7" />
         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
             <children>
                 <RadioButton mnemonicParsing="false" selected="true" text="Ganjil">
