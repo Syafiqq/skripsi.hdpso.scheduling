@@ -19,6 +19,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import model.AbstractModel;
 import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
 import model.database.model.*;
 import model.method.pso.hdpso.component.Setting;
@@ -103,6 +104,8 @@ public class CSchoolList implements Initializable {
                         MSchool.delete(model, school);
                         MDay.deleteFromSchool(model, school);
                         MPeriod.deleteFromSchool(model, school);
+                        @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
+                        MSubject.deleteBunch(model, subjectMetadata);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
