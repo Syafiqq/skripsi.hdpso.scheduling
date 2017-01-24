@@ -18,6 +18,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import model.AbstractModel;
+import model.database.component.metadata.DBMClass;
 import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
@@ -77,8 +78,9 @@ public class CSchoolList implements Initializable {
                 Session.getInstance().put("school", school);
                 Session.getInstance().put("day", MDay.getAllMetadataFromSchool(model, school));
                 Session.getInstance().put("period", MPeriod.getAllMetadataFromSchool(model, school));
-                Session.getInstance().put("subject", MSubject.getAllMetadataFromSchool(model, school));
                 Session.getInstance().put("availability", MAvailability.getAll(model));
+                Session.getInstance().put("subject", MSubject.getAllMetadataFromSchool(model, school));
+                Session.getInstance().put("klass", MClass.getAllMetadataFromSchool(model, school));
             } catch (SQLException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -106,6 +108,8 @@ public class CSchoolList implements Initializable {
                         MPeriod.deleteFromSchool(model, school);
                         @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
                         MSubject.deleteBunch(model, subjectMetadata);
+                        @NotNull final List<DBMClass> classMetadata = MClass.getAllMetadataFromSchool(model, school);
+                        MClass.deleteBunch(model, classMetadata);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
