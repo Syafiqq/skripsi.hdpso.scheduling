@@ -1,5 +1,6 @@
 package controller.menu;
 
+import controller.klass.CClassList;
 import controller.school.CSchoolDetail;
 import controller.subject.CSubjectList;
 import javafx.beans.property.BooleanProperty;
@@ -15,16 +16,14 @@ import javafx.stage.Stage;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
 import model.database.component.DBSchool;
-import model.database.component.metadata.DBMDay;
-import model.database.component.metadata.DBMPeriod;
-import model.database.component.metadata.DBMSchool;
-import model.database.component.metadata.DBMSubject;
+import model.database.component.metadata.*;
 import model.database.core.DBType;
 import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import view.klass.IClassList;
 import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
 
@@ -71,10 +70,13 @@ public class CMCategory implements Initializable {
     private List<DBMPeriod> periodMetadata;
 
     @Nullable
+    private List<DBAvailability> availability;
+
+    @Nullable
     private List<DBMSubject> subjectMetadata;
 
     @Nullable
-    private List<DBAvailability> availability;
+    private List<DBMClass> classMetadata;
 
 
     public CMCategory() {
@@ -94,8 +96,9 @@ public class CMCategory implements Initializable {
         this.schoolMetadata = (DBMSchool) session.get("school");
         this.dayMetadata = (List<DBMDay>) session.get("day");
         this.periodMetadata = (List<DBMPeriod>) session.get("period");
-        this.subjectMetadata = (List<DBMSubject>) session.get("subject");
         this.availability = (List<DBAvailability>) session.get("availability");
+        this.subjectMetadata = (List<DBMSubject>) session.get("subject");
+        this.classMetadata = (List<DBMClass>) session.get("klass");
     }
 
     @Override
@@ -168,6 +171,21 @@ public class CMCategory implements Initializable {
             dialog.setTitle("Daftar Mata Kuliah");
             try {
                 dialog.setScene(new Scene(ISubjectList.load(new CSubjectList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.subjectMetadata)).load()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
+    }
+
+    public void onClassButtonPressed(ActionEvent actionEvent) {
+        if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null) && (this.classMetadata != null) && (this.availability != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Daftar Kelas");
+            try {
+                dialog.setScene(new Scene(IClassList.load(new CClassList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.classMetadata)).load()));
             } catch (IOException e) {
                 e.printStackTrace();
             }

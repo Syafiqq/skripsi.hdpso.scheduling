@@ -34,7 +34,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Button fx:id="bClass" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" text="Kelas">
+        <Button fx:id="bClass" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onClassButtonPressed" text="Kelas">
             <graphic>
                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                     <image>
