@@ -1,8 +1,8 @@
 package model.database.loader;
 
-import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMClassroom;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class TDBProblemLoader_Lesson {
             int count = db_lesson.getCount();
             String lecture = db_lesson.getLecture() == null ? "-" : db_lesson.getLecture().getName();
             String klass = db_lesson.getKlass().getName();
-            String classroom = Arrays.toString(db_lesson.getClassrooms().stream().map(DBClassroom::getName).toArray());
+            String classroom = Arrays.toString(db_lesson.getClassrooms().stream().map(DBMClassroom::getName).toArray());
             System.out.printf("%d\t%s\t%d\t%d\t%s\t%s\t%s\n", id, subject, sks, count, lecture, klass, classroom.replace('[', '\0').replace(']', '\0').trim());
 
         }
@@ -67,7 +67,7 @@ public class TDBProblemLoader_Lesson {
             Assert.assertNotNull(db_lesson);
 
             System.out.print(db_lesson.getId() + " : ");
-            System.out.println(Arrays.toString(db_lesson.getClassrooms().stream().map(DBClassroom::getId).toArray()));
+            System.out.println(Arrays.toString(db_lesson.getClassrooms().stream().map(DBMClassroom::getId).toArray()));
         }
     }
 }

@@ -3,6 +3,7 @@ package model.database.loader;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.*;
 import model.database.component.*;
+import model.database.component.metadata.DBMClassroom;
 import model.database.core.DBComponent;
 import model.database.core.DBType;
 import model.method.pso.hdpso.component.Setting;
@@ -622,7 +623,7 @@ import java.util.List;
             result_set = super.result_set;
 
             int                     lesson_index        = -1;
-            ObjectList<DBClassroom> available_classroom = null;
+            ObjectList<DBMClassroom> available_classroom = null;
             while(result_set.next())
             {
                 if(lesson_index != result_set.getInt("id"))
@@ -828,13 +829,13 @@ import java.util.List;
     private void generateLessonGroup()
     {
         final ObjectIterator<DBLesson>                                 lessons       = this.lessons.values().iterator();
-        final Object2ObjectMap<ObjectList<DBClassroom>, DBLessonGroup> lesson_groups = new Object2ObjectLinkedOpenHashMap<>();
+        final Object2ObjectMap<ObjectList<DBMClassroom>, DBLessonGroup> lesson_groups = new Object2ObjectLinkedOpenHashMap<>();
         final int                                                      lesson_size   = this.lessons.size();
 
         while(lessons.hasNext())
         {
             final DBLesson                dbLesson       = lessons.next();
-            final ObjectList<DBClassroom> classroom_list = dbLesson.getClassrooms();
+            final ObjectList<DBMClassroom> classroom_list = dbLesson.getClassrooms();
             if(!lesson_groups.containsKey(classroom_list))
             {
                 lesson_groups.put(classroom_list, new DBLessonGroup(classroom_list, lesson_size));

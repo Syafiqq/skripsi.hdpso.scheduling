@@ -2,12 +2,14 @@ package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import model.database.component.metadata.DBMClassroom;
 import org.apache.commons.math3.util.FastMath;
 import org.intellij.lang.annotations.Flow;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.component> created by : 
@@ -19,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused") public class DBLessonCluster
 {
     private final List<DBLessonGroup>    lesson_group;
-    private final ObjectSet<DBClassroom> classrooms;
+    private final ObjectSet<DBMClassroom> classrooms;
     private final ObjectSet<DBLesson>    lessons;
 
     public DBLessonCluster(final DBLessonGroup lesson_group)
@@ -40,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
     public boolean isOnCluster(DBLessonGroup lesson_group)
     {
         boolean isOnCluster = false;
-        for(DBClassroom classroom : this.classrooms)
+        for(DBMClassroom classroom : this.classrooms)
         {
             if(lesson_group.isOnSet(classroom))
             {
@@ -63,7 +65,7 @@ import org.jetbrains.annotations.NotNull;
         return this.lesson_group;
     }
 
-    @NotNull public ObjectSet<DBClassroom> getClassrooms()
+    @NotNull public ObjectSet<DBMClassroom> getClassrooms()
     {
         return this.classrooms;
     }

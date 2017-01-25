@@ -1,14 +1,15 @@
 package model.database.loader;
 
-import java.util.Arrays;
-import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.database.component.DBLessonCluster;
 import model.database.component.DBLessonGroup;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMClassroom;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.loader> created by : 
@@ -38,7 +39,7 @@ import org.junit.Test;
         System.out.println(this.loader.getLessonCluster().size());
         for(DBLessonCluster a : this.loader.getLessonCluster())
         {
-            System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBMClassroom::getId).toArray()));
             System.out.println("\t" + Arrays.toString(a.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
         }
     }
@@ -48,12 +49,12 @@ import org.junit.Test;
         System.out.println(this.loader.getLessonCluster().size());
         for(DBLessonCluster a : this.loader.getLessonCluster())
         {
-            System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println(Arrays.toString(a.getClassrooms().stream().mapToInt(DBMClassroom::getId).toArray()));
             System.out.println("\t" + Arrays.toString(a.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
             System.out.println("<===");
             for(DBLessonGroup b : a.getLessonGroup())
             {
-                System.out.println(Arrays.toString(b.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+                System.out.println(Arrays.toString(b.getClassrooms().stream().mapToInt(DBMClassroom::getId).toArray()));
                 System.out.println("\t" + Arrays.toString(b.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
             }
             System.out.println("===>");
