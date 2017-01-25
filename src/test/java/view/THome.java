@@ -36,6 +36,8 @@ public class THome {
         session.put("availability", MAvailability.getAll(model));
         session.put("subject", MSubject.getAllMetadataFromSchool(model, school));
         session.put("klass", MClass.getAllMetadataFromSchool(model, school));
+        session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
+        session.put("lecture", MLecture.getAllMetadataFromSchool(model, school));
 
         Thread t = new Thread() {
             public void run() {

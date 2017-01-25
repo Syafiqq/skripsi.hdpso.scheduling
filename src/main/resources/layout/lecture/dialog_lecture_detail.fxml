@@ -1,7 +1,7 @@
 <!--
   This <skripsi.hdpso.scheduling> project created by : 
   Name         : Muhammad Syafiq
-  Date / Time  : 24 January 2017, 10:53 PM.
+  Date / Time  : 25 January 2017, 8:48 AM.
   Email        : syafiq.rezpector@gmail.com
   Github       : syafiqq
 -->
@@ -24,12 +24,12 @@
         <Label text="Nama" />
         <Label fx:id="lName" text="Label" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
         <Label text="Timeoff" GridPane.rowIndex="1" />
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCloseClassroomDetailPressed" text="Tutup" GridPane.rowIndex="2" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCloseLectureDetailPressed" text="Tutup" GridPane.rowIndex="2" />
         <HBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <children>
                 <Pane HBox.hgrow="ALWAYS" />
-                <Button mnemonicParsing="false" onAction="#onTimeOffEditClassroomDetailPressed" text="Edit Timeoff" />
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#onEditClassroomDetailPressed" text="Edit Ruangan" />
+                <Button mnemonicParsing="false" onAction="#onTimeOffEditLectureDetailPressed" text="Edit Timeoff" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onEditLectureDetailPressed" text="Edit Dosen" />
             </children>
         </HBox>
         <GridPane fx:id="timeOffContainer" hgap="8.0" vgap="8.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">

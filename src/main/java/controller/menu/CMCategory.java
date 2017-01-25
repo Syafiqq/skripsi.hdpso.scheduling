@@ -2,6 +2,7 @@ package controller.menu;
 
 import controller.classroom.CClassroomList;
 import controller.klass.CClassList;
+import controller.lecture.CLectureList;
 import controller.school.CSchoolDetail;
 import controller.subject.CSubjectList;
 import javafx.beans.property.BooleanProperty;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.classroom.IClassroomList;
 import view.klass.IClassList;
+import view.lecture.ILectureList;
 import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
 
@@ -83,6 +85,9 @@ public class CMCategory implements Initializable {
     @Nullable
     private List<DBMClassroom> classroomMetadata;
 
+    @Nullable
+    private List<DBMLecture> lectureMetadata;
+
 
     public CMCategory() {
         this(null);
@@ -105,6 +110,7 @@ public class CMCategory implements Initializable {
         this.subjectMetadata = (List<DBMSubject>) session.get("subject");
         this.classMetadata = (List<DBMClass>) session.get("klass");
         this.classroomMetadata = (List<DBMClassroom>) session.get("classroom");
+        this.lectureMetadata = (List<DBMLecture>) session.get("lecture");
     }
 
     @Override
@@ -204,9 +210,24 @@ public class CMCategory implements Initializable {
     public void onClassroomButtonPressed(ActionEvent actionEvent) {
         if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null) && (this.classroomMetadata != null) && (this.availability != null)) {
             @NotNull final Stage dialog = new Stage();
-            dialog.setTitle("Daftar Kelas");
+            dialog.setTitle("Daftar Ruangan");
             try {
                 dialog.setScene(new Scene(IClassroomList.load(new CClassroomList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.classroomMetadata)).load()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
+    }
+
+    public void onLectureButtonPressed(ActionEvent actionEvent) {
+        if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null) && (this.lectureMetadata != null) && (this.availability != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Daftar Dosen");
+            try {
+                dialog.setScene(new Scene(ILectureList.load(new CLectureList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.lectureMetadata)).load()));
             } catch (IOException e) {
                 e.printStackTrace();
             }

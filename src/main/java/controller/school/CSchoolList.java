@@ -73,13 +73,15 @@ public class CSchoolList implements Initializable {
         } else {
             try {
                 @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                Session.getInstance().put("school", school);
-                Session.getInstance().put("day", MDay.getAllMetadataFromSchool(model, school));
-                Session.getInstance().put("period", MPeriod.getAllMetadataFromSchool(model, school));
-                Session.getInstance().put("availability", MAvailability.getAll(model));
-                Session.getInstance().put("subject", MSubject.getAllMetadataFromSchool(model, school));
-                Session.getInstance().put("klass", MClass.getAllMetadataFromSchool(model, school));
-                Session.getInstance().put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
+                @NotNull final Session session = Session.getInstance();
+                session.put("school", school);
+                session.put("day", MDay.getAllMetadataFromSchool(model, school));
+                session.put("period", MPeriod.getAllMetadataFromSchool(model, school));
+                session.put("availability", MAvailability.getAll(model));
+                session.put("subject", MSubject.getAllMetadataFromSchool(model, school));
+                session.put("klass", MClass.getAllMetadataFromSchool(model, school));
+                session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
+                session.put("lecture", MLecture.getAllMetadataFromSchool(model, school));
             } catch (SQLException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -108,6 +110,7 @@ public class CSchoolList implements Initializable {
                         MSubject.deleteBunch(model, MSubject.getAllMetadataFromSchool(model, school));
                         MClass.deleteBunch(model, MClass.getAllMetadataFromSchool(model, school));
                         MClassroom.deleteBunch(model, MClassroom.getAllMetadataFromSchool(model, school));
+                        MLecture.deleteBunch(model, MLecture.getAllMetadataFromSchool(model, school));
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
