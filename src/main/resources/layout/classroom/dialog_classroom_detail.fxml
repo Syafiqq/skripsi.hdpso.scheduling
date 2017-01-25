@@ -29,7 +29,7 @@
             <children>
                 <Pane HBox.hgrow="ALWAYS" />
                 <Button mnemonicParsing="false" onAction="#onTimeOffEditClassroomDetailPressed" text="Edit Timeoff" />
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#onEditClassroomDetailPressed" text="Edit Kelas" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onEditClassroomDetailPressed" text="Edit Ruangan" />
             </children>
         </HBox>
         <GridPane fx:id="timeOffContainer" hgap="8.0" vgap="8.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">

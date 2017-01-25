@@ -33,7 +33,7 @@
     <center>
         <TableView fx:id="classroomList" BorderPane.alignment="CENTER">
             <columns>
-                <TableColumn fx:id="columnName" minWidth="200.0" prefWidth="400.0" text="Kelas" />
+                <TableColumn fx:id="columnName" minWidth="200.0" prefWidth="400.0" text="Ruangan" />
             </columns>
         </TableView>
     </center>
