@@ -1,5 +1,6 @@
 package controller.menu;
 
+import controller.classroom.CClassroomList;
 import controller.klass.CClassList;
 import controller.school.CSchoolDetail;
 import controller.subject.CSubjectList;
@@ -23,6 +24,7 @@ import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import view.classroom.IClassroomList;
 import view.klass.IClassList;
 import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
@@ -78,6 +80,9 @@ public class CMCategory implements Initializable {
     @Nullable
     private List<DBMClass> classMetadata;
 
+    @Nullable
+    private List<DBMClassroom> classroomMetadata;
+
 
     public CMCategory() {
         this(null);
@@ -99,6 +104,7 @@ public class CMCategory implements Initializable {
         this.availability = (List<DBAvailability>) session.get("availability");
         this.subjectMetadata = (List<DBMSubject>) session.get("subject");
         this.classMetadata = (List<DBMClass>) session.get("klass");
+        this.classroomMetadata = (List<DBMClassroom>) session.get("classroom");
     }
 
     @Override
@@ -186,6 +192,21 @@ public class CMCategory implements Initializable {
             dialog.setTitle("Daftar Kelas");
             try {
                 dialog.setScene(new Scene(IClassList.load(new CClassList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.classMetadata)).load()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
+    }
+
+    public void onClassroomButtonPressed(ActionEvent actionEvent) {
+        if ((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null) && (this.classroomMetadata != null) && (this.availability != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Daftar Kelas");
+            try {
+                dialog.setScene(new Scene(IClassroomList.load(new CClassroomList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.classroomMetadata)).load()));
             } catch (IOException e) {
                 e.printStackTrace();
             }

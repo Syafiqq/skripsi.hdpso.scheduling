@@ -2,7 +2,7 @@ package model.database.model;
 /*
  * This <skripsi.hdpso.scheduling> project created by : 
  * Name         : Muhammad Syafiq
- * Date / Time  : 24 January 2017, 8:31 PM.
+ * Date / Time  : 25 January 2017, 7:44 AM.
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
@@ -12,10 +12,10 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
-import model.database.component.DBClass;
+import model.database.component.DBClassroom;
 import model.database.component.DBTimeOff;
 import model.database.component.DBTimeOffContainer;
-import model.database.component.metadata.DBMClass;
+import model.database.component.metadata.DBMClassroom;
 import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
@@ -28,33 +28,33 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("unused")
-public class MClass extends AbstractModel {
-    public MClass(@NotNull String dbPath) throws SQLException {
+@SuppressWarnings({"unused", "WeakerAccess"})
+public class MClassroom extends AbstractModel {
+    public MClassroom(@NotNull String dbPath) throws SQLException {
         super(dbPath);
     }
 
-    public MClass(@NotNull AbstractModel model) {
+    public MClassroom(@NotNull AbstractModel model) {
         super(model);
     }
 
-    public List<DBClass> getAllFromSchool(@NotNull final DBMSchool school) {
-        return MClass.getAllFromSchool(this, school);
+    public List<DBClassroom> getAllFromSchool(@NotNull final DBMSchool school) {
+        return MClassroom.getAllFromSchool(this, school);
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static List<DBClass> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
-        @NotNull List<DBClass> list = new LinkedList<>();
+    public static List<DBClassroom> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        @NotNull List<DBClassroom> list = new LinkedList<>();
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `class` WHERE `school` = ? ORDER BY `id` ASC");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `classroom` WHERE `school` = ? ORDER BY `id` ASC");
             statement.setInt(1, school.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
                 list.add(
-                        new DBClass(
+                        new DBClassroom(
                                 result.getInt("id"),
                                 result.getString("name"),
                                 school
@@ -69,18 +69,18 @@ public class MClass extends AbstractModel {
         return list;
     }
 
-    public static List<DBMClass> getAllMetadataFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
-        @NotNull List<DBMClass> list = new LinkedList<>();
+    public static List<DBMClassroom> getAllMetadataFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
+        @NotNull List<DBMClassroom> list = new LinkedList<>();
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `class` WHERE `school` = ? ORDER BY `id` ASC");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `classroom` WHERE `school` = ? ORDER BY `id` ASC");
             statement.setInt(1, school.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
                 list.add(
-                        new DBMClass(
+                        new DBMClassroom(
                                 result.getInt("id"),
                                 result.getString("name")
                         ));
@@ -94,13 +94,13 @@ public class MClass extends AbstractModel {
         return list;
     }
 
-    public static DBMClass insert(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, String name) {
-        @Nullable DBMClass klass = null;
+    public static DBMClassroom insert(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, String name) {
+        @Nullable DBMClassroom classroom = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO `class`(`id`, `name`, `school`) VALUES (NULL, ?, ?)");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO `classroom`(`id`, `name`, `school`) VALUES (NULL, ?, ?)");
             statement.setString(1, name);
             statement.setInt(2, schoolMetadata.getId());
             statement.execute();
@@ -114,25 +114,25 @@ public class MClass extends AbstractModel {
             callStatement.close();
             model.close();
 
-            klass = MClass.getMetadataFromID(model, id);
+            classroom = MClassroom.getMetadataFromID(model, id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return klass;
+        return classroom;
     }
 
     @Nullable
-    private static DBMClass getMetadataFromID(@NotNull final AbstractModel model, final int id) {
-        @Nullable DBMClass klass = null;
+    private static DBMClassroom getMetadataFromID(@NotNull final AbstractModel model, final int id) {
+        @Nullable DBMClassroom classroom = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `class` WHERE `id` = ? LIMIT 1");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name` FROM `classroom` WHERE `id` = ? LIMIT 1");
             statement.setInt(1, id);
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
-                klass = new DBMClass(
+                classroom = new DBMClassroom(
                         result.getInt("id"),
                         result.getString("name")
                 );
@@ -143,20 +143,20 @@ public class MClass extends AbstractModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return klass;
+        return classroom;
     }
 
     @SuppressWarnings("Duplicates")
-    public static void insertTimeOff(@NotNull final AbstractModel model, @NotNull final DBMClass klass, @NotNull final DBClass.TimeOffContainer container) {
+    public static void insertTimeOff(@NotNull final AbstractModel model, @NotNull final DBMClassroom classroom, @NotNull final DBClassroom.TimeOffContainer container) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
             model.connection.setAutoCommit(false);
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO `class_timeoff`(`id`, `class`, `day`, `period`, `availability`) VALUES (NULL, ?, ?, ?, ?)");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO `classroom_timeoff`(`id`, `classroom`, `day`, `period`, `availability`) VALUES (NULL, ?, ?, ?, ?)");
             for (@NotNull final ObjectList<DBTimeOff> day : container.getAvailabilities()) {
                 for (@NotNull final DBTimeOff period : day) {
-                    statement.setInt(1, klass.getId());
+                    statement.setInt(1, classroom.getId());
                     statement.setInt(2, period.getDay().getId());
                     statement.setInt(3, period.getPeriod().getId());
                     statement.setInt(4, period.getAvailability().getId());
@@ -173,13 +173,13 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static void deleteTimeOff(@NotNull final AbstractModel model, @NotNull final DBMClass klass) {
+    public static void deleteTimeOff(@NotNull final AbstractModel model, @NotNull final DBMClassroom classroom) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `class_timeoff` WHERE `class` = ?");
-            statement.setInt(1, klass.getId());
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `classroom_timeoff` WHERE `classroom` = ?");
+            statement.setInt(1, classroom.getId());
             statement.execute();
             statement.close();
             model.close();
@@ -188,13 +188,13 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static void delete(@NotNull final AbstractModel model, @NotNull final DBMClass klass) {
+    public static void delete(@NotNull final AbstractModel model, @NotNull final DBMClassroom classroom) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `class` WHERE `id` = ?");
-            statement.setInt(1, klass.getId());
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `classroom` WHERE `id` = ?");
+            statement.setInt(1, classroom.getId());
             statement.execute();
             statement.close();
             model.close();
@@ -203,17 +203,17 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static DBClass getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, @NotNull final DBMClass classMetadata) {
-        @Nullable DBClass klass = null;
+    public static DBClassroom getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, @NotNull final DBMClassroom classroomMetadata) {
+        @Nullable DBClassroom classroom = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `school` FROM `class` WHERE `id` = ? LIMIT 1");
-            statement.setInt(1, classMetadata.getId());
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `id`, `name`, `school` FROM `classroom` WHERE `id` = ? LIMIT 1");
+            statement.setInt(1, classroomMetadata.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
-                klass = new DBClass(
+                classroom = new DBClassroom(
                         result.getInt("id"),
                         result.getString("name"),
                         schoolMetadata
@@ -225,21 +225,21 @@ public class MClass extends AbstractModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return klass;
+        return classroom;
     }
 
     @SuppressWarnings({"unchecked", "Duplicates"})
-    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBClass klass, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
+    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBClassroom classroom, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `class_timeoff`.`id`, `class_timeoff`.`class`, `class_timeoff`.`day`, `class_timeoff`.`period`, `class_timeoff`.`availability` FROM `class_timeoff` LEFT OUTER JOIN `class` ON `class_timeoff`.`class` = `class`.`id` LEFT OUTER JOIN `active_day` ON `class_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `class_timeoff`.`period` = `active_period`.`id` WHERE `class`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
-            statement.setInt(1, klass.getId());
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `classroom_timeoff`.`id`, `classroom_timeoff`.`classroom`, `classroom_timeoff`.`day`, `classroom_timeoff`.`period`, `classroom_timeoff`.`availability` FROM `classroom_timeoff` LEFT OUTER JOIN `classroom` ON `classroom_timeoff`.`classroom` = `classroom`.`id` LEFT OUTER JOIN `active_day` ON `classroom_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `classroom_timeoff`.`period` = `active_period`.`id` WHERE `classroom`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
+            statement.setInt(1, classroom.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             int dayIndex = -1;
             int periodIndex = -1;
-            ObjectListIterator<ObjectList<DBTimeOff>> class_db = klass.getTimeoff().getAvailabilities().listIterator();
+            ObjectListIterator<ObjectList<DBTimeOff>> class_db = classroom.getTimeoff().getAvailabilities().listIterator();
             ObjectList<DBTimeOff> current_timeOff = null;
             while (result.next()) {
                 if (dayIndex != result.getInt("day")) {
@@ -259,14 +259,14 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static void update(@NotNull final AbstractModel model, @NotNull final DBMClass klass, @NotNull final String name) {
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBMClassroom classroom, @NotNull final String name) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `class` SET `name` = ? WHERE `id` = ?");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `classroom` SET `name` = ? WHERE `id` = ?");
             statement.setString(1, name);
-            statement.setInt(2, klass.getId());
+            statement.setInt(2, classroom.getId());
             statement.execute();
             statement.close();
             model.close();
@@ -276,13 +276,13 @@ public class MClass extends AbstractModel {
     }
 
     @SuppressWarnings("Duplicates")
-    public static void updateTimeOff(@NotNull final AbstractModel model, @NotNull final DBTimeOffContainer<DBClass> timeOff) {
+    public static void updateTimeOff(@NotNull final AbstractModel model, @NotNull final DBTimeOffContainer<DBClassroom> timeOff) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
             model.connection.setAutoCommit(false);
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `class_timeoff` SET `availability` = ? WHERE `id` = ? ");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `classroom_timeoff` SET `availability` = ? WHERE `id` = ? ");
             for (@NotNull final ObjectList<DBTimeOff> day : timeOff.getAvailabilities()) {
                 for (@NotNull final DBTimeOff period : day) {
                     statement.setInt(1, period.getAvailability().getId());
@@ -300,23 +300,23 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static void deleteBunch(@NotNull final AbstractModel model, @NotNull final List<DBMClass> classMetadata) {
+    public static void deleteBunch(@NotNull final AbstractModel model, @NotNull final List<DBMClassroom> classroomMetadata) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
             model.connection.setAutoCommit(false);
-            @NotNull PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `class_timeoff` WHERE `class` = ?");
-            for (@NotNull final DBMClass klass : classMetadata) {
-                statement.setInt(1, klass.getId());
+            @NotNull PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `classroom_timeoff` WHERE `classroom` = ?");
+            for (@NotNull final DBMClassroom classroom : classroomMetadata) {
+                statement.setInt(1, classroom.getId());
                 statement.addBatch();
             }
             statement.executeBatch();
             statement.close();
             model.connection.commit();
-            statement = model.connection.prepareStatement("DELETE FROM `class` WHERE `id` = ?");
-            for (@NotNull final DBMClass klass : classMetadata) {
-                statement.setInt(1, klass.getId());
+            statement = model.connection.prepareStatement("DELETE FROM `classroom` WHERE `id` = ?");
+            for (@NotNull final DBMClassroom classroom : classroomMetadata) {
+                statement.setInt(1, classroom.getId());
                 statement.addBatch();
             }
             statement.executeBatch();

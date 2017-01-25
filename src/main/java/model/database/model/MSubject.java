@@ -11,7 +11,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import model.AbstractModel;
-import model.database.component.*;
+import model.database.component.DBAvailability;
+import model.database.component.DBSubject;
+import model.database.component.DBTimeOff;
+import model.database.component.DBTimeOffContainer;
 import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
@@ -35,11 +38,11 @@ public class MSubject extends AbstractModel {
         super(model);
     }
 
-    public List<DBSubject> getAllFromSchool(@NotNull final DBSchool school) {
+    public List<DBSubject> getAllFromSchool(@NotNull final DBMSchool school) {
         return MSubject.getAllFromSchool(this, school);
     }
 
-    public static List<DBSubject> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static List<DBSubject> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
         @NotNull List<DBSubject> subjectList = new LinkedList<>();
         try {
             if (model.isClosed()) {
