@@ -18,7 +18,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import model.AbstractModel;
+import model.database.component.metadata.DBMClass;
+import model.database.component.metadata.DBMLecture;
 import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
 import model.database.model.*;
 import model.method.pso.hdpso.component.Setting;
@@ -74,14 +77,18 @@ public class CSchoolList implements Initializable {
             try {
                 @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                 @NotNull final Session session = Session.getInstance();
+                @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
+                @NotNull final List<DBMClass> classMetadata = MClass.getAllMetadataFromSchool(model, school);
+                @NotNull final List<DBMLecture> lectureMetadata = MLecture.getAllMetadataFromSchool(model, school);
                 session.put("school", school);
                 session.put("day", MDay.getAllMetadataFromSchool(model, school));
                 session.put("period", MPeriod.getAllMetadataFromSchool(model, school));
                 session.put("availability", MAvailability.getAll(model));
-                session.put("subject", MSubject.getAllMetadataFromSchool(model, school));
-                session.put("klass", MClass.getAllMetadataFromSchool(model, school));
+                session.put("subject", subjectMetadata);
+                session.put("klass", classMetadata);
                 session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
-                session.put("lecture", MLecture.getAllMetadataFromSchool(model, school));
+                session.put("lecture", lectureMetadata);
+                session.put("lesson", MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));
             } catch (SQLException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -104,13 +111,17 @@ public class CSchoolList implements Initializable {
                 if (result.get() == ButtonType.OK) {
                     try {
                         @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                        MSchool.delete(model, school);
+                        @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
+                        @NotNull final List<DBMClass> classMetadata = MClass.getAllMetadataFromSchool(model, school);
+                        @NotNull final List<DBMLecture> lectureMetadata = MLecture.getAllMetadataFromSchool(model, school);
+                        MLesson.deleteBunch(model, MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));
+                        MSubject.deleteBunch(model, subjectMetadata);
+                        MClass.deleteBunch(model, classMetadata);
+                        MClassroom.deleteBunch(model, MClassroom.getAllMetadataFromSchool(model, school));
+                        MLecture.deleteBunch(model, lectureMetadata);
                         MDay.deleteFromSchool(model, school);
                         MPeriod.deleteFromSchool(model, school);
-                        MSubject.deleteBunch(model, MSubject.getAllMetadataFromSchool(model, school));
-                        MClass.deleteBunch(model, MClass.getAllMetadataFromSchool(model, school));
-                        MClassroom.deleteBunch(model, MClassroom.getAllMetadataFromSchool(model, school));
-                        MLecture.deleteBunch(model, MLecture.getAllMetadataFromSchool(model, school));
+                        MSchool.delete(model, school);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
