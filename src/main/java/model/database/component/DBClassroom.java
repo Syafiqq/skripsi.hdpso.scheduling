@@ -2,6 +2,8 @@ package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import model.database.component.metadata.DBMClassroom;
+import model.database.component.metadata.DBMSchool;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,37 +14,19 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBClassroom
+@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBClassroom extends DBMClassroom
 {
-    private final          int                id;
-    @NotNull private final DBSchool           school;
-    private                String             name;
+    @NotNull private final DBMSchool           school;
     @NotNull private       DBTimeOffContainer timeoff;
 
-    public DBClassroom(int id, String name, @NotNull DBSchool school)
+    public DBClassroom(int id, String name, @NotNull DBMSchool school)
     {
-        this.id = id;
-        this.name = name;
+        super(id, name);
         this.school = school;
         this.timeoff = DBClassroom.TimeOffContainer.generateNew(this, this.school);
     }
 
-    public int getId()
-    {
-        return this.id;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    @NotNull public DBSchool getSchool()
+    @NotNull public DBMSchool getSchool()
     {
         return this.school;
     }
@@ -60,20 +44,20 @@ import org.jetbrains.annotations.NotNull;
     @Override public String toString()
     {
         return new ToStringBuilder(this)
-                .append("id", id)
-                .append("school", school.getId())
-                .append("name", name)
+                .append("id", super.id)
+                .append("school", this.school.getId())
+                .append("name", super.name)
                 .toString();
     }
 
-    @SuppressWarnings(value = {"WeakerAccess", "unused"}) public static class TimeOffContainer extends DBTimeOffContainer<DBClassroom>
+    @SuppressWarnings(value = {"WeakerAccess", "unused"}) public static class TimeOffContainer extends DBTimeOffContainer<DBMClassroom>
     {
-        protected TimeOffContainer(@NotNull DBClassroom domain, @NotNull ObjectList<ObjectList<DBTimeOff>> availabilities)
+        protected TimeOffContainer(@NotNull DBMClassroom domain, @NotNull ObjectList<ObjectList<DBTimeOff>> availabilities)
         {
             super(domain, availabilities);
         }
 
-        public static TimeOffContainer generateNew(@NotNull DBClassroom domain, @NotNull DBSchool school)
+        public static TimeOffContainer generateNew(@NotNull DBMClassroom domain, @NotNull DBMSchool school)
         {
             final ObjectList<ObjectList<DBTimeOff>> availabilities = new ObjectArrayList<>(school.getActiveDay());
             for(int day_index = -1, day_size = school.getActiveDay(), period_size = school.getActivePeriod(); ++day_index < day_size; )
