@@ -95,7 +95,7 @@ public class CClassroomList implements Initializable {
             @NotNull Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Konfirmasi");
             alert.setHeaderText(null);
-            alert.setContentText("Apakah Anda yakin untuk menghapus kelas ini ? ");
+            alert.setContentText("Apakah Anda yakin untuk menghapus ruangan ini ? ");
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent()) {
@@ -121,13 +121,13 @@ public class CClassroomList implements Initializable {
         @NotNull final Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Info");
         alert.setHeaderText(null);
-        alert.setContentText("Pilih salah satu data kelas terlebih dahulu!");
+        alert.setContentText("Pilih salah satu data ruangan terlebih dahulu!");
         alert.showAndWait();
     }
 
     public void onAddClassroomListPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Tambah Kelas");
+        dialog.setTitle("Tambah Ruangan");
 
         try {
             dialog.setScene(new Scene(IClassroomCreate.load(new CClassroomCreate(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availabilities) {
@@ -174,7 +174,7 @@ public class CClassroomList implements Initializable {
                 }
                 MClassroom.getTimeOff(model, classroom, mapDay, mapPeriod, mapAvailability);
                 @NotNull final Stage dialog = new Stage();
-                dialog.setTitle("Detail Kelas");
+                dialog.setTitle("Detail Ruangan");
 
                 try {
                     dialog.setScene(new Scene(IClassroomDetail.load(new CClassroomDetail(classroom, this.dayMetadata, this.periodMetadata, this.availabilities) {
