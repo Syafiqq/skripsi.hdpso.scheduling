@@ -11,7 +11,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import model.AbstractModel;
-import model.database.component.*;
+import model.database.component.DBAvailability;
+import model.database.component.DBClass;
+import model.database.component.DBTimeOff;
+import model.database.component.DBTimeOffContainer;
 import model.database.component.metadata.DBMClass;
 import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
@@ -35,12 +38,12 @@ public class MClass extends AbstractModel {
         super(model);
     }
 
-    public List<DBClass> getAllFromSchool(@NotNull final DBSchool school) {
+    public List<DBClass> getAllFromSchool(@NotNull final DBMSchool school) {
         return MClass.getAllFromSchool(this, school);
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static List<DBClass> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static List<DBClass> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
         @NotNull List<DBClass> list = new LinkedList<>();
         try {
             if (model.isClosed()) {
@@ -97,7 +100,7 @@ public class MClass extends AbstractModel {
             if (model.isClosed()) {
                 model.reconnect();
             }
-            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO class(`id`, `name`, `school`) VALUES (NULL, ?, ?)");
+            @NotNull final PreparedStatement statement = model.connection.prepareStatement("INSERT INTO `class`(`id`, `name`, `school`) VALUES (NULL, ?, ?)");
             statement.setString(1, name);
             statement.setInt(2, schoolMetadata.getId());
             statement.execute();
@@ -201,7 +204,7 @@ public class MClass extends AbstractModel {
     }
 
     public static DBClass getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool schoolMetadata, @NotNull final DBMClass classMetadata) {
-        @Nullable DBClass subject = null;
+        @Nullable DBClass klass = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -210,7 +213,7 @@ public class MClass extends AbstractModel {
             statement.setInt(1, classMetadata.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
-                subject = new DBClass(
+                klass = new DBClass(
                         result.getInt("id"),
                         result.getString("name"),
                         schoolMetadata
@@ -222,21 +225,21 @@ public class MClass extends AbstractModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return subject;
+        return klass;
     }
 
     @SuppressWarnings({"unchecked", "Duplicates"})
-    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBClass subject, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
+    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBClass klass, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
             @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `class_timeoff`.`id`, `class_timeoff`.`class`, `class_timeoff`.`day`, `class_timeoff`.`period`, `class_timeoff`.`availability` FROM `class_timeoff` LEFT OUTER JOIN `class` ON `class_timeoff`.`class` = `class`.`id` LEFT OUTER JOIN `active_day` ON `class_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `class_timeoff`.`period` = `active_period`.`id` WHERE `class`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
-            statement.setInt(1, subject.getId());
+            statement.setInt(1, klass.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             int dayIndex = -1;
             int periodIndex = -1;
-            ObjectListIterator<ObjectList<DBTimeOff>> class_db = subject.getTimeoff().getAvailabilities().listIterator();
+            ObjectListIterator<ObjectList<DBTimeOff>> class_db = klass.getTimeoff().getAvailabilities().listIterator();
             ObjectList<DBTimeOff> current_timeOff = null;
             while (result.next()) {
                 if (dayIndex != result.getInt("day")) {
@@ -256,14 +259,14 @@ public class MClass extends AbstractModel {
         }
     }
 
-    public static void update(@NotNull final AbstractModel model, @NotNull final DBMClass subject, @NotNull final String name) {
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBMClass klass, @NotNull final String name) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
             @NotNull final PreparedStatement statement = model.connection.prepareStatement("UPDATE `class` SET `name` = ? WHERE `id` = ?");
             statement.setString(1, name);
-            statement.setInt(2, subject.getId());
+            statement.setInt(2, klass.getId());
             statement.execute();
             statement.close();
             model.close();
@@ -304,8 +307,8 @@ public class MClass extends AbstractModel {
             }
             model.connection.setAutoCommit(false);
             @NotNull PreparedStatement statement = model.connection.prepareStatement("DELETE FROM `class_timeoff` WHERE `class` = ?");
-            for (@NotNull final DBMClass subject : classMetadata) {
-                statement.setInt(1, subject.getId());
+            for (@NotNull final DBMClass klass : classMetadata) {
+                statement.setInt(1, klass.getId());
                 statement.addBatch();
             }
             statement.executeBatch();
