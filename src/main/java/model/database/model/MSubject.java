@@ -7,6 +7,7 @@ package model.database.model;
  * Github       : syafiqq
  */
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
@@ -233,11 +234,24 @@ public class MSubject extends AbstractModel {
     }
 
     @SuppressWarnings({"unchecked", "Duplicates"})
-    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBSubject subject, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
+    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBSubject subject, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata, @NotNull final List<DBAvailability> availabilities) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
+            @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(dayMetadata.size());
+            @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(periodMetadata.size());
+            @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(availabilities.size());
+            for (@NotNull final DBMDay _day : dayMetadata) {
+                mapDay.put(_day.getId(), _day);
+            }
+            for (@NotNull final DBMPeriod _period : periodMetadata) {
+                mapPeriod.put(_period.getId(), _period);
+            }
+            for (@NotNull final DBAvailability _availability : availabilities) {
+                mapAvailability.put(_availability.getId(), _availability);
+            }
+
             @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `subject_timeoff`.`id`, `subject_timeoff`.`subject`, `subject_timeoff`.`day`, `subject_timeoff`.`period`, `subject_timeoff`.`availability` FROM `subject_timeoff` LEFT OUTER JOIN `subject` ON `subject_timeoff`.`subject` = `subject`.`id` LEFT OUTER JOIN `active_day` ON `subject_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `subject_timeoff`.`period` = `active_period`.`id` WHERE `subject`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
             statement.setInt(1, subject.getId());
             @NotNull final ResultSet result = statement.executeQuery();
@@ -282,6 +296,7 @@ public class MSubject extends AbstractModel {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     public static void updateTimeOff(@NotNull final AbstractModel model, @NotNull final DBTimeOffContainer<DBSubject> timeOff) {
         try {
             if (model.isClosed()) {
