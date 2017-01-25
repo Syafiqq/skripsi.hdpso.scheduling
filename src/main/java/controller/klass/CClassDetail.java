@@ -7,8 +7,6 @@ package controller.klass;
  * Github       : syafiqq
  */
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -77,19 +75,7 @@ public class CClassDetail implements Initializable {
         @NotNull final List<DBMClass> klassMetadata = MClass.getAllMetadataFromSchool(model, schoolMetadata);
         if (klassMetadata.size() > 0) {
             this.klass = MClass.getFromMetadata(model, schoolMetadata, klassMetadata.get(0));
-            @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
-            @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
-            @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
-            for (@NotNull final DBMDay _day : this.dayMetadata) {
-                mapDay.put(_day.getId(), _day);
-            }
-            for (@NotNull final DBMPeriod _period : this.periodMetadata) {
-                mapPeriod.put(_period.getId(), _period);
-            }
-            for (@NotNull final DBAvailability _availability : this.availabilities) {
-                mapAvailability.put(_availability.getId(), _availability);
-            }
-            MClass.getTimeOff(model, klass, mapDay, mapPeriod, mapAvailability);
+            MClass.getTimeOff(model, klass, this.dayMetadata, this.periodMetadata, this.availabilities);
         } else {
             this.klass = new DBClass(-1, "A", schoolMetadata);
             System.exit(0);

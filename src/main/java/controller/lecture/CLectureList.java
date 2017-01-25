@@ -7,8 +7,6 @@ package controller.lecture;
  * Github       : syafiqq
  */
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -160,19 +158,7 @@ public class CLectureList implements Initializable {
             try {
                 @NotNull final AbstractModel model = new MLecture(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                 @NotNull final DBLecture lecture = MLecture.getFromMetadata(model, this.schoolMetadata, lectureMetadata);
-                @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
-                @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
-                @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
-                for (@NotNull final DBMDay _day : this.dayMetadata) {
-                    mapDay.put(_day.getId(), _day);
-                }
-                for (@NotNull final DBMPeriod _period : this.periodMetadata) {
-                    mapPeriod.put(_period.getId(), _period);
-                }
-                for (@NotNull final DBAvailability _availability : this.availabilities) {
-                    mapAvailability.put(_availability.getId(), _availability);
-                }
-                MLecture.getTimeOff(model, lecture, mapDay, mapPeriod, mapAvailability);
+                MLecture.getTimeOff(model, lecture, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
                 dialog.setTitle("Detail Dosen");
 

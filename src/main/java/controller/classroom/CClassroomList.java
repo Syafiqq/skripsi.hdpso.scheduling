@@ -7,8 +7,6 @@ package controller.classroom;
  * Github       : syafiqq
  */
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -160,19 +158,7 @@ public class CClassroomList implements Initializable {
             try {
                 @NotNull final AbstractModel model = new MClassroom(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                 @NotNull final DBClassroom classroom = MClassroom.getFromMetadata(model, this.schoolMetadata, classroomMetadata);
-                @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
-                @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
-                @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
-                for (@NotNull final DBMDay _day : this.dayMetadata) {
-                    mapDay.put(_day.getId(), _day);
-                }
-                for (@NotNull final DBMPeriod _period : this.periodMetadata) {
-                    mapPeriod.put(_period.getId(), _period);
-                }
-                for (@NotNull final DBAvailability _availability : this.availabilities) {
-                    mapAvailability.put(_availability.getId(), _availability);
-                }
-                MClassroom.getTimeOff(model, classroom, mapDay, mapPeriod, mapAvailability);
+                MClassroom.getTimeOff(model, classroom, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
                 dialog.setTitle("Detail Ruangan");
 
