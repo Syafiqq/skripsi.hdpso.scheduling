@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 25 January 2017, 11:05 AM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+<!--suppress JavaFxDefaultTag -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane minWidth="400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <right>
+        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets left="10.0" />
+            </BorderPane.margin>
+            <children>
+                <VBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#onRemoveLessonListPressed" style="-fx-background-color: D50000;" text="Hapus" textFill="WHITE" />
+                    </children></VBox>
+                <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onAddLessonListPressed" text="Tambah" />
+                <Button mnemonicParsing="false" onAction="#onDetailLessonListPressed" text="Detail" />
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onCloseLessonListPressed" text="Tutup" />
+            </children>
+        </VBox>
+    </right>
+    <center>
+        <TableView fx:id="lectureList" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="columnSubject" minWidth="150.0" prefWidth="-1.0" text="Mata Kuliah" />
+                <TableColumn fx:id="columnLecture" minWidth="150.0" prefWidth="-1.0" text="Dosen" />
+                <TableColumn fx:id="columnClass" minWidth="150.0" prefWidth="-1.0" text="Kelas" />
+                <TableColumn fx:id="columnSKS" minWidth="50.0" prefWidth="-1.0" text="SKS" />
+                <TableColumn fx:id="columnTotal" minWidth="50.0" prefWidth="-1.0" text="Total" />
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

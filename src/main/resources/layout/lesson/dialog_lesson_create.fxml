@@ -1,0 +1,12 @@
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 25 January 2017, 11:09 AM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+
+<?import javafx.scene.layout.GridPane?>
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+</GridPane>
