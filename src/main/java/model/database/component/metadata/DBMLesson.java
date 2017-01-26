@@ -40,8 +40,18 @@ public class DBMLesson {
         return this.sks;
     }
 
+    public void setSks(int sks)
+    {
+        this.sks = sks;
+    }
+
     public int getCount() {
         return this.count;
+    }
+
+    public void setCount(int count)
+    {
+        this.count = count;
     }
 
     @Nullable
@@ -49,14 +59,29 @@ public class DBMLesson {
         return this.lecture;
     }
 
+    public void setLecture(@Nullable DBMLecture lecture)
+    {
+        this.lecture = lecture;
+    }
+
     @NotNull
     public DBMClass getKlass() {
         return this.klass;
     }
 
+    public void setKlass(@NotNull DBMClass klass)
+    {
+        this.klass = klass;
+    }
+
     @NotNull
     public DBMSubject getSubject() {
         return this.subject;
+    }
+
+    public void setSubject(@NotNull DBMSubject subject)
+    {
+        this.subject = subject;
     }
 
     @Override
