@@ -7,6 +7,13 @@ package controller.school;
  * Github       : syafiqq
  */
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -23,21 +30,22 @@ import model.database.component.metadata.DBMLecture;
 import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MClass;
+import model.database.model.MClassroom;
+import model.database.model.MDay;
+import model.database.model.MLecture;
+import model.database.model.MLesson;
+import model.database.model.MPeriod;
+import model.database.model.MSchool;
+import model.database.model.MSubject;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
-public class CSchoolList implements Initializable {
+@SuppressWarnings({"WeakerAccess", "unused"}) public class CSchoolList implements Initializable
+{
     public TableView<DBMSchool> schoolList;
     public TableColumn<DBMSchool, String> columnName;
     public TableColumn<DBMSchool, String> columnAcademicYear;
@@ -123,6 +131,7 @@ public class CSchoolList implements Initializable {
                         MPeriod.deleteFromSchool(model, school);
                         MSchool.delete(model, school);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
+                        this.schoolList.refresh();
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
                         System.exit(-1);
