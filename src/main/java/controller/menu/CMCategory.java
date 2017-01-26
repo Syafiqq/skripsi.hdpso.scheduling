@@ -3,8 +3,15 @@ package controller.menu;
 import controller.classroom.CClassroomList;
 import controller.klass.CClassList;
 import controller.lecture.CLectureList;
+import controller.lesson.CLessonList;
 import controller.school.CSchoolDetail;
 import controller.subject.CSubjectList;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Observer;
+import java.util.ResourceBundle;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -18,7 +25,14 @@ import javafx.stage.Stage;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
 import model.database.component.DBSchool;
-import model.database.component.metadata.*;
+import model.database.component.metadata.DBMClass;
+import model.database.component.metadata.DBMClassroom;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMLecture;
+import model.database.component.metadata.DBMLesson;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
 import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
@@ -28,15 +42,9 @@ import org.jetbrains.annotations.Nullable;
 import view.classroom.IClassroomList;
 import view.klass.IClassList;
 import view.lecture.ILectureList;
+import view.lesson.ILessonList;
 import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
-
-import java.io.IOException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Observer;
-import java.util.ResourceBundle;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <controller.menu> created by : 
@@ -45,7 +53,7 @@ import java.util.ResourceBundle;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"unused", "FieldCanBeLocal"})
+@SuppressWarnings({"unused", "FieldCanBeLocal", "WeakerAccess"})
 public class CMCategory implements Initializable {
     @Nullable
     private final Observer content;
@@ -88,6 +96,9 @@ public class CMCategory implements Initializable {
     @Nullable
     private List<DBMLecture> lectureMetadata;
 
+    @Nullable
+    private List<DBMLesson> lessonMetadata;
+
 
     public CMCategory() {
         this(null);
@@ -111,6 +122,7 @@ public class CMCategory implements Initializable {
         this.classMetadata = (List<DBMClass>) session.get("klass");
         this.classroomMetadata = (List<DBMClassroom>) session.get("classroom");
         this.lectureMetadata = (List<DBMLecture>) session.get("lecture");
+        this.lessonMetadata = (List<DBMLesson>) session.get("lesson");
     }
 
     @Override
@@ -228,6 +240,21 @@ public class CMCategory implements Initializable {
             dialog.setTitle("Daftar Dosen");
             try {
                 dialog.setScene(new Scene(ILectureList.load(new CLectureList(this.schoolMetadata, this.dayMetadata, this.periodMetadata, this.availability, this.lectureMetadata)).load()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
+    }
+
+    public void onLessonButtonPressed(ActionEvent actionEvent) {
+        if ((this.schoolMetadata != null) && (this.subjectMetadata != null) && (this.classMetadata != null) && (this.lectureMetadata != null) && (this.classroomMetadata != null) && (this.lessonMetadata != null)) {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Daftar Pelajaran");
+            try {
+                dialog.setScene(new Scene(ILessonList.load(new CLessonList(this.schoolMetadata, this.subjectMetadata, this.classMetadata, this.lectureMetadata, this.classroomMetadata, this.lessonMetadata)).load()));
             } catch (IOException e) {
                 e.printStackTrace();
             }

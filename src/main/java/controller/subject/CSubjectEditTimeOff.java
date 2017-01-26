@@ -9,8 +9,6 @@ package controller.subject;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -78,19 +76,7 @@ public class CSubjectEditTimeOff implements Initializable {
         @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, schoolMetadata);
         if (subjectMetadata.size() > 0) {
             this.subject = MSubject.getFromMetadata(model, schoolMetadata, subjectMetadata.get(0));
-            @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
-            @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
-            @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
-            for (@NotNull final DBMDay _day : this.dayMetadata) {
-                mapDay.put(_day.getId(), _day);
-            }
-            for (@NotNull final DBMPeriod _period : this.periodMetadata) {
-                mapPeriod.put(_period.getId(), _period);
-            }
-            for (@NotNull final DBAvailability _availability : this.availabilities) {
-                mapAvailability.put(_availability.getId(), _availability);
-            }
-            MSubject.getTimeOff(model, subject, mapDay, mapPeriod, mapAvailability);
+            MSubject.getTimeOff(model, subject, this.dayMetadata, this.periodMetadata, this.availabilities);
         } else {
             this.subject = new DBSubject(-1, "A", "B", schoolMetadata);
             System.exit(0);

@@ -2,6 +2,7 @@ package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import model.database.component.metadata.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,58 +14,17 @@ import org.jetbrains.annotations.Nullable;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"unused", "WeakerAccess"}) public class DBLesson
+@SuppressWarnings({"unused", "WeakerAccess"}) public class DBLesson extends DBMLesson
 {
-    private final     int                     id;
-    @NotNull private  DBSubject               subject;
-    private           int                     sks;
-    private           int                     count;
-    @Nullable private DBLecture               lecture;
-    @NotNull private  DBClass                 klass;
-    @NotNull private  ObjectList<DBClassroom> classrooms;
+    @NotNull private  ObjectList<DBMClassroom> classrooms;
 
-    public DBLesson(int id, @NotNull DBSubject subject, int sks, int count, @Nullable DBLecture lecture, @NotNull DBClass klass, int available_classroom_size)
+    public DBLesson(int id, @NotNull DBMSubject subject, int sks, int count, @Nullable DBMLecture lecture, @NotNull DBMClass klass, int available_classroom_size)
     {
-        this.id = id;
-        this.subject = subject;
-        this.sks = sks;
-        this.count = count;
-        this.lecture = lecture;
-        this.klass = klass;
+        super(id, subject, sks, count, lecture, klass);
         this.classrooms = new ObjectArrayList<>(available_classroom_size);
     }
 
-    public int getId()
-    {
-        return this.id;
-    }
-
-    @NotNull public DBSubject getSubject()
-    {
-        return this.subject;
-    }
-
-    public int getSks()
-    {
-        return this.sks;
-    }
-
-    public int getCount()
-    {
-        return this.count;
-    }
-
-    @Nullable public DBLecture getLecture()
-    {
-        return this.lecture;
-    }
-
-    @NotNull public DBClass getKlass()
-    {
-        return this.klass;
-    }
-
-    @NotNull public ObjectList<DBClassroom> getClassrooms()
+    @NotNull public ObjectList<DBMClassroom> getClassrooms()
     {
         return this.classrooms;
     }
@@ -72,13 +32,13 @@ import org.jetbrains.annotations.Nullable;
     @Override public String toString()
     {
         return new ToStringBuilder(this)
-                .append("id", id)
-                .append("subject", subject.getId())
-                .append("sks", sks)
-                .append("count", count)
-                .append("lecture", lecture == null ? null : lecture.getId())
-                .append("klass", klass.getId())
-                .append("classrooms", classrooms.stream().map(DBClassroom::getId).toArray())
+                .append("id", super.id)
+                .append("subject", super.subject.getId())
+                .append("sks", super.sks)
+                .append("count", super.count)
+                .append("lecture", super.lecture == null ? null : super.lecture.getId())
+                .append("klass", super.klass.getId())
+                .append("classrooms", this.classrooms.stream().map(DBMClassroom::getId).toArray())
                 .toString();
     }
 }

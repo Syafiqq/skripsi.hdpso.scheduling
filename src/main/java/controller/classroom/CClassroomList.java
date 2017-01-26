@@ -7,8 +7,13 @@ package controller.classroom;
  * Github       : syafiqq
  */
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -25,43 +30,45 @@ import javafx.stage.Stage;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
 import model.database.component.DBClassroom;
+import model.database.component.metadata.DBMClass;
 import model.database.component.metadata.DBMClassroom;
 import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMLecture;
+import model.database.component.metadata.DBMLesson;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MClassroom;
+import model.database.model.MDay;
+import model.database.model.MLesson;
+import model.database.model.MPeriod;
+import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
+import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.classroom.IClassroomCreate;
 import view.classroom.IClassroomDetail;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unchecked", "WeakerAccess", "unused"})
 public class CClassroomList implements Initializable {
+    @NotNull
+    private final DBMSchool                         schoolMetadata;
+    @NotNull
+    private final List<DBMDay>                      dayMetadata;
+    @NotNull
+    private final List<DBMPeriod>                   periodMetadata;
+    @NotNull
+    private final List<DBMClassroom>                classroomMetadata;
+    @NotNull
+    private final List<DBAvailability>              availabilities;
     @FXML
-    public TableView<DBMClassroom> classroomList;
+    public        TableView<DBMClassroom>           classroomList;
     @FXML
-    public TableColumn<DBMClassroom, String> columnName;
-    @NotNull
-    private final DBMSchool schoolMetadata;
-    @NotNull
-    private final List<DBMDay> dayMetadata;
-    @NotNull
-    private final List<DBMPeriod> periodMetadata;
-    @NotNull
-    private final List<DBMClassroom> classroomMetadata;
-    @NotNull
-    private final List<DBAvailability> availabilities;
+    public        TableColumn<DBMClassroom, String> columnName;
 
 
     public CClassroomList(@NotNull DBMSchool schoolMetadata, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata, @NotNull final List<DBAvailability> availabilities, @NotNull final List<DBMClassroom> classroomMetadata) {
@@ -101,11 +108,24 @@ public class CClassroomList implements Initializable {
             if (result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
                     try {
-                        @NotNull final AbstractModel model = new MClassroom(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        @NotNull final AbstractModel model   = new MClassroom(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        @NotNull final Session       session = Session.getInstance();
+                        if(session.containsKey("subject") && session.containsKey("klass") && session.containsKey("lecture") && session.containsKey("lesson"))
+                        {
+                            @NotNull final List<DBMSubject> subjectMetadata = (List<DBMSubject>) session.get("subject");
+                            @NotNull final List<DBMClass>   klassMetadata   = (List<DBMClass>) session.get("klass");
+                            @NotNull final List<DBMLecture> lectureMetadata = (List<DBMLecture>) session.get("lecture");
+                            @NotNull final List<DBMLesson>  lessons         = MLesson.getAllMetadataFromClassroom(model, classroom, subjectMetadata, klassMetadata, lectureMetadata);
+                            MLesson.deleteBunch(model, lessons);
+                            @NotNull final List<DBMLesson> lessonMetadata = (List<DBMLesson>) session.get("lesson");
+                            lessonMetadata.clear();
+                            lessonMetadata.addAll(MLesson.getAllMetadataFromSchool(model, this.schoolMetadata, subjectMetadata, klassMetadata, lectureMetadata));
+                        }
                         MClassroom.deleteTimeOff(model, classroom);
                         MClassroom.delete(model, classroom);
                         this.classroomMetadata.clear();
                         this.classroomMetadata.addAll(MClassroom.getAllMetadataFromSchool(model, this.schoolMetadata));
+                        this.classroomList.setItems(FXCollections.observableList(this.classroomMetadata));
                         this.classroomList.refresh();
                     } catch (SQLException | UnsupportedEncodingException ignored) {
                         System.err.println("Error Activating Database");
@@ -137,6 +157,7 @@ public class CClassroomList implements Initializable {
                         @NotNull final AbstractModel model = new MClassroom(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                         CClassroomList.this.classroomMetadata.clear();
                         CClassroomList.this.classroomMetadata.addAll(MClassroom.getAllMetadataFromSchool(model, controller.classroom.CClassroomList.this.schoolMetadata));
+                        CClassroomList.this.classroomList.setItems(FXCollections.observableList(CClassroomList.this.classroomMetadata));
                         CClassroomList.this.classroomList.refresh();
                     } catch (SQLException | UnsupportedEncodingException e) {
                         e.printStackTrace();
@@ -160,19 +181,7 @@ public class CClassroomList implements Initializable {
             try {
                 @NotNull final AbstractModel model = new MClassroom(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                 @NotNull final DBClassroom classroom = MClassroom.getFromMetadata(model, this.schoolMetadata, classroomMetadata);
-                @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(this.dayMetadata.size());
-                @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(this.periodMetadata.size());
-                @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(this.availabilities.size());
-                for (@NotNull final DBMDay _day : this.dayMetadata) {
-                    mapDay.put(_day.getId(), _day);
-                }
-                for (@NotNull final DBMPeriod _period : this.periodMetadata) {
-                    mapPeriod.put(_period.getId(), _period);
-                }
-                for (@NotNull final DBAvailability _availability : this.availabilities) {
-                    mapAvailability.put(_availability.getId(), _availability);
-                }
-                MClassroom.getTimeOff(model, classroom, mapDay, mapPeriod, mapAvailability);
+                MClassroom.getTimeOff(model, classroom, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
                 dialog.setTitle("Detail Ruangan");
 

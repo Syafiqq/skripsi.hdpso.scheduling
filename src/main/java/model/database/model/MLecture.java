@@ -8,6 +8,7 @@ package model.database.model;
  */
 
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
@@ -230,11 +231,24 @@ public class MLecture extends AbstractModel {
     }
 
     @SuppressWarnings({"unchecked", "Duplicates"})
-    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBLecture lecture, @NotNull final Int2ObjectMap<DBMDay> mapDay, @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod, @NotNull final Int2ObjectMap<DBAvailability> mapAvailability) {
+    public static void getTimeOff(@NotNull final AbstractModel model, @NotNull final DBLecture lecture, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata, @NotNull final List<DBAvailability> availabilities) {
         try {
             if (model.isClosed()) {
                 model.reconnect();
             }
+            @NotNull final Int2ObjectMap<DBMDay> mapDay = new Int2ObjectLinkedOpenHashMap<>(dayMetadata.size());
+            @NotNull final Int2ObjectMap<DBMPeriod> mapPeriod = new Int2ObjectLinkedOpenHashMap<>(periodMetadata.size());
+            @NotNull final Int2ObjectMap<DBAvailability> mapAvailability = new Int2ObjectLinkedOpenHashMap<>(availabilities.size());
+            for (@NotNull final DBMDay _day : dayMetadata) {
+                mapDay.put(_day.getId(), _day);
+            }
+            for (@NotNull final DBMPeriod _period : periodMetadata) {
+                mapPeriod.put(_period.getId(), _period);
+            }
+            for (@NotNull final DBAvailability _availability : availabilities) {
+                mapAvailability.put(_availability.getId(), _availability);
+            }
+
             @NotNull final PreparedStatement statement = model.connection.prepareStatement("SELECT `lecture_timeoff`.`id`, `lecture_timeoff`.`lecture`, `lecture_timeoff`.`day`, `lecture_timeoff`.`period`, `lecture_timeoff`.`availability` FROM `lecture_timeoff` LEFT OUTER JOIN `lecture` ON `lecture_timeoff`.`lecture` = `lecture`.`id` LEFT OUTER JOIN `active_day` ON `lecture_timeoff`.`day` = `active_day`.`id` LEFT OUTER JOIN `active_period` ON `lecture_timeoff`.`period` = `active_period`.`id` WHERE `lecture`.`id` = ? ORDER BY `active_day`.`position`, `active_period`.`position` ASC;");
             statement.setInt(1, lecture.getId());
             @NotNull final ResultSet result = statement.executeQuery();
