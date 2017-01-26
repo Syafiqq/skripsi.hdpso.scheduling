@@ -8,6 +8,9 @@ package view;
  * Github       : syafiqq
  */
 
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.List;
 import javafx.application.Application;
 import model.AbstractModel;
 import model.database.component.metadata.DBMClass;
@@ -15,17 +18,21 @@ import model.database.component.metadata.DBMLecture;
 import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MClass;
+import model.database.model.MClassroom;
+import model.database.model.MDay;
+import model.database.model.MLecture;
+import model.database.model.MLesson;
+import model.database.model.MPeriod;
+import model.database.model.MSchool;
+import model.database.model.MSubject;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.util.List;
 
 @SuppressWarnings("Duplicates")
 public class THome {
@@ -47,11 +54,7 @@ public class THome {
         session.put("lecture", lectureMetadata);
         session.put("lesson", MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));
 
-        Thread t = new Thread() {
-            public void run() {
-                Application.launch(IHome.class);
-            }
-        };
+        Thread t = new Thread(() -> Application.launch(IHome.class));
         t.setDaemon(true);
         t.start();
         t.join();
