@@ -6,6 +6,12 @@ import controller.lecture.CLectureList;
 import controller.lesson.CLessonList;
 import controller.school.CSchoolDetail;
 import controller.subject.CSubjectList;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Observer;
+import java.util.ResourceBundle;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -19,7 +25,14 @@ import javafx.stage.Stage;
 import model.AbstractModel;
 import model.database.component.DBAvailability;
 import model.database.component.DBSchool;
-import model.database.component.metadata.*;
+import model.database.component.metadata.DBMClass;
+import model.database.component.metadata.DBMClassroom;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMLecture;
+import model.database.component.metadata.DBMLesson;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
+import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
 import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
@@ -33,13 +46,6 @@ import view.lesson.ILessonList;
 import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Observer;
-import java.util.ResourceBundle;
-
 /*
  * This <skripsi.hdpso.scheduling> project in package <controller.menu> created by : 
  * Name         : syafiq
@@ -47,7 +53,7 @@ import java.util.ResourceBundle;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"unused", "FieldCanBeLocal"})
+@SuppressWarnings({"unused", "FieldCanBeLocal", "WeakerAccess"})
 public class CMCategory implements Initializable {
     @Nullable
     private final Observer content;
@@ -116,7 +122,7 @@ public class CMCategory implements Initializable {
         this.classMetadata = (List<DBMClass>) session.get("klass");
         this.classroomMetadata = (List<DBMClassroom>) session.get("classroom");
         this.lectureMetadata = (List<DBMLecture>) session.get("lecture");
-        this.lectureMetadata = (List<DBMLecture>) session.get("lesson");
+        this.lessonMetadata = (List<DBMLesson>) session.get("lesson");
     }
 
     @Override
