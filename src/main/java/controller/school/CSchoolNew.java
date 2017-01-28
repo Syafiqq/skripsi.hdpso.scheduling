@@ -25,12 +25,14 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import model.AbstractModel;
+import model.database.component.DBConstraint;
 import model.database.component.DBDay;
 import model.database.component.DBParameter;
 import model.database.component.DBPeriod;
 import model.database.component.DBSchool;
 import model.database.component.DBSemester;
 import model.database.core.DBType;
+import model.database.model.MConstraint;
 import model.database.model.MDay;
 import model.database.model.MParameter;
 import model.database.model.MPeriod;
@@ -144,6 +146,31 @@ import org.jetbrains.annotations.Nullable;
                 , false
         );
         MParameter.insert(model, school, parameter);
+
+        /*
+        * Generate Constraint Setting
+        * */
+        @NotNull final DBConstraint constraint = new DBConstraint(
+                -1,
+                school,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+        );
+        MConstraint.insert(model, school, constraint);
     }
 
     public void onCancelCreatePressed(ActionEvent actionEvent) {
