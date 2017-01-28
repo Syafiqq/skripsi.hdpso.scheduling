@@ -10,29 +10,7 @@ package view;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.List;
 import javafx.application.Application;
-import model.AbstractModel;
-import model.database.component.metadata.DBMClass;
-import model.database.component.metadata.DBMLecture;
-import model.database.component.metadata.DBMSchool;
-import model.database.component.metadata.DBMSubject;
-import model.database.core.DBType;
-import model.database.model.MAvailability;
-import model.database.model.MClass;
-import model.database.model.MClassroom;
-import model.database.model.MConstraint;
-import model.database.model.MDay;
-import model.database.model.MLecture;
-import model.database.model.MLesson;
-import model.database.model.MParameter;
-import model.database.model.MPeriod;
-import model.database.model.MSchool;
-import model.database.model.MSubject;
-import model.method.pso.hdpso.component.Setting;
-import model.util.Dump;
-import model.util.Session;
-import org.jetbrains.annotations.NotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,7 +18,7 @@ import org.junit.Test;
 public class THome {
     @BeforeClass
     public static void setUpClass() throws InterruptedException, UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+/*        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool school = Dump.schoolMetadata();
         @NotNull final Session session = Session.getInstance();
         @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
@@ -56,7 +34,7 @@ public class THome {
         session.put("klass", classMetadata);
         session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
         session.put("lecture", lectureMetadata);
-        session.put("lesson", MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));
+        session.put("lesson", MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));*/
 
         Thread t = new Thread(() -> Application.launch(IHome.class));
         t.setDaemon(true);
