@@ -46,7 +46,7 @@ public class TPSO_SystemFinal {
         setting.setbRandMin(0.000);
         setting.setbRandMax(0.002);
         setting.setMaxParticle(2);
-        setting.setMaxEpoch(10000000);
+        setting.setMaxEpoch(100000);
         setting.setTimeVariantWeight(1);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
         setting.setCalculator(Setting.HDPSO_WR);
