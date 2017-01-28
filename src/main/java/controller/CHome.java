@@ -3,6 +3,11 @@ package controller;
 import controller.menu.CMCategory;
 import controller.menu.CMDeveloper;
 import controller.menu.CMHome;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Locale;
+import java.util.Observer;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -16,12 +21,6 @@ import view.menu.IMCategory;
 import view.menu.IMDeveloper;
 import view.menu.IMHome;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Locale;
-import java.util.Observer;
-import java.util.ResourceBundle;
-
 /*
  * This <skripsi.hdpso.scheduling> project in package <controller> created by : 
  * Name         : syafiq
@@ -29,7 +28,8 @@ import java.util.ResourceBundle;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-public class CHome implements Initializable {
+@SuppressWarnings({"WeakerAccess", "unused"}) public class CHome implements Initializable
+{
     @FXML
     public BorderPane home_ribbon;
     @FXML
