@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import model.database.component.DBConstraint;
+import model.database.component.DBParameter;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.component.DSLessonGroup;
@@ -37,30 +39,66 @@ import org.jetbrains.annotations.Nullable;
  */
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal", "unused"}) public class PSO extends PSOOperation<Data, Velocity, Particle, DSScheduleShufflingProperty> implements ScheduleRandomable<Position[], DSScheduleShufflingProperty>, PositionRepairable<Particle>
 {
-    private final @NotNull int[]                        active_days;
-    private final @NotNull int[]                        active_periods;
-    private final @NotNull int[]                        sks_distribution;
-    private final @NotNull int[][][]                    clustered_classroom_time;
-    private final @NotNull Setting                      setting;
-    private final @NotNull DSTimeOff[]                  classes;
-    private final @NotNull DSTimeOff[]                  classrooms;
-    private final @NotNull DSTimeOff[]                  lecturers;
-    private final @NotNull DSTimeOff[]                  subjects;
-    private final @NotNull DSLesson[]                   lessons;
-    private final @NotNull DSLessonGroup[]              lesson_group;
-    private final @NotNull DSLessonCluster[]            lesson_cluster;
-    private final @NotNull DSScheduleShufflingProperty  shuffling_properties;
-    private final @NotNull DatasetConverter             encoder;
-    private final @NotNull DatasetConverter             decoder;
-    private final @NotNull ArrayBlockingQueue<Runnable> thread_queue;
-    private final          boolean                      isMultiProcess;
+    private final @NotNull int[]                           active_days;
+    private final @NotNull int[]                           active_periods;
+    private final @NotNull int[]                           sks_distribution;
+    private final @NotNull int[][][]                       clustered_classroom_time;
+    private final @NotNull Setting                         setting;
+    private final @NotNull DSTimeOff[]                     classes;
+    private final @NotNull DSTimeOff[]                     classrooms;
+    private final @NotNull DSTimeOff[]                     lecturers;
+    private final @NotNull DSTimeOff[]                     subjects;
+    private final @NotNull DSLesson[]                      lessons;
+    private final @NotNull DSLessonGroup[]                 lesson_group;
+    private final @NotNull DSLessonCluster[]               lesson_cluster;
+    private final @NotNull DSScheduleShufflingProperty     shuffling_properties;
+    private final @NotNull DatasetConverter                encoder;
+    private final @NotNull DatasetConverter                decoder;
+    private final @NotNull ArrayBlockingQueue<Runnable>    thread_queue;
+    private final @NotNull DBParameter                     parameter;
+    private final @NotNull DBConstraint.CompiledConstraint constraint;
+    private final          boolean                         isMultiProcess;
 
     public PSO(@NotNull final DatasetGenerator generator)
+    {
+        this(generator, null, null);
+    }
+
+    public PSO(@NotNull final DatasetGenerator generator, @Nullable final DBParameter parameter, @Nullable final DBConstraint constraint)
     {
         /*
         * Retrieve setting
         * */
         this.setting = Setting.getInstance();
+        if(parameter == null)
+        {
+            this.parameter = this.generateDefaultParameter(this.setting);
+        }
+        else
+        {
+            this.parameter = parameter;
+        }
+        this.setting.setbGlobMin(this.parameter.getgLobMin());
+        this.setting.setbGlobMax(this.parameter.getgLobMax());
+        this.setting.setbLocMin(this.parameter.getbLocMin());
+        this.setting.setbLocMax(this.parameter.getbLocMax());
+        this.setting.setbRandMin(this.parameter.getbRandMin());
+        this.setting.setbRandMax(this.parameter.getbRandMax());
+        this.setting.setMaxParticle(this.parameter.getParticle());
+        this.setting.setMaxEpoch(this.parameter.getIteration());
+        this.setting.setTimeVariantWeight(1);
+        this.setting.setTotalCore(this.parameter.getProcessor());
+        this.setting.setCalculator(this.parameter.getMethod());
+        this.setting.setMultiProcess(this.parameter.isMultiThread());
+
+        if(constraint == null)
+        {
+            this.constraint = DBConstraint.generateCompiledConstraint(this.generateDefaultConstraint());
+        }
+        else
+        {
+            this.constraint = DBConstraint.generateCompiledConstraint(constraint);
+        }
 
         final @NotNull Dataset dataset = generator.getDataset();
 
@@ -369,14 +407,14 @@ import org.jetbrains.annotations.Nullable;
                                 * 7. Check if current lesson have linked lesson, if available check if current and its linked lesson is not the same day
                                 * 8. Check if current lesson is allowed in classroom
                                 * */
-                                final double fitness_1 = (0.020 * (this.subjects[lesson.getSubject()].get(i_day, i_period)));
-                                final double fitness_2 = (1.000 * (lecture == -1 ? 10 : (this.lecturers[lecture].get(i_day, i_period))));
-                                final double fitness_3 = (0.040 * (this.classes[klass].get(i_day, i_period)));
-                                final double fitness_4 = (0.001 * (period));
-                                final double fitness_5 = (5.000 * (lecture == -1 ? 10 : (lecture_placement[lecture].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1)));
-                                final double fitness_6 = (5.000 * (class_placement[klass].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1));
-                                final double fitness_7 = (3.000 * (lesson.getLinkTotal() == 0 ? 10 : (class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1)));
-                                final double fitness_8 = (0.500 * (lesson.isLessonAllowed(classroom) ? 10 : 0.1));
+                                final double fitness_1 = (this.constraint.getSubject() * (this.subjects[lesson.getSubject()].get(i_day, i_period)));
+                                final double fitness_2 = (this.constraint.getLecture() * (lecture == -1 ? 10 : (this.lecturers[lecture].get(i_day, i_period))));
+                                final double fitness_3 = (this.constraint.getKlass() * (this.classes[klass].get(i_day, i_period)));
+                                final double fitness_4 = (this.constraint.getClassroom() * (period));
+                                final double fitness_5 = (this.constraint.getLPlacement() * (lecture == -1 ? 10 : (lecture_placement[lecture].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1)));
+                                final double fitness_6 = (this.constraint.getCPlacement() * (class_placement[klass].putPlacementIfAbsent(i_day, i_period, lessons[c_lesson]) ? 10 : 0.1));
+                                final double fitness_7 = (this.constraint.getLink() * (lesson.getLinkTotal() == 0 ? 10 : (class_placement[klass].isNotTheSameDay(i_day, lesson.getLessonLink()) ? 10 : 0.1)));
+                                final double fitness_8 = (this.constraint.getAllow() * (lesson.isLessonAllowed(classroom) ? 10 : 0.1));
 
                                 /*
                                 * Accumulate fitness
@@ -1926,5 +1964,46 @@ import org.jetbrains.annotations.Nullable;
     public double getFitness()
     {
         return this.gBest.getFitness();
+    }
+
+    @NotNull private DBParameter generateDefaultParameter(@NotNull Setting setting)
+    {
+        return new DBParameter(
+                -1,
+                null,
+                setting.getbGlobMin(),
+                setting.getbGlobMax(),
+                setting.getbLocMin(),
+                setting.getbLocMax(),
+                setting.getbRandMin(),
+                setting.getbRandMax(),
+                setting.getMaxEpoch(),
+                setting.getMaxParticle(),
+                setting.getTotalCore(),
+                setting.getCalculator(),
+                setting.getMultiProcess());
+    }
+
+    @NotNull private DBConstraint generateDefaultConstraint()
+    {
+        return new DBConstraint(-1,
+                null,
+                0.020,
+                1.000,
+                0.040,
+                0.001,
+                5.000,
+                5.000,
+                3.000,
+                0.500,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+        );
     }
 }
