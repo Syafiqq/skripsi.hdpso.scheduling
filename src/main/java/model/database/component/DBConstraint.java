@@ -1,6 +1,8 @@
 package model.database.component;
 
 import model.database.component.metadata.DBMSchool;
+import model.util.Converter;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.component> created by : 
@@ -50,6 +52,11 @@ import model.database.component.metadata.DBMSchool;
         this.isCPlacement = isCPlacement;
         this.isLink = isLink;
         this.isAllow = isAllow;
+    }
+
+    @NotNull public static CompiledConstraint generateCompiledConstraint(@NotNull final DBConstraint constraint)
+    {
+        return new CompiledConstraint(constraint);
     }
 
     public int getId()
@@ -220,5 +227,69 @@ import model.database.component.metadata.DBMSchool;
     public void setAllow(boolean allow)
     {
         this.isAllow = allow;
+    }
+
+    public static class CompiledConstraint
+    {
+        final private double subject;
+        final private double lecture;
+        final private double klass;
+        final private double classroom;
+        final private double lPlacement;
+        final private double cPlacement;
+        final private double link;
+        final private double allow;
+
+        CompiledConstraint(@NotNull final DBConstraint constraint)
+        {
+            this.subject = Converter.integerToBooleanInteger(constraint.isSubject()) * constraint.getSubject();
+            this.lecture = Converter.integerToBooleanInteger(constraint.isLecture()) * constraint.getLecture();
+            this.klass = Converter.integerToBooleanInteger(constraint.isKlass()) * constraint.getKlass();
+            this.classroom = Converter.integerToBooleanInteger(constraint.isClassroom()) * constraint.getClassroom();
+            this.lPlacement = Converter.integerToBooleanInteger(constraint.isLPlacement()) * constraint.getLPlacement();
+            this.cPlacement = Converter.integerToBooleanInteger(constraint.isCPlacement()) * constraint.getCPlacement();
+            this.link = Converter.integerToBooleanInteger(constraint.isLink()) * constraint.getLink();
+            this.allow = Converter.integerToBooleanInteger(constraint.isAllow()) * constraint.getAllow();
+        }
+
+        public double getSubject()
+        {
+            return this.subject;
+        }
+
+        public double getLecture()
+        {
+            return this.lecture;
+        }
+
+        public double getKlass()
+        {
+            return this.klass;
+        }
+
+        public double getClassroom()
+        {
+            return this.classroom;
+        }
+
+        public double getLPlacement()
+        {
+            return this.lPlacement;
+        }
+
+        public double getCPlacement()
+        {
+            return this.cPlacement;
+        }
+
+        public double getLink()
+        {
+            return this.link;
+        }
+
+        public double getAllow()
+        {
+            return this.allow;
+        }
     }
 }
