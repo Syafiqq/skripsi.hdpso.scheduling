@@ -46,7 +46,7 @@ import org.junit.Test;
         setting.setMaxParticle(10);
         setting.setMaxEpoch(10000);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PSO);
+        setting.setCalculator(Setting.HDPSO_WTV);
         setting.setMultiProcess(false);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -74,7 +74,7 @@ import org.junit.Test;
         setting.setMaxParticle(10);
         setting.setMaxEpoch(10000);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PSO);
+        setting.setCalculator(Setting.HDPSO_WTV);
         setting.setMultiProcess(true);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -102,7 +102,7 @@ import org.junit.Test;
         setting.setMaxParticle(10);
         setting.setMaxEpoch(10000);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PTVPSO);
+        setting.setCalculator(Setting.HDPSO);
         setting.setMultiProcess(false);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -130,7 +130,7 @@ import org.junit.Test;
         setting.setMaxParticle(10);
         setting.setMaxEpoch(10000);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PTVPSO);
+        setting.setCalculator(Setting.HDPSO);
         setting.setMultiProcess(true);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -159,7 +159,7 @@ import org.junit.Test;
         setting.setMaxEpoch(10000);
         setting.setTimeVariantWeight(1);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PTVPSO);
+        setting.setCalculator(Setting.HDPSO_WR);
         setting.setMultiProcess(false);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -188,7 +188,7 @@ import org.junit.Test;
         setting.setMaxEpoch(10000);
         setting.setTimeVariantWeight(1);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PTVPSO);
+        setting.setCalculator(Setting.HDPSO_WR);
         setting.setMultiProcess(true);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -217,7 +217,7 @@ import org.junit.Test;
         setting.setMaxEpoch(10000);
         setting.setTimeVariantWeight(0.5);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PTVPSO);
+        setting.setCalculator(Setting.HDPSO_WR);
         setting.setMultiProcess(false);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);
@@ -246,7 +246,7 @@ import org.junit.Test;
         setting.setMaxEpoch(10000);
         setting.setTimeVariantWeight(0.5);
         setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-        setting.setCalculator(Setting.PURE_PTVPSO);
+        setting.setCalculator(Setting.HDPSO_WR);
         setting.setMultiProcess(true);
 
         @NotNull final PSO pso = new PSO(this.dsLoader);

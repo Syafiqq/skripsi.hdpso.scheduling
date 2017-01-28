@@ -1,10 +1,12 @@
 package model.method.pso.hdpso.component;
 
-import model.database.core.DBType;
-import model.method.pso.hdpso.core.VelocityCalculator;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import model.database.core.DBType;
+import model.method.pso.hdpso.core.VelocityCalculator;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.method.pso.hdpso.component> created by : 
@@ -15,10 +17,10 @@ import java.net.URL;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class Setting
 {
-    public static final VelocityCalculator PURE_PSO;
-    public static final VelocityCalculator PTVPSO;
-    public static final VelocityCalculator PURE_PTVPSO;
-    public static final URL defaultDB;
+    public static final VelocityCalculator HDPSO_WTV;
+    public static final VelocityCalculator HDPSO;
+    public static final VelocityCalculator HDPSO_WR;
+    public static final URL                defaultDB;
     private static      Setting            ourInstance;
 
     static
@@ -28,7 +30,7 @@ import java.net.URL;
         * 0 = random val [0 ... 1]
         * 1 = (max {loc, glob, rand})
         * */
-        PURE_PSO = new VelocityCalculator()
+        HDPSO_WTV = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
             {
@@ -53,7 +55,7 @@ import java.net.URL;
         * 3 = current epoch
         * 4 = max epoch
         * */
-        PTVPSO = new VelocityCalculator()
+        HDPSO = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
             {
@@ -81,7 +83,7 @@ import java.net.URL;
         * 3 = current epoch
         * 4 = max epoch
         * */
-        PURE_PTVPSO = new VelocityCalculator()
+        HDPSO_WR = new VelocityCalculator()
         {
             @Override public double calculateLoc(double... operator)
             {
@@ -137,7 +139,7 @@ import java.net.URL;
         this.setTotalCore(Runtime.getRuntime().availableProcessors());
         this.multi_process = false;
         this.window_size = Integer.MAX_VALUE;
-        this.calculator = Setting.PURE_PSO;
+        this.calculator = Setting.HDPSO_WTV;
     }
 
     public static synchronized Setting getInstance()
@@ -161,6 +163,53 @@ import java.net.URL;
             }
         }
         return dbUrl;
+    }
+
+    @Contract(pure = true) public static int getVelocity(@NotNull final VelocityCalculator method)
+    {
+        int val;
+        if(method == HDPSO_WTV)
+        {
+            val = 0;
+        }
+        else if(method == HDPSO)
+        {
+            val = 1;
+        }
+        else
+        {
+            val = 2;
+        }
+        return val;
+    }
+
+    @Contract(pure = true) @NotNull public static VelocityCalculator getVelocity(int method)
+    {
+        @Nullable VelocityCalculator calculator;
+        switch(method)
+        {
+            case 0:
+            {
+                calculator = HDPSO_WTV;
+            }
+            break;
+            case 1:
+            {
+                calculator = HDPSO;
+            }
+            break;
+            case 2:
+            {
+                calculator = HDPSO_WR;
+            }
+            break;
+            default:
+            {
+                calculator = null;
+            }
+        }
+        assert calculator != null;
+        return calculator;
     }
 
     public int getTotalCore()
@@ -277,7 +326,7 @@ import java.net.URL;
         return this.window_size;
     }
 
-    public void setWindowSize(int window_size)
+    @SuppressWarnings("SameParameterValue") public void setWindowSize(int window_size)
     {
         this.window_size = window_size;
     }

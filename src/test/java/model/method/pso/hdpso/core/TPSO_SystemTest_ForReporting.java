@@ -501,7 +501,7 @@ public class TPSO_SystemTest_ForReporting {
             setting.setMaxEpoch(10000);
             setting.setTimeVariantWeight(1);
             setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setCalculator(Setting.HDPSO_WR);
             setting.setMultiProcess(false);
 
             final long c1 = System.currentTimeMillis();
@@ -565,7 +565,7 @@ public class TPSO_SystemTest_ForReporting {
             setting.setMaxEpoch(param);
             setting.setTimeVariantWeight(1);
             setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setCalculator(Setting.HDPSO_WR);
             setting.setMultiProcess(false);
 
             final long c1 = System.currentTimeMillis();
@@ -627,7 +627,7 @@ public class TPSO_SystemTest_ForReporting {
             setting.setMaxEpoch(20000);
             setting.setTimeVariantWeight(1);
             setting.setTotalCore(Runtime.getRuntime().availableProcessors());
-            setting.setCalculator(Setting.PURE_PTVPSO);
+            setting.setCalculator(Setting.HDPSO_WR);
             setting.setMultiProcess(false);
 
             final long c1 = System.currentTimeMillis();
