@@ -21,6 +21,7 @@ import model.database.core.DBType;
 import model.database.model.MAvailability;
 import model.database.model.MClass;
 import model.database.model.MClassroom;
+import model.database.model.MConstraint;
 import model.database.model.MDay;
 import model.database.model.MLecture;
 import model.database.model.MLesson;
@@ -50,6 +51,7 @@ public class THome {
         session.put("period", MPeriod.getAllMetadataFromSchool(model, school));
         session.put("availability", MAvailability.getAll(model));
         session.put("parameter", MParameter.getFromSchool(model, school));
+        session.put("constraint", MConstraint.getFromSchool(model, school));
         session.put("subject", subjectMetadata);
         session.put("klass", classMetadata);
         session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
