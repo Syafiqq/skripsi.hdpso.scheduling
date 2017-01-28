@@ -14,6 +14,7 @@ buildscript {
 
 apply plugin: 'java'
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 
 repositories {
@@ -29,7 +30,8 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
-    compile files("${System.properties['java.home']}/lib/packager.jar")
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
+    compile files("${/*noinspection GroovyAssignabilityCheck*/System.properties['java.home']}/lib/packager.jar")
 }
 
 sourceSets {
@@ -43,6 +45,7 @@ sourceSets {
     }
 }
 
+//noinspection GroovyMissingReturnStatement
 test {
     testLogging {
         exceptionFormat = 'full'

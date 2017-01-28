@@ -24,6 +24,7 @@ import model.database.model.MClassroom;
 import model.database.model.MDay;
 import model.database.model.MLecture;
 import model.database.model.MLesson;
+import model.database.model.MParameter;
 import model.database.model.MPeriod;
 import model.database.model.MSchool;
 import model.database.model.MSubject;
@@ -48,6 +49,7 @@ public class THome {
         session.put("day", MDay.getAllMetadataFromSchool(model, school));
         session.put("period", MPeriod.getAllMetadataFromSchool(model, school));
         session.put("availability", MAvailability.getAll(model));
+        session.put("parameter", MParameter.getFromSchool(model, school));
         session.put("subject", subjectMetadata);
         session.put("klass", classMetadata);
         session.put("classroom", MClassroom.getAllMetadataFromSchool(model, school));
