@@ -7,30 +7,40 @@ package controller.school;
  * Github       : syafiqq
  */
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import model.AbstractModel;
 import model.database.component.DBDay;
+import model.database.component.DBParameter;
 import model.database.component.DBPeriod;
 import model.database.component.DBSchool;
 import model.database.component.DBSemester;
 import model.database.core.DBType;
 import model.database.model.MDay;
+import model.database.model.MParameter;
 import model.database.model.MPeriod;
 import model.database.model.MSchool;
 import model.method.pso.hdpso.component.Setting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.*;
-
-public class CSchoolNew implements Initializable {
+@SuppressWarnings({"WeakerAccess", "unused"}) public class CSchoolNew implements Initializable
+{
     @FXML
     public TextField name;
     @FXML
@@ -114,6 +124,26 @@ public class CSchoolNew implements Initializable {
                     school));
         }
         MPeriod.insertOnlyBulk(model, periods);
+
+        /*
+        * Generate Parameter Setting
+        * */
+        @NotNull final DBParameter parameter = new DBParameter(
+                -1,
+                school,
+                0,
+                1,
+                0,
+                1,
+                0,
+                1,
+                100000,
+                2,
+                4
+                , Setting.HDPSO
+                , false
+        );
+        MParameter.insert(model, school, parameter);
     }
 
     public void onCancelCreatePressed(ActionEvent actionEvent) {
