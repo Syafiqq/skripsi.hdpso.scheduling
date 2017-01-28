@@ -195,6 +195,11 @@ import org.jetbrains.annotations.Nullable;
                     {
                         @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                         MParameter.update(model, this.parameter);
+                        @NotNull final Alert success = new Alert(Alert.AlertType.INFORMATION);
+                        success.setTitle("Berhasil");
+                        success.setHeaderText(null);
+                        success.setContentText("Data Berhasil Dirubah !");
+                        success.showAndWait();
                         return;
                     }
                     catch(SQLException | UnsupportedEncodingException e)

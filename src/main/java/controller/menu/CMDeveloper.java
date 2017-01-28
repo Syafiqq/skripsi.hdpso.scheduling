@@ -1,5 +1,6 @@
 package controller.menu;
 
+import controller.constraint.CConstraintList;
 import controller.parameter.CParameterList;
 import java.io.IOException;
 import java.net.URL;
@@ -15,11 +16,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.database.component.DBConstraint;
 import model.database.component.DBParameter;
 import model.database.component.metadata.DBMSchool;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import view.constraint.IConstraintList;
 import view.parameter.IParameterList;
 
 /*
@@ -31,12 +34,14 @@ import view.parameter.IParameterList;
  */
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal", "unused"}) public class CMDeveloper implements Initializable
 {
-    @FXML public Button      bParameter;
-    @FXML public Button      bConstraint;
+    @FXML public Button       bParameter;
+    @FXML public Button       bConstraint;
     @Nullable
-    private      DBMSchool   schoolMetadata;
+    private      DBMSchool    schoolMetadata;
     @Nullable
-    private      DBParameter parameter;
+    private      DBParameter  parameter;
+    @Nullable
+    private      DBConstraint constraint;
 
     public CMDeveloper()
     {
@@ -71,6 +76,7 @@ import view.parameter.IParameterList;
         final Session session = Session.getInstance();
         this.schoolMetadata = (DBMSchool) session.get("school");
         this.parameter = (DBParameter) session.get("parameter");
+        this.constraint = (DBConstraint) session.get("constraint");
 
     }
 
@@ -98,6 +104,23 @@ import view.parameter.IParameterList;
 
     public void onConstraintDeveloperMenuPressed(ActionEvent actionEvent)
     {
+        if((this.schoolMetadata != null) && (this.constraint != null))
+        {
+            @NotNull final Stage dialog = new Stage();
+            dialog.setTitle("Parameter");
 
+            try
+            {
+                dialog.setScene(new Scene(IConstraintList.load(new CConstraintList(this.constraint)).load()));
+            }
+            catch(IOException ignored)
+            {
+                ignored.printStackTrace();
+            }
+
+            dialog.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        }
     }
 }
