@@ -2,6 +2,7 @@ package model.method.pso.hdpso.component;
 
 import java.util.Comparator;
 import java.util.Random;
+import model.custom.java.util.ParticleObserver;
 import model.dataset.component.DSScheduleShufflingProperty;
 import model.method.pso.hdpso.core.ScheduleRandomable;
 import model.method.pso.hdpso.core.VelocityCalculator;
@@ -27,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final IntHList[]         lesson_conflicts;
     @NotNull private final VelocityCalculator movement_coefficient;
     private final          int                window_size;
+
+    @NotNull private ParticleObserver particleFitness;
+    @NotNull private ParticleObserver particlePBestFitness;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
@@ -55,6 +59,13 @@ import org.jetbrains.annotations.NotNull;
         this.random = new Random();
         this.window_size = this.setting.getWindowSize();
         this.movement_coefficient = this.setting.getCalculator();
+
+        this.particleFitness = val ->
+        {
+        };
+        this.particlePBestFitness = val ->
+        {
+        };
     }
 
     public void assignPBest()
@@ -63,6 +74,7 @@ import org.jetbrains.annotations.NotNull;
         {
             Data.replaceData(super.pBest, super.data);
         }
+        this.particlePBestFitness.update(super.pBest.getFitness());
     }
 
     public void calculateVelocity(Data gBest, int cEpoch, int max_epoch)
@@ -158,6 +170,7 @@ import org.jetbrains.annotations.NotNull;
     public void setFitness(double fitness)
     {
         this.data.setFitness(fitness);
+        this.particleFitness.update(fitness);
     }
 
     public @NotNull RepairProperty[] getRepairProperties()
@@ -173,5 +186,15 @@ import org.jetbrains.annotations.NotNull;
     public @NotNull Random getRandom()
     {
         return this.random;
+    }
+
+    public void setParticleFitness(@NotNull ParticleObserver particleFitness)
+    {
+        this.particleFitness = particleFitness;
+    }
+
+    public void setParticlePBestFitness(@NotNull ParticleObserver particlePBestFitness)
+    {
+        this.particlePBestFitness = particlePBestFitness;
     }
 }
