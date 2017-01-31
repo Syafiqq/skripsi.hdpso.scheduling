@@ -32,6 +32,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.AbstractModel;
+import model.custom.java.util.SwarmObserver;
 import model.database.component.DBAvailability;
 import model.database.component.DBClass;
 import model.database.component.DBClassroom;
@@ -65,6 +66,7 @@ import model.method.pso.hdpso.core.PSO;
 import model.util.Session;
 import model.util.list.IntHList;
 import org.apache.commons.math3.util.FastMath;
+import org.controlsfx.control.Notifications;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,7 +78,7 @@ import view.school.ISchoolDetail;
 import view.subject.ISubjectList;
 
 /*
- * This <skripsi.hdpso.scheduling> project in package <controller.menu> created by : 
+ * This <skripsi.hdpso.scheduling> project in package <controller.menu> created by :
  * Name         : syafiq
  * Date / Time  : 01 January 2017, 4:29 PM.
  * Email        : syafiq.rezpector@gmail.com
@@ -85,25 +87,26 @@ import view.subject.ISubjectList;
 @SuppressWarnings({"unused", "FieldCanBeLocal", "WeakerAccess"})
 public class CMCategory implements Initializable
 {
+    @NotNull final BooleanProperty generateListener;
     @Nullable
-    private final Observer content;
+    private final  Observer        content;
     @FXML
-    public        Button   mc_button_generate;
+    public         Button          mc_button_generate;
     @FXML
-    public        Button   bSchool;
+    public         Button          bSchool;
     @FXML
-    public        Button   bSubject;
+    public         Button          bSubject;
     @FXML
-    public        Button   bClass;
+    public         Button          bClass;
     @FXML
-    public        Button   bClassroom;
+    public         Button          bClassroom;
     @FXML
-    public        Button   bLecture;
+    public         Button          bLecture;
     @FXML
-    public        Button   bLesson;
-
+    public         Button          bLesson;
+    @NotNull       SwarmObserver   swarmObserver;
     @Nullable
-    private DBMSchool schoolMetadata;
+    private        DBMSchool       schoolMetadata;
 
     @Nullable
     private List<DBMDay> dayMetadata;
@@ -141,6 +144,10 @@ public class CMCategory implements Initializable
     {
         this.content = rootContentCallback;
         this.setData();
+        this.generateListener = new SimpleBooleanProperty(false);
+        this.swarmObserver = particles ->
+        {
+        };
     }
 
     @SuppressWarnings("unchecked")
@@ -332,6 +339,16 @@ public class CMCategory implements Initializable
         }
     }
 
+    @NotNull public BooleanProperty getGenerateListener()
+    {
+        return this.generateListener;
+    }
+
+    public void setSwarmObserver(@NotNull SwarmObserver swarmObserver)
+    {
+        this.swarmObserver = swarmObserver;
+    }
+
     public void onMenuCategoryGenerateClick(ActionEvent actionEvent)
     {
         if(this.schoolMetadata != null)
@@ -351,7 +368,9 @@ public class CMCategory implements Initializable
                     dbLoader.loadData();
                     @NotNull final DatasetGenerator dsLoader = new DatasetGenerator(dbLoader);
                     @NotNull final PSO              pso      = new PSO(dsLoader, dbLoader.getParameter(), dbLoader.getConstraint());
+                    this.generateListener.setValue(true);
                     pso.initialize();
+                    this.swarmObserver.update(pso.getParticles());
                     while(!pso.isConditionSatisfied())
                     {
                         pso.updatePBest();
@@ -373,16 +392,23 @@ public class CMCategory implements Initializable
                             web_content.getEngine().setJavaScriptEnabled(true);
                             if(this.content != null)
                             {
+                                this.generateListener.setValue(false);
+                                Notifications.create()
+                                             .title("Info")
+                                             .text("Generate jadwal Sukses")
+                                             .showInformation();
                                 this.content.update(null, new Object[] {web_content, Double.valueOf(pso.getFitness())});
                             }
                         }
                     };
                     Platform.runLater(() -> CMCategory.this.createResultResourceFile(webContent, pso.getParticle(0), dsLoader, dbLoader));
-
                 }
                 catch(SQLException | UnsupportedEncodingException e)
                 {
-                    e.printStackTrace();
+                    Notifications.create()
+                                 .title("Info")
+                                 .text("Error, Silahkan Coba Lagi")
+                                 .showError();
                 }
             });
         }
