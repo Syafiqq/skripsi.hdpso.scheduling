@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import model.custom.java.util.ValueObserver;
 import model.database.component.DBConstraint;
 import model.database.component.DBParameter;
 import model.dataset.component.DSLesson;
@@ -58,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
     private final @NotNull DBParameter                     parameter;
     private final @NotNull DBConstraint.CompiledConstraint constraint;
     private final          boolean                         isMultiProcess;
+    private @NotNull       ValueObserver                   swarmObserver;
 
     public PSO(@NotNull final DatasetGenerator generator)
     {
@@ -142,6 +144,14 @@ import org.jetbrains.annotations.Nullable;
         * Initialize current epoch
         * */
         super.cEpoch = 0;
+
+        /*
+        * Initialize Observer
+        * */
+        this.swarmObserver = val ->
+        {
+
+        };
     }
 
     public void updatePBest()
@@ -219,6 +229,10 @@ import org.jetbrains.annotations.Nullable;
 
     @Override public void updateStoppingCondition()
     {
+        for(@NotNull final Particle particle : super.getParticles())
+        {
+            particle.callFitnessObserver(super.cEpoch);
+        }
         /*
         * increment current epoch by 1
         * */
@@ -2005,5 +2019,15 @@ import org.jetbrains.annotations.Nullable;
                 true,
                 true
         );
+    }
+
+    @NotNull public ValueObserver getSwarmObserver()
+    {
+        return this.swarmObserver;
+    }
+
+    public void setSwarmObserver(@NotNull final ValueObserver swarmObserver)
+    {
+        this.swarmObserver = swarmObserver;
     }
 }
