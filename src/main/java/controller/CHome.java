@@ -24,8 +24,8 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
-import model.custom.java.util.ParticleObserver;
 import model.custom.java.util.SwarmObserver;
+import model.custom.java.util.ValueObserver;
 import org.controlsfx.control.ToggleSwitch;
 import org.jetbrains.annotations.NotNull;
 import view.menu.IMCategory;
@@ -118,61 +118,68 @@ import view.menu.IMHome;
                 }
             }
         };
-        @NotNull final SwarmObserver swarmObserver = particles ->
-                Platform.runLater(new Runnable()
+        @NotNull final SwarmObserver swarmObserver = particles -> Platform.runLater(() ->
+        {
+            for(int c_p = -1, cs_p = particles.length; ++c_p < cs_p; )
+            {
+                final CategoryAxis                       xAxis     = new CategoryAxis();
+                final NumberAxis                         yAxis     = new NumberAxis();
+                @NotNull final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+                lineChart.setTitle("Particle " + (c_p + 1));
+                @NotNull final XYChart.Series<String, Number> sFitness      = new XYChart.Series<>();
+                @NotNull final XYChart.Series<String, Number> sPBestFitness = new XYChart.Series<>();
+                sFitness.setName("Fitness");
+                sPBestFitness.setName("PBest Fitness");
+                @NotNull final ObservableList<XYChart.Data<String, Number>> dFitness      = sFitness.getData();
+                @NotNull final ObservableList<XYChart.Data<String, Number>> dPBestFitness = sPBestFitness.getData();
+                lineChart.createSymbolsProperty().setValue(false);
+                yAxis.setAutoRanging(false);
+                yAxis.setLowerBound(Integer.MAX_VALUE);
+                yAxis.setUpperBound(Integer.MIN_VALUE);
+                yAxis.tickUnitProperty().setValue(1000);
+                @NotNull final ValueObserver poFitness = val -> Platform.runLater(() ->
                 {
-                    @Override public void run()
+                    if(val[0] % 1000 == 0)
                     {
-                        final CategoryAxis xAxis = new CategoryAxis();
-                        final NumberAxis   yAxis = new NumberAxis();
-                        for(int c_p = -1, cs_p = particles.length; ++c_p < cs_p; )
+
+                        if(val[1] >= val[2])
                         {
-                            @NotNull final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-                            lineChart.setTitle("Particle " + (c_p + 1));
-                            @NotNull final XYChart.Series<String, Number> sFitness      = new XYChart.Series<>();
-                            @NotNull final XYChart.Series<String, Number> sPBestFitness = new XYChart.Series<>();
-                            sFitness.setName("Fitness");
-                            sPBestFitness.setName("PBest Fitness");
-                            @NotNull final ObservableList<XYChart.Data<String, Number>> dFitness      = sFitness.getData();
-                            @NotNull final ObservableList<XYChart.Data<String, Number>> dPBestFitness = sPBestFitness.getData();
-                            @NotNull final ParticleObserver poFitness = new ParticleObserver()
+                            if(val[1] > yAxis.getUpperBound())
                             {
-                                private int iteration = 0;
-
-                                @Override public void update(double val)
-                                {
-                                    if(++iteration % 1000 == 0)
-                                    {
-                                        Platform.runLater(() -> dFitness.add(new XYChart.Data<>(String.valueOf(this.iteration), val)));
-                                    }
-                                }
-                            };
-                            @NotNull final ParticleObserver poPBestFitness = new ParticleObserver()
+                                yAxis.setUpperBound(val[1] + 1000);
+                            }
+                            if(val[2] < yAxis.getLowerBound())
                             {
-                                private int iteration = 0;
-
-                                @Override public void update(double val)
-                                {
-                                    if(++iteration % 1000 == 0)
-                                    {
-                                        Platform.runLater(() -> dPBestFitness.add(new XYChart.Data<>(String.valueOf(this.iteration), val)));
-                                    }
-                                }
-                            };
-                            particles[c_p].setParticleFitness(poFitness);
-                            particles[c_p].setParticlePBestFitness(poPBestFitness);
-                            lineChart.getData().add(sFitness);
-                            lineChart.getData().add(sPBestFitness);
-                            CHome.this.gpChart.add(lineChart, 0, (c_p + 1));
+                                yAxis.setLowerBound(val[2] - 1000);
+                            }
                         }
+                        else
+                        {
+                            if(val[2] > yAxis.getUpperBound())
+                            {
+                                yAxis.setUpperBound(val[2] + 1000);
+                            }
+                            if(val[1] < yAxis.getLowerBound())
+                            {
+                                yAxis.setLowerBound(val[1] - 1000);
+                            }
+                        }
+                        dPBestFitness.add(new XYChart.Data<>(String.valueOf(val[0]), val[1]));
+                        dFitness.add(new XYChart.Data<>(String.valueOf(val[0]), val[2]));
                     }
                 });
+                particles[c_p].setFitnessObserver(poFitness);
+                lineChart.getData().add(sFitness);
+                lineChart.getData().add(sPBestFitness);
+                CHome.this.gpChart.add(lineChart, 0, (c_p + 1));
+            }
+        });
 
         try
         {
             @NotNull final CMCategory category = new CMCategory(content);
             this.pbTimetable.visibleProperty().bind(category.getGenerateListener());
-            //category.setSwarmObserver(swarmObserver);
+            category.setSwarmObserver(swarmObserver);
             this.setRibbon(IMCategory.load(category).load());
         }
         catch(IOException ignored)
