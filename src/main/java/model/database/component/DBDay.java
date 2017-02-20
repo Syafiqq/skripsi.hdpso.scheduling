@@ -1,5 +1,7 @@
 package model.database.component;
 
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -9,59 +11,17 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBDay
+@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBDay extends DBMDay
 {
-    private final          int      id;
-    @NotNull private final DBSchool school;
-    private                int      position;
-    private                String   name;
-    private                String   nickname;
+    @NotNull private final DBMSchool school;
 
-    public DBDay(int id, int position, String name, String nickname, @NotNull DBSchool school)
+    public DBDay(int id, int position, String name, String nickname, @NotNull DBMSchool school)
     {
-        this.id = id;
-        this.position = position;
-        this.name = name;
-        this.nickname = nickname;
+        super(id, position, name, nickname);
         this.school = school;
     }
 
-    public int getId()
-    {
-        return this.id;
-    }
-
-    public int getPosition()
-    {
-        return this.position;
-    }
-
-    public void setPosition(int position)
-    {
-        this.position = position;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getNickname()
-    {
-        return this.nickname;
-    }
-
-    public void setNickname(String nickname)
-    {
-        this.nickname = nickname;
-    }
-
-    @NotNull public DBSchool getSchool()
+    @NotNull public DBMSchool getSchool()
     {
         return this.school;
     }

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import model.database.component.metadata.DBMClassroom;
 import org.intellij.lang.annotations.Flow;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,10 +17,10 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public class DBLessonGroup
 {
-    private final ObjectSet<DBClassroom> classrooms;
+    private final ObjectSet<DBMClassroom> classrooms;
     private final ObjectList<DBLesson>   lessons;
 
-    public DBLessonGroup(ObjectList<DBClassroom> classrooms, int expected)
+    public DBLessonGroup(ObjectList<DBMClassroom> classrooms, int expected)
     {
         this.classrooms = new ObjectLinkedOpenHashSet<>(classrooms);
         this.lessons = new ObjectArrayList<>(expected);
@@ -30,12 +31,12 @@ import org.jetbrains.annotations.NotNull;
         return this.lessons.add(dbLesson);
     }
 
-    public boolean isOnSet(DBClassroom next)
+    public boolean isOnSet(DBMClassroom next)
     {
         return classrooms.contains(next);
     }
 
-    @NotNull public ObjectSet<DBClassroom> getClassrooms()
+    @NotNull public ObjectSet<DBMClassroom> getClassrooms()
     {
         return this.classrooms;
     }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 21 January 2017, 1:08 PM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+
+<!--suppress JavaFxDefaultTag -->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <right>
+        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets left="10.0" />
+            </BorderPane.margin>
+            <children>
+                <VBox VBox.vgrow="ALWAYS" />
+                <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onPeriodListEditPressed" text="Edit" />
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onPeriodListClosePressed" text="Tutup" />
+            </children>
+        </VBox>
+    </right>
+    <center>
+        <TableView fx:id="periodList" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="columnName" minWidth="120.0" prefWidth="120.0" text="Nama" />
+                <TableColumn fx:id="columnNickname" minWidth="120.0" prefWidth="120.0" text="Nama Pendek" />
+            <TableColumn fx:id="columnStart" minWidth="100.0" prefWidth="100.0" text="Mulai" />
+            <TableColumn fx:id="columnEnd" minWidth="100.0" prefWidth="100.0" text="Berakhir" />
+                <TableColumn fx:id="columnOrder" minWidth="100.0" prefWidth="100.0" text="Posisi" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+    </center>
+</BorderPane>

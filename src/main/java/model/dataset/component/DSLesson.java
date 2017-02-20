@@ -2,11 +2,12 @@ package model.dataset.component;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrays;
-import java.util.Random;
-import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
+import model.database.component.metadata.DBMClassroom;
 import model.dataset.core.DatasetConverter;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Random;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.dataset.component> created by : 
@@ -69,7 +70,7 @@ import org.jetbrains.annotations.NotNull;
 
         final @NotNull Int2IntMap classroom_encoder = encoder.getClassrooms();
         int                       counter           = -1;
-        for(final @NotNull DBClassroom classroom : lesson.getClassrooms())
+        for(final @NotNull DBMClassroom classroom : lesson.getClassrooms())
         {
             available_classroom[++counter] = classroom_encoder.get(classroom.getId());
             allowed_classroom[available_classroom[counter]] = true;

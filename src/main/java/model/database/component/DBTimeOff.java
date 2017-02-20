@@ -1,5 +1,7 @@
 package model.database.component;
 
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMPeriod;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -12,11 +14,11 @@ import org.jetbrains.annotations.NotNull;
 public class DBTimeOff
 {
     private final          int            id;
-    @NotNull private final DBDay          day;
-    @NotNull private final DBPeriod       period;
-    @NotNull private final DBAvailability availability;
+    @NotNull private final DBMDay         day;
+    @NotNull private final DBMPeriod      period;
+    @NotNull private DBAvailability availability;
 
-    public DBTimeOff(int id, @NotNull DBDay day, @NotNull DBPeriod period, @NotNull DBAvailability availability)
+    public DBTimeOff(int id, @NotNull DBMDay day, @NotNull DBMPeriod period, @NotNull DBAvailability availability)
     {
         this.id = id;
         this.day = day;
@@ -29,18 +31,22 @@ public class DBTimeOff
         return this.id;
     }
 
-    public DBDay getDay()
+    @NotNull public DBMDay getDay()
     {
         return this.day;
     }
 
-    public DBPeriod getPeriod()
+    @NotNull public DBMPeriod getPeriod()
     {
         return this.period;
     }
 
-    public DBAvailability getAvailability()
+    @NotNull public DBAvailability getAvailability()
     {
         return this.availability;
+    }
+
+    public void setAvailability(@NotNull final DBAvailability availability) {
+        this.availability = availability;
     }
 }

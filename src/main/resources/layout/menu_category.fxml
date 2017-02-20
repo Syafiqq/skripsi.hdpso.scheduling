@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * This <skripsi.hdpso.scheduling> project in package created by : 
+ * Name         : syafiq
+ * Date / Time  : 01 January 2017, 4:15 PM.
+ * Email        : syafiq.rezpector@gmail.com
+ * Github       : syafiqq
+ -->
+<!--suppress JavaFxDefaultTag -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<HBox spacing="5.0" style="-fx-background-color: #c3c4c4,    linear-gradient(#d6d6d6 50%, white 100%),    radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%); -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );;" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Button fx:id="bSchool" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onSchoolButtonPressed" text="Jadwal">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/settings_32.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="bSubject" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onSubjectButtonPressed" text="Mata Kuliah">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/subject_32.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="bClass" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onClassButtonPressed" text="Kelas">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/class_32.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="bClassroom" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onClassroomButtonPressed" text="Ruangan">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/room_32.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="bLecture" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onLectureButtonPressed" text="Dosen">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/teacher_32.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="bLesson" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onLessonButtonPressed" text="Pelajaran">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/banner_design_128.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Pane HBox.hgrow="ALWAYS" />
+        <Button fx:id="mc_button_generate" alignment="CENTER" contentDisplay="TOP" minWidth="80.0" mnemonicParsing="false" onAction="#onMenuCategoryGenerateClick" text="Generate">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../drawable/preview_define_128.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+</HBox>

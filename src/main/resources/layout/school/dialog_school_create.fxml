@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * This <skripsi.hdpso.scheduling> project in package created by : 
+ * Name         : syafiq
+ * Date / Time  : 15 January 2017, 8:46 PM.
+ * Email        : syafiq.rezpector@gmail.com
+ * Github       : syafiqq
+ -->
+
+<!--suppress ALL -->
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane alignment="center" hgap="20.0" vgap="20.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+    <children>
+        <Label text="Nama" />
+        <Label text="Nama Pendek" GridPane.rowIndex="1" />
+        <Label text="Alamat" GridPane.rowIndex="2" />
+        <Label text="Tahun Ajaran" GridPane.rowIndex="3" />
+        <Label text="Semester" GridPane.rowIndex="4" />
+        <Label text="Jumlah Hari Aktif" GridPane.rowIndex="5" />
+        <Label text="Jumlah Periode Aktif" GridPane.rowIndex="6" />
+        <TextField fx:id="name" GridPane.columnIndex="1">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <TextField fx:id="nick" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <TextField fx:id="address" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <TextField fx:id="academicYear" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <TextField fx:id="activeDay" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <TextField fx:id="activePeriod" GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </TextField>
+        <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+            <children>
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onCreateTimetablePressed" text="Buat Baru" />
+            </children>
+        </HBox>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelCreatePressed" text="Tutup" GridPane.rowIndex="7" />
+        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <children>
+                <RadioButton mnemonicParsing="false" selected="true" text="Ganjil">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="semesterGroup" />
+                    </toggleGroup>
+                </RadioButton>
+                <RadioButton mnemonicParsing="false" text="Genap" toggleGroup="$semesterGroup" />
+            </children>
+        </VBox>
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</GridPane>

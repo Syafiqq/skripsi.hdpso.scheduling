@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This <skripsi.hdpso.scheduling> project created by : 
+  Name         : Muhammad Syafiq
+  Date / Time  : 21 January 2017, 1:40 PM.
+  Email        : syafiq.rezpector@gmail.com
+  Github       : syafiqq
+-->
+<!--suppress JavaFxDefaultTag -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane alignment="center" hgap="20.0" vgap="20.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+    </rowConstraints>
+    <children>
+        <Label text="Nama" />
+        <Label text="Nama Pendek" GridPane.rowIndex="1" />
+        <HBox minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <children>
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onPeriodEditSavePressed" text="Simpan" />
+            </children>
+        </HBox>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#onPeriodEditClosePressed" text="Tutup" GridPane.rowIndex="6" />
+        <TextField fx:id="tfName" GridPane.columnIndex="1" />
+        <TextField fx:id="tfNickname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Label text="Mulai" GridPane.rowIndex="2" />
+      <Label text="Berakhir" GridPane.rowIndex="4" />
+      <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <columnConstraints>
+          <ColumnConstraints />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Jam" />
+            <Label text="Menit" GridPane.rowIndex="1" />
+            <Slider fx:id="slStartHour" blockIncrement="1.0" max="23.0" GridPane.columnIndex="1" />
+             <Slider fx:id="slStartMinute" blockIncrement="1.0" max="59.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+        <Label fx:id="lStart" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+        <Label fx:id="lEnd" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <columnConstraints>
+                <ColumnConstraints />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Jam" />
+                <Label text="Menit" GridPane.rowIndex="1" />
+                <Slider fx:id="slEndHour" blockIncrement="1.0" max="23.0" GridPane.columnIndex="1" />
+            <Slider fx:id="slEndMinute" blockIncrement="1.0" max="59.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</GridPane>

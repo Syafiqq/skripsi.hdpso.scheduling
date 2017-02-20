@@ -1,14 +1,15 @@
 package model.database.loader;
 
-import java.util.Arrays;
-import model.database.component.DBClassroom;
 import model.database.component.DBLesson;
 import model.database.component.DBLessonGroup;
 import model.database.component.DBSchool;
+import model.database.component.metadata.DBMClassroom;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.loader> created by : 
@@ -37,7 +38,7 @@ import org.junit.Test;
     {
         for(@NotNull final DBLessonGroup i : this.loader.getLessonGroup())
         {
-            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBMClassroom::getId).toArray()));
             System.out.println("\t" + Arrays.toString(i.getLessons().stream().mapToInt(DBLesson::getId).toArray()));
         }
     }
@@ -46,7 +47,7 @@ import org.junit.Test;
     {
         for(@NotNull final DBLessonGroup i : this.loader.getLessonGroup())
         {
-            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBClassroom::getId).toArray()));
+            System.out.println(Arrays.toString(i.getClassrooms().stream().mapToInt(DBMClassroom::getId).toArray()));
         }
     }
 }

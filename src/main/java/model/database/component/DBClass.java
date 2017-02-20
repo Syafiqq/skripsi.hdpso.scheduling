@@ -2,6 +2,8 @@ package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import model.database.component.metadata.DBMClass;
+import model.database.component.metadata.DBMSchool;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,37 +14,19 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBClass
+@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBClass extends DBMClass
 {
-    private final          int                id;
-    @NotNull private final DBSchool           school;
-    private                String             name;
+    @NotNull private final DBMSchool school;
     @NotNull private       DBTimeOffContainer timeoff;
 
-    public DBClass(int id, String name, @NotNull DBSchool school)
+    public DBClass(int id, String name, @NotNull DBMSchool school)
     {
-        this.id = id;
-        this.name = name;
+        super(id, name);
         this.school = school;
         this.timeoff = DBClass.TimeOffContainer.generateNew(this, this.school);
     }
 
-    public int getId()
-    {
-        return this.id;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    @NotNull public DBSchool getSchool()
+    @NotNull public DBMSchool getSchool()
     {
         return this.school;
     }
@@ -66,14 +50,14 @@ import org.jetbrains.annotations.NotNull;
                 .toString();
     }
 
-    @SuppressWarnings(value = {"WeakerAccess", "unused"}) public static class TimeOffContainer extends DBTimeOffContainer<DBClass>
+    @SuppressWarnings(value = {"WeakerAccess", "unused"}) public static class TimeOffContainer extends DBTimeOffContainer<DBMClass>
     {
-        protected TimeOffContainer(@NotNull DBClass domain, @NotNull ObjectList<ObjectList<DBTimeOff>> availabilities)
+        protected TimeOffContainer(@NotNull DBMClass domain, @NotNull ObjectList<ObjectList<DBTimeOff>> availabilities)
         {
             super(domain, availabilities);
         }
 
-        public static TimeOffContainer generateNew(@NotNull DBClass domain, @NotNull DBSchool school)
+        public static TimeOffContainer generateNew(@NotNull DBMClass domain, @NotNull DBMSchool school)
         {
             final ObjectList<ObjectList<DBTimeOff>> availabilities = new ObjectArrayList<>(school.getActiveDay());
             for(int day_index = -1, day_size = school.getActiveDay(), period_size = school.getActivePeriod(); ++day_index < day_size; )

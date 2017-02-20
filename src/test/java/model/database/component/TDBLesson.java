@@ -1,9 +1,11 @@
 package model.database.component;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Collections;
+import model.database.component.metadata.DBMClassroom;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Collections;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.component> created by : 
@@ -41,7 +43,7 @@ public class TDBLesson
         Assert.assertNotNull(classroom_2);
 
         final DBLesson                lesson     = new DBLesson(1, subject, 3, 1, lecture, klass, 2);
-        final ObjectList<DBClassroom> classrooms = lesson.getClassrooms();
+        final ObjectList<DBMClassroom> classrooms = lesson.getClassrooms();
         Collections.addAll(classrooms, classroom_1, classroom_2);
 
         Assert.assertNotNull(lesson);
@@ -74,7 +76,7 @@ public class TDBLesson
         Assert.assertNotNull(classroom_2);
 
         final DBLesson                lesson     = new DBLesson(1, subject, 3, 1, null, klass, 2);
-        final ObjectList<DBClassroom> classrooms = lesson.getClassrooms();
+        final ObjectList<DBMClassroom> classrooms = lesson.getClassrooms();
         Collections.addAll(classrooms, classroom_1, classroom_2);
 
         Assert.assertNotNull(lesson);

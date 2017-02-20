@@ -1,31 +1,9 @@
 package model.dataset.loader;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrays;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
-import it.unimi.dsi.fastutil.objects.ObjectArrays;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.concurrent.ThreadLocalRandom;
-import model.database.component.DBAvailability;
-import model.database.component.DBClass;
-import model.database.component.DBClassroom;
-import model.database.component.DBDay;
-import model.database.component.DBLecture;
-import model.database.component.DBLesson;
-import model.database.component.DBLessonCluster;
-import model.database.component.DBLessonGroup;
-import model.database.component.DBPeriod;
-import model.database.component.DBSubject;
-import model.database.component.DBTimeOff;
+import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.*;
+import model.database.component.*;
+import model.database.component.metadata.DBMClassroom;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
@@ -35,6 +13,10 @@ import model.dataset.core.Dataset;
 import model.dataset.core.DatasetConverter;
 import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.ThreadLocalRandom;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.dataset.loader> created by : 
@@ -299,7 +281,7 @@ import org.jetbrains.annotations.NotNull;
             final @NotNull int[] classrooms = new int[tmp_lesson_group.getClassroomSize()];
 
             int data_counter = -1;
-            for(DBClassroom classroom : tmp_lesson_group.getClassrooms())
+            for(DBMClassroom classroom : tmp_lesson_group.getClassrooms())
             {
                 classrooms[++data_counter] = classroom_encoder.get(classroom.getId());
             }
@@ -375,7 +357,7 @@ import org.jetbrains.annotations.NotNull;
             @NotNull final Int2IntMap tmp_classroom_encoder = new Int2IntLinkedOpenHashMap(tmp_classrooms.length);
             @NotNull final Int2IntMap tmp_classroom_decoder = new Int2IntLinkedOpenHashMap(tmp_classrooms.length);
             c_data = -1;
-            for(final @NotNull DBClassroom db_classroom : tmp_lesson_cluster.getClassrooms())
+            for(final @NotNull DBMClassroom db_classroom : tmp_lesson_cluster.getClassrooms())
             {
                 final int encoded_classroom = classroom_encoder.get(db_classroom.getId());
                 tmp_classroom_encoder.put(encoded_classroom, ++c_data);

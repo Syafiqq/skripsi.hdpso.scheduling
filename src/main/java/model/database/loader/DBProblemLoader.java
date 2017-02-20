@@ -13,26 +13,30 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import model.database.component.DBAvailability;
 import model.database.component.DBClass;
 import model.database.component.DBClassroom;
+import model.database.component.DBConstraint;
 import model.database.component.DBDay;
 import model.database.component.DBLecture;
 import model.database.component.DBLesson;
 import model.database.component.DBLessonCluster;
 import model.database.component.DBLessonGroup;
+import model.database.component.DBParameter;
 import model.database.component.DBPeriod;
 import model.database.component.DBSchool;
 import model.database.component.DBSubject;
 import model.database.component.DBTimeOff;
+import model.database.component.metadata.DBMClassroom;
 import model.database.core.DBComponent;
+import model.database.core.DBType;
+import model.method.pso.hdpso.component.Setting;
+import model.util.Converter;
 import org.apache.commons.math3.util.FastMath;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"WeakerAccess", "unused"}) public class DBProblemLoader extends DBComponent
+@SuppressWarnings({"WeakerAccess", "unused", "FieldCanBeLocal"}) public class DBProblemLoader extends DBComponent
 {
     private DBSchool                      school;
     private Int2ObjectMap<DBDay>          days;
@@ -61,6 +65,8 @@ import org.jetbrains.annotations.NotNull;
     private IntList                       operating_subject;
     private IntList                       operating_classroom;
     private IntList                       operating_class;
+    private DBParameter                   parameter;
+    private DBConstraint                  constraint;
     private int                           complex_lesson_size;
     private int                           total_registered_time;
     private int                           operating_classroom_allowed_lesson;
@@ -72,25 +78,12 @@ import org.jetbrains.annotations.NotNull;
 
     @Override public void activateDatabase()
     {
-        final URL db = ClassLoader.getSystemClassLoader().getResource("db/db.mcrypt");
-        if(db != null)
+        if (Setting.defaultDB != null)
         {
-            final String dbUrl;
             try
             {
-                dbUrl = java.net.URLDecoder.decode("jdbc:sqlite:" + db.getPath(), "UTF-8");
-            }
-            catch(UnsupportedEncodingException ignored)
-            {
-                System.err.println("Error Parse DB");
-                System.exit(-1);
-                return;
-            }
-            try
-            {
-                super.connection = DriverManager.getConnection(dbUrl);
-            }
-            catch(SQLException ignored)
+                super.connection = DriverManager.getConnection(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            } catch (SQLException | UnsupportedEncodingException ignored)
             {
                 System.err.println("Error Activating Database");
                 System.exit(-1);
@@ -654,7 +647,7 @@ import org.jetbrains.annotations.NotNull;
             result_set = super.result_set;
 
             int                     lesson_index        = -1;
-            ObjectList<DBClassroom> available_classroom = null;
+            ObjectList<DBMClassroom> available_classroom = null;
             while(result_set.next())
             {
                 if(lesson_index != result_set.getInt("id"))
@@ -684,6 +677,8 @@ import org.jetbrains.annotations.NotNull;
         this.generateSchoolTimeDistribution();
         this.generateLessonGroup();
         this.generateLessonCluster();
+        this.generateParameter();
+        this.generateConstraint();
     }
 
     private void generateOperatingClassroom()
@@ -860,13 +855,13 @@ import org.jetbrains.annotations.NotNull;
     private void generateLessonGroup()
     {
         final ObjectIterator<DBLesson>                                 lessons       = this.lessons.values().iterator();
-        final Object2ObjectMap<ObjectList<DBClassroom>, DBLessonGroup> lesson_groups = new Object2ObjectLinkedOpenHashMap<>();
+        final Object2ObjectMap<ObjectList<DBMClassroom>, DBLessonGroup> lesson_groups = new Object2ObjectLinkedOpenHashMap<>();
         final int                                                      lesson_size   = this.lessons.size();
 
         while(lessons.hasNext())
         {
             final DBLesson                dbLesson       = lessons.next();
-            final ObjectList<DBClassroom> classroom_list = dbLesson.getClassrooms();
+            final ObjectList<DBMClassroom> classroom_list = dbLesson.getClassrooms();
             if(!lesson_groups.containsKey(classroom_list))
             {
                 lesson_groups.put(classroom_list, new DBLessonGroup(classroom_list, lesson_size));
@@ -875,7 +870,7 @@ import org.jetbrains.annotations.NotNull;
         }
 
         List<DBLessonGroup> sorted_lesson_group = new ArrayList<>(lesson_groups.values());
-        Collections.sort(sorted_lesson_group, (les_group_1, les_group_2) -> (int) FastMath.signum(les_group_1.getClassroomSize() - les_group_2.getClassroomSize()));
+        sorted_lesson_group.sort((les_group_1, les_group_2) -> (int) FastMath.signum(les_group_1.getClassroomSize() - les_group_2.getClassroomSize()));
 
         this.lesson_group = new ObjectArrayList<>(sorted_lesson_group);
     }
@@ -896,6 +891,95 @@ import org.jetbrains.annotations.NotNull;
                 }
             }
             lesson_cluster.add(new DBLessonCluster(lesson_set));
+        }
+    }
+
+    private void generateParameter()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            /*
+             * Get Paramater
+             * */
+            String query = "SELECT `id`, `glob_min`, `glob_max`, `bloc_min`, `bloc_max`, `brand_min`, `brand_max`, `iteration`, `particle`, `processor`, `method`, `is_multiprocess`, `school` FROM `param_setting` WHERE `school` = ? LIMIT 1";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+
+            final ResultSet result_set = super.result_set;
+            int             counter    = -1;
+            while(result_set.next())
+            {
+                this.parameter = new DBParameter(
+                        result_set.getInt("id"),
+                        this.school,
+                        result_set.getDouble("glob_min"),
+                        result_set.getDouble("glob_max"),
+                        result_set.getDouble("bloc_min"),
+                        result_set.getDouble("bloc_max"),
+                        result_set.getDouble("brand_min"),
+                        result_set.getDouble("brand_max"),
+                        result_set.getInt("iteration"),
+                        result_set.getInt("particle"),
+                        result_set.getInt("processor"),
+                        Setting.getVelocity(result_set.getInt("method")),
+                        result_set.getInt("is_multiprocess") != 0
+                );
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Parameter");
+            System.exit(-1);
+        }
+    }
+
+    private void generateConstraint()
+    {
+        try
+        {
+            final int school = this.school.getId();
+
+            /*
+             * Get Paramater
+             * */
+            String query = "SELECT `id`, `subject`, `issubject`, `lecture`, `islecture`, `klass`, `isklass`, `classroom`, `isclassroom`, `lplacement`, `islplacement`, `cplacement`, `iscplacement`, `link`, `islink`, `allow`, `isallow`, `school` FROM `constraint_setting` WHERE `school` = ? LIMIT 1";
+            super.statement = super.connection.prepareStatement(query);
+            super.statement.setInt(1, school);
+            super.result_set = super.statement.executeQuery();
+
+            final ResultSet result_set = super.result_set;
+            int             counter    = -1;
+            while(result_set.next())
+            {
+                constraint = new DBConstraint(
+                        result_set.getInt("id"),
+                        this.school,
+                        result_set.getDouble("subject"),
+                        result_set.getDouble("lecture"),
+                        result_set.getDouble("klass"),
+                        result_set.getDouble("classroom"),
+                        result_set.getDouble("lplacement"),
+                        result_set.getDouble("cplacement"),
+                        result_set.getDouble("link"),
+                        result_set.getDouble("allow"),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("issubject")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("islecture")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("isklass")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("isclassroom")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("islplacement")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("iscplacement")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("islink")),
+                        Converter.booleanIntegerToBoolean(result_set.getInt("isallow"))
+                );
+            }
+        }
+        catch(SQLException ignored)
+        {
+            System.err.println("Generate Time Distribution");
+            System.exit(-1);
         }
     }
 
@@ -1031,4 +1115,48 @@ import org.jetbrains.annotations.NotNull;
         return this.operating_classroom_allowed_lesson;
     }
 
+    public int getClassroomSize()
+    {
+        return this.classrooms.size();
+    }
+
+    public int getDaySize()
+    {
+        return this.days.size();
+    }
+
+    public DBClassroom getClassroom(final int classroom)
+    {
+        return this.classrooms.get(classroom);
+    }
+
+    public int getLessonSize()
+    {
+        return this.lessons.size();
+    }
+
+    public int getLectureSize()
+    {
+        return this.lecturers.size();
+    }
+
+    public int getClassSize()
+    {
+        return this.classes.size();
+    }
+
+    public int getSubjectSize()
+    {
+        return this.subjects.size();
+    }
+
+    public DBParameter getParameter()
+    {
+        return this.parameter;
+    }
+
+    public DBConstraint getConstraint()
+    {
+        return this.constraint;
+    }
 }
