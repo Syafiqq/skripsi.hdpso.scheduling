@@ -2,7 +2,7 @@ package model.method.pso.hdpso.component;
 
 import java.util.Comparator;
 import java.util.Random;
-import model.custom.java.util.ParticleObserver;
+import model.custom.java.util.ValueObserver;
 import model.dataset.component.DSScheduleShufflingProperty;
 import model.method.pso.hdpso.core.ScheduleRandomable;
 import model.method.pso.hdpso.core.VelocityCalculator;
@@ -29,8 +29,7 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final VelocityCalculator movement_coefficient;
     private final          int                window_size;
 
-    @NotNull private ParticleObserver particleFitness;
-    @NotNull private ParticleObserver particlePBestFitness;
+    @NotNull private ValueObserver fitnessObserver;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
@@ -60,10 +59,7 @@ import org.jetbrains.annotations.NotNull;
         this.window_size = this.setting.getWindowSize();
         this.movement_coefficient = this.setting.getCalculator();
 
-        this.particleFitness = val ->
-        {
-        };
-        this.particlePBestFitness = val ->
+        this.fitnessObserver = val ->
         {
         };
     }
@@ -74,7 +70,6 @@ import org.jetbrains.annotations.NotNull;
         {
             Data.replaceData(super.pBest, super.data);
         }
-        this.particlePBestFitness.update(super.pBest.getFitness());
     }
 
     public void calculateVelocity(Data gBest, int cEpoch, int max_epoch)
@@ -170,7 +165,7 @@ import org.jetbrains.annotations.NotNull;
     public void setFitness(double fitness)
     {
         this.data.setFitness(fitness);
-        this.particleFitness.update(fitness);
+        this.fitnessObserver.update(fitness);
     }
 
     public @NotNull RepairProperty[] getRepairProperties()
@@ -188,13 +183,13 @@ import org.jetbrains.annotations.NotNull;
         return this.random;
     }
 
-    public void setParticleFitness(@NotNull ParticleObserver particleFitness)
+    public void setFitnessObserver(@NotNull ValueObserver fitnessObserver)
     {
-        this.particleFitness = particleFitness;
+        this.fitnessObserver = fitnessObserver;
     }
 
-    public void setParticlePBestFitness(@NotNull ParticleObserver particlePBestFitness)
+    public void callFitnessObserver(int epoch)
     {
-        this.particlePBestFitness = particlePBestFitness;
+        this.fitnessObserver.update(epoch, this.pBest.getFitness(), this.getFitness());
     }
 }
