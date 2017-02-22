@@ -200,6 +200,7 @@ import org.jetbrains.annotations.Nullable;
                     particle.calculateVelocity(PSO.super.getGBest(), PSO.super.getEpoch(), setting.getMaxEpoch());
                     particle.updateData();
                     PSO.this.repair(particle);
+                    PSO.this.compress(particle);
                     PSO.this.calculate(particle);
                 });
             }
@@ -222,6 +223,7 @@ import org.jetbrains.annotations.Nullable;
                 particle.calculateVelocity(super.getGBest(), super.getEpoch(), setting.getMaxEpoch());
                 particle.updateData();
                 this.repair(particle);
+                this.compress(particle);
                 this.calculate(particle);
             }
         }
@@ -1544,6 +1546,214 @@ import org.jetbrains.annotations.Nullable;
             * Fail to arrange lesson id
             * */
             return false;
+        }
+    }
+
+    @SuppressWarnings({"Duplicates", "ConstantConditions"}) public void compress(@NotNull final Particle particle)
+    {
+        /*
+        * Initialize cluster index
+        * Initialize active days
+        * */
+        int                  i_cluster       = -1;
+        @NotNull final int[] active_days     = this.active_days;
+        final int            active_day_size = active_days.length;
+
+        /*
+        * Search all position cluster
+        * */
+        cluster:
+        for(@NotNull final DSLessonCluster lesson_cluster : this.lesson_cluster)
+        {
+            /*
+            * increment cluster index
+            * */
+            ++i_cluster;
+
+            /*
+            * try to repair
+            * */
+            try
+            {
+                /*
+                * Initialize lesson id
+                * Initialize repair property
+                * */
+                @NotNull final int[]          lesson_id       = particle.getData().getPosition(i_cluster).getPosition();
+                @NotNull final RepairProperty repair_property = particle.getRepairProperty(i_cluster);
+                @NotNull final boolean[][]    rp_absent       = repair_property.getAbsent();
+                final int                     rp_absent_size  = rp_absent.length;
+
+                /*
+                * Initialize lesson counter
+                * Initialize Lesson according to lesson_id index lesson_counter
+                * */
+                int                c_lesson    = -1;
+                @Nullable DSLesson lesson      = this.lessons[lesson_id[++c_lesson]];
+                int                lesson_time = lesson == null ? 1 : lesson.getSks();
+
+                /*
+                * For all classroom in current lesson pool
+                * */
+                for(final int classroom : lesson_cluster.getClassrooms())
+                {
+                    /*
+                    * For all operational day in current classroom
+                    * */
+                    for(final int day : this.active_days)
+                    {
+                        /*
+                        * Initialize classroom clustered time from current classroom and day
+                        * Initialize current sks
+                        * */
+                        @NotNull final int[] clustered_time = lesson_cluster.getClassroomClusteredTime(classroom, day);
+                        int                  current_time   = 0;
+
+                        /*
+                        * For all time cluster in current day
+                        * */
+                        for(int c_cluster = 1, time_cluster = clustered_time[c_cluster], cs_cluster = clustered_time.length; c_cluster < cs_cluster; )
+                        {
+                            /*
+                            * Check whether current lesson is null
+                            * */
+                            if(lesson == null)
+                            {
+                                final int future_time = current_time + lesson_time;
+                                /*
+                                 * Check whether incoming sks + current sks LESS than cluster capacity
+                                 * */
+                                if(future_time < time_cluster)
+                                {
+                                    /*
+                                    * Append current lesson
+                                    * Shift to next lesson
+                                    * */
+                                    current_time += lesson_time;
+                                    lesson = this.lessons[lesson_id[++c_lesson]];
+                                    lesson_time = lesson == null ? 1 : lesson.getSks();
+                                }
+
+                                /*
+                                 * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
+                                 * */
+                                else if(future_time == time_cluster)
+                                {
+                                    /*
+                                    * Try to shift next lesson
+                                    * */
+                                    if(++c_lesson < lesson_id.length)
+                                    {
+                                        lesson = this.lessons[lesson_id[c_lesson]];
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
+                                    }
+                                    else
+                                    {
+                                        continue cluster;
+                                    }
+
+                                    /*
+                                    * shift time cluster index
+                                    * set current time to zero
+                                    * */
+                                    ++c_cluster;
+                                    current_time = 0;
+
+                                    /*
+                                    * Try to shift time cluster
+                                    * */
+                                    time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
+                                }
+                                else
+                                {
+                                    System.out.println("Broken");
+                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                    continue cluster;
+                                }
+                            }
+                            /*
+                            * Check whether current lesson is not null (active lesson)
+                            * */
+                            else
+                            {
+                                /*
+                                * Check whether current lesson is allowed in current classroom
+                                * */
+                                if(lesson.isLessonAllowed(classroom))
+                                {
+                                    final int future_time = current_time + lesson_time;
+                                    /*
+                                     * Check whether incoming sks + current sks LESS than cluster capacity
+                                     * */
+                                    if(future_time < time_cluster)
+                                    {
+                                        /*
+                                        * Append current lesson
+                                        * Shift to next lesson
+                                        * */
+                                        current_time += lesson_time;
+                                        lesson = this.lessons[lesson_id[++c_lesson]];
+                                        lesson_time = lesson == null ? 1 : lesson.getSks();
+                                    }
+
+                                    /*
+                                     * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
+                                     * */
+                                    else if(future_time == time_cluster)
+                                    {
+                                        if(++c_lesson < lesson_id.length)
+                                        {
+                                            lesson = this.lessons[lesson_id[c_lesson]];
+                                            lesson_time = lesson == null ? 1 : lesson.getSks();
+                                        }
+                                        else
+                                        {
+                                            continue cluster;
+                                        }
+
+                                        /*
+                                        * shift time cluster index
+                                        * set current time to zero
+                                        * */
+                                        ++c_cluster;
+                                        current_time = 0;
+
+                                        /*
+                                        * Try to shift time cluster
+                                        * */
+
+                                        time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
+                                    }
+                                    /*
+                                    * Fix Feature is incomplete
+                                    * */
+                                    else
+                                    {
+                                        System.out.println("Broken");
+                                        this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                        Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                        continue cluster;
+                                    }
+                                }
+                                else
+                                {
+                                    System.out.println("Broken");
+                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+                                    continue cluster;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ignored)
+            {
+                System.out.println("Broken");
+                this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
+                Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
+            }
         }
     }
 

@@ -382,6 +382,7 @@ public class CMCategory implements Initializable
                     pso.assignGBest();
                     Data.replaceData(pso.getParticle(0).getData(), pso.getGBest());
                     pso.repair(pso.getParticle(0));
+                    pso.compress(pso.getParticle(0));
                     pso.calculate(pso.getParticle(0));
                     @NotNull final Observer webContent = (o, arg) ->
                     {
