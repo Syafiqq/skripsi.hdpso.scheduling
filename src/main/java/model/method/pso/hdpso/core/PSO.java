@@ -1562,7 +1562,6 @@ import org.jetbrains.annotations.Nullable;
         /*
         * Search all position cluster
         * */
-        cluster:
         for(@NotNull final DSLessonCluster lesson_cluster : this.lesson_cluster)
         {
             /*
@@ -1607,146 +1606,37 @@ import org.jetbrains.annotations.Nullable;
                         * Initialize current sks
                         * */
                         @NotNull final int[] clustered_time = lesson_cluster.getClassroomClusteredTime(classroom, day);
-                        int                  current_time   = 0;
+                        int                  current_time   = 0, lookup_start, lookup_end;
 
                         /*
-                        * For all time cluster in current day
-                        * */
-                        for(int c_cluster = 1, time_cluster = clustered_time[c_cluster], cs_cluster = clustered_time.length; c_cluster < cs_cluster; )
+                         * Check if current classroom and the day after is already observed for lookup_end
+                         * */
+                        if((day + 1) < active_day_size)
                         {
-                            /*
-                            * Check whether current lesson is null
-                            * */
-                            if(lesson == null)
-                            {
-                                final int future_time = current_time + lesson_time;
-                                /*
-                                 * Check whether incoming sks + current sks LESS than cluster capacity
-                                 * */
-                                if(future_time < time_cluster)
-                                {
-                                    /*
-                                    * Append current lesson
-                                    * Shift to next lesson
-                                    * */
-                                    current_time += lesson_time;
-                                    lesson = this.lessons[lesson_id[++c_lesson]];
-                                    lesson_time = lesson == null ? 1 : lesson.getSks();
-                                }
-
-                                /*
-                                 * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
-                                 * */
-                                else if(future_time == time_cluster)
-                                {
-                                    /*
-                                    * Try to shift next lesson
-                                    * */
-                                    if(++c_lesson < lesson_id.length)
-                                    {
-                                        lesson = this.lessons[lesson_id[c_lesson]];
-                                        lesson_time = lesson == null ? 1 : lesson.getSks();
-                                    }
-                                    else
-                                    {
-                                        continue cluster;
-                                    }
-
-                                    /*
-                                    * shift time cluster index
-                                    * set current time to zero
-                                    * */
-                                    ++c_cluster;
-                                    current_time = 0;
-
-                                    /*
-                                    * Try to shift time cluster
-                                    * */
-                                    time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
-                                }
-                                else
-                                {
-                                    System.out.println("Broken");
-                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
-                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
-                                    continue cluster;
-                                }
-                            }
-                            /*
-                            * Check whether current lesson is not null (active lesson)
-                            * */
-                            else
-                            {
-                                /*
-                                * Check whether current lesson is allowed in current classroom
-                                * */
-                                if(lesson.isLessonAllowed(classroom))
-                                {
-                                    final int future_time = current_time + lesson_time;
-                                    /*
-                                     * Check whether incoming sks + current sks LESS than cluster capacity
-                                     * */
-                                    if(future_time < time_cluster)
-                                    {
-                                        /*
-                                        * Append current lesson
-                                        * Shift to next lesson
-                                        * */
-                                        current_time += lesson_time;
-                                        lesson = this.lessons[lesson_id[++c_lesson]];
-                                        lesson_time = lesson == null ? 1 : lesson.getSks();
-                                    }
-
-                                    /*
-                                     * Check whether incoming sks + current sks equals sks cluster capacity so we change cluster time after that
-                                     * */
-                                    else if(future_time == time_cluster)
-                                    {
-                                        if(++c_lesson < lesson_id.length)
-                                        {
-                                            lesson = this.lessons[lesson_id[c_lesson]];
-                                            lesson_time = lesson == null ? 1 : lesson.getSks();
-                                        }
-                                        else
-                                        {
-                                            continue cluster;
-                                        }
-
-                                        /*
-                                        * shift time cluster index
-                                        * set current time to zero
-                                        * */
-                                        ++c_cluster;
-                                        current_time = 0;
-
-                                        /*
-                                        * Try to shift time cluster
-                                        * */
-
-                                        time_cluster = (c_cluster < clustered_time.length ? clustered_time[c_cluster] : time_cluster);
-                                    }
-                                    /*
-                                    * Fix Feature is incomplete
-                                    * */
-                                    else
-                                    {
-                                        System.out.println("Broken");
-                                        this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
-                                        Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
-                                        continue cluster;
-                                    }
-                                }
-                                else
-                                {
-                                    System.out.println("Broken");
-                                    this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
-                                    Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
-                                    continue cluster;
-                                }
-                            }
+                            lookup_start = repair_property.getPosition(classroom, day) - 1;
+                            lookup_end = repair_property.getPosition(classroom, day + 1);
                         }
+                        /*
+                         * Check if current day and the classroom after is already observed for lookup_end
+                         * */
+                        else if((classroom + 1) < rp_absent_size)
+                        {
+                            lookup_start = repair_property.getPosition(classroom, day) - 1;
+                            lookup_end = repair_property.getPosition(classroom + 1, 0);
+                        }
+                        /*
+                         * Assign lookup_end in the end of lesson_id list
+                         * */
+                        else
+                        {
+                            lookup_start = repair_property.getPosition(classroom, day) - 1;
+                            lookup_end = lesson_id.length;
+                        }
+                        System.out.printf("[%4d, %4d] ", lookup_start, lookup_end);
                     }
+                    System.out.println();
                 }
+                System.out.println();
             }
             catch(Exception ignored)
             {
