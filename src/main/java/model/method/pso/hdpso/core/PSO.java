@@ -1555,9 +1555,10 @@ import org.jetbrains.annotations.Nullable;
         * Initialize cluster index
         * Initialize active days
         * */
-        int                  i_cluster       = -1;
-        @NotNull final int[] active_days     = this.active_days;
-        final int            active_day_size = active_days.length;
+        int                  i_cluster         = -1;
+        @NotNull final int[] active_days       = this.active_days;
+        final int            active_day_size   = active_days.length;
+        @NotNull final int[] time_distribution = particle.getTimeDistribution();
 
         /*
         * Search all position cluster
@@ -1587,9 +1588,10 @@ import org.jetbrains.annotations.Nullable;
                 * Initialize lesson counter
                 * Initialize Lesson according to lesson_id index lesson_counter
                 * */
-                int                c_lesson    = -1;
+/*                int                c_lesson    = -1;
                 @Nullable DSLesson lesson      = this.lessons[lesson_id[++c_lesson]];
-                int                lesson_time = lesson == null ? 1 : lesson.getSks();
+                int                lesson_time = lesson == null ? 1 : lesson.getSks();*/
+                @Nullable DSLesson lesson;
 
                 /*
                 * For all classroom in current lesson pool
@@ -1633,10 +1635,18 @@ import org.jetbrains.annotations.Nullable;
                             lookup_end = lesson_id.length;
                         }
 
-                        int sks = 0;
-                        while(++lookup_start < lookup_end)
+                        int record = lookup_start;
+                        while(++record < lookup_end)
                         {
-                            sks += this.lessons[lesson_id[lookup_start]] == null ? 1 : this.lessons[lesson_id[lookup_start]].getSks();
+                            lesson = this.lessons[lesson_id[record]];
+                            ++time_distribution[lesson == null ? 1 : lesson.getSks()];
+                        }
+                        int sks = 0;
+                        System.out.printf("[%s]", Arrays.toString(time_distribution));
+                        for(int _i = -1, _is = time_distribution.length; ++_i < _is; )
+                        {
+                            sks += (_i * time_distribution[_i]);
+                            time_distribution[_i] = 0;
                         }
                         System.out.printf("%b ", sks == clustered_time[0]);
                     }
