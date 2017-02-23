@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final RepairProperty[]   repair_properties;
     @NotNull private final IntHList[]         lesson_conflicts;
     @NotNull private final VelocityCalculator movement_coefficient;
+    @NotNull private final int[]              time_distribution;
     private final          int                window_size;
 
     @NotNull private ValueObserver fitnessObserver;
@@ -62,6 +63,7 @@ import org.jetbrains.annotations.NotNull;
         this.fitnessObserver = val ->
         {
         };
+        time_distribution = new int[4];
     }
 
     public void assignPBest()
@@ -191,5 +193,10 @@ import org.jetbrains.annotations.NotNull;
     public void callFitnessObserver(int epoch)
     {
         this.fitnessObserver.update(epoch, this.pBest.getFitness(), this.getFitness());
+    }
+
+    @NotNull public int[] getTimeDistribution()
+    {
+        return this.time_distribution;
     }
 }
