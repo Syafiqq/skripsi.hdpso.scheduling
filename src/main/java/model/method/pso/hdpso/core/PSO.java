@@ -1632,7 +1632,13 @@ import org.jetbrains.annotations.Nullable;
                             lookup_start = repair_property.getPosition(classroom, day) - 1;
                             lookup_end = lesson_id.length;
                         }
-                        System.out.printf("[%4d, %4d] ", lookup_start, lookup_end);
+
+                        int sks = 0;
+                        while(++lookup_start < lookup_end)
+                        {
+                            sks += this.lessons[lesson_id[lookup_start]] == null ? 1 : this.lessons[lesson_id[lookup_start]].getSks();
+                        }
+                        System.out.printf("%b ", sks == clustered_time[0]);
                     }
                     System.out.println();
                 }
