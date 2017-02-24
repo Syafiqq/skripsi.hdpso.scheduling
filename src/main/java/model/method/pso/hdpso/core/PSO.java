@@ -1653,17 +1653,14 @@ import org.jetbrains.annotations.Nullable;
                         for(int c_cluster = 0, cs_cluster = clustered_time.length; ++c_cluster < cs_cluster; )
                         {
                             int remaining = clustered_time[c_cluster];
-                            //System.out.printf("%d ", remaining);
                             while(remaining > 0)
                             {
-                                //System.out.println(Arrays.toString(time_distribution));
                                 if(lookup < _lookup_end)
                                 {
                                     lesson = this.lessons[lesson_id[lookup]];
                                     if(lesson == null)
                                     {
                                         int _remaining = time_distribution_size >= remaining ? (remaining + 1) : (time_distribution_size + 1);
-                                        //System.out.println(_remaining);
                                         _lookup:
                                         while(--_remaining > 0)
                                         {
@@ -1693,9 +1690,6 @@ import org.jetbrains.annotations.Nullable;
                                                 break;
                                             }
                                         }
-                                        /*++lookup;
-                                        remaining -= 1;
-                                        --time_distribution[1];*/
                                     }
                                     else
                                     {
@@ -1746,24 +1740,11 @@ import org.jetbrains.annotations.Nullable;
                                 }
                             }
                         }
-                        //System.out.printf("\t%s\t\n", Arrays.toString(time_distribution));
-
-                        /*int sks = 0;
-                        //System.out.printf("[%s]", Arrays.toString(time_distribution));
-                        for(int _i = -1, _is = time_distribution.length; ++_i < _is; )
-                        {
-                            sks += (_i * time_distribution[_i]);
-                            time_distribution[_i] = 0;
-                        }
-                        //System.out.printf("%b ", sks == clustered_time[0]);*/
                     }
-                    //System.out.println();
                 }
-                //System.out.println();
             }
             catch(Exception ignored)
             {
-                System.out.println("Broken");
                 ignored.printStackTrace();
                 this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
                 Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
