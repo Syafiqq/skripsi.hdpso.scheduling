@@ -1554,11 +1554,13 @@ import org.jetbrains.annotations.Nullable;
         /*
         * Initialize cluster index
         * Initialize active days
+        * Initialize time distribution
         * */
-        int                  i_cluster         = -1;
-        @NotNull final int[] active_days       = this.active_days;
-        final int            active_day_size   = active_days.length;
-        @NotNull final int[] time_distribution = particle.getTimeDistribution();
+        int                  i_cluster              = -1;
+        @NotNull final int[] active_days            = this.active_days;
+        final int            active_day_size        = active_days.length;
+        @NotNull final int[] time_distribution      = particle.getTimeDistribution();
+        final int            time_distribution_size = time_distribution.length - 1;
 
         /*
         * Search all position cluster
@@ -1586,11 +1588,7 @@ import org.jetbrains.annotations.Nullable;
 
                 /*
                 * Initialize lesson counter
-                * Initialize Lesson according to lesson_id index lesson_counter
                 * */
-/*                int                c_lesson    = -1;
-                @Nullable DSLesson lesson      = this.lessons[lesson_id[++c_lesson]];
-                int                lesson_time = lesson == null ? 1 : lesson.getSks();*/
                 @Nullable DSLesson lesson;
 
                 /*
@@ -1603,12 +1601,7 @@ import org.jetbrains.annotations.Nullable;
                     * */
                     for(final int day : this.active_days)
                     {
-                        /*
-                        * Initialize classroom clustered time from current classroom and day
-                        * Initialize current sks
-                        * */
-                        @NotNull final int[] clustered_time = lesson_cluster.getClassroomClusteredTime(classroom, day);
-                        int                  current_time   = 0, lookup_start, lookup_end;
+                        int lookup_start, lookup_end;
 
                         /*
                          * Check if current classroom and the day after is already observed for lookup_end
@@ -1635,28 +1628,143 @@ import org.jetbrains.annotations.Nullable;
                             lookup_end = lesson_id.length;
                         }
 
+                        /*
+                        * Begin to record time distribution according to current day and classroom
+                        * */
                         int record = lookup_start;
                         while(++record < lookup_end)
                         {
                             lesson = this.lessons[lesson_id[record]];
                             ++time_distribution[lesson == null ? 1 : lesson.getSks()];
                         }
-                        int sks = 0;
-                        System.out.printf("[%s]", Arrays.toString(time_distribution));
+
+                        /*
+                        * Initialize classroom clustered time from current classroom and day
+                        * Initialize current sks
+                        * */
+                        @NotNull final int[] clustered_time = lesson_cluster.getClassroomClusteredTime(classroom, day);
+                        int                  current_time   = 0;
+
+                        /*
+                        * For all time cluster in current day
+                        * */
+                        int lookup      = lookup_start + 1;
+                        int _lookup_end = lookup_end - 1;
+                        for(int c_cluster = 0, cs_cluster = clustered_time.length; ++c_cluster < cs_cluster; )
+                        {
+                            int remaining = clustered_time[c_cluster];
+                            //System.out.printf("%d ", remaining);
+                            while(remaining > 0)
+                            {
+                                //System.out.println(Arrays.toString(time_distribution));
+                                if(lookup < _lookup_end)
+                                {
+                                    lesson = this.lessons[lesson_id[lookup]];
+                                    if(lesson == null)
+                                    {
+                                        int _remaining = time_distribution_size >= remaining ? (remaining + 1) : (time_distribution_size + 1);
+                                        //System.out.println(_remaining);
+                                        _lookup:
+                                        while(--_remaining > 0)
+                                        {
+                                            if(time_distribution[_remaining] > 0)
+                                            {
+                                                for(int _lookup = lookup; ++_lookup < lookup_end; )
+                                                {
+                                                    @Nullable final DSLesson _lesson      = this.lessons[lesson_id[_lookup]];
+                                                    final int                _lesson_size = _lesson == null ? 1 : _lesson.getSks();
+                                                    if(_lesson_size == _remaining)
+                                                    {
+                                                        final int tmp_lesson = lesson_id[_lookup];
+                                                        lesson_id[_lookup] = lesson_id[lookup];
+                                                        lesson_id[lookup] = tmp_lesson;
+
+                                                        ++lookup;
+                                                        remaining -= _lesson_size;
+                                                        --time_distribution[_lesson_size];
+
+                                                        break _lookup;
+                                                    }
+                                                }
+
+                                                ++lookup;
+                                                remaining -= 1;
+                                                --time_distribution[1];
+                                                break;
+                                            }
+                                        }
+                                        /*++lookup;
+                                        remaining -= 1;
+                                        --time_distribution[1];*/
+                                    }
+                                    else
+                                    {
+                                        if(lesson.getSks() <= remaining)
+                                        {
+                                            remaining -= lesson.getSks();
+                                            --time_distribution[lesson.getSks()];
+                                            ++lookup;
+                                        }
+                                        else
+                                        {
+                                            int _remaining = remaining + 1;
+                                            _lookup:
+                                            while(--_remaining > 0)
+                                            {
+                                                if(time_distribution[_remaining] > 0)
+                                                {
+                                                    for(int _lookup = lookup; ++_lookup < lookup_end; )
+                                                    {
+                                                        @Nullable final DSLesson _lesson      = this.lessons[lesson_id[_lookup]];
+                                                        final int                _lesson_size = _lesson == null ? 1 : _lesson.getSks();
+                                                        if(_lesson_size == _remaining)
+                                                        {
+                                                            final int tmp_lesson = lesson_id[_lookup];
+                                                            lesson_id[_lookup] = lesson_id[lookup];
+                                                            lesson_id[lookup] = tmp_lesson;
+
+                                                            ++lookup;
+                                                            remaining -= _lesson_size;
+                                                            --time_distribution[_lesson_size];
+
+                                                            break _lookup;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    lesson = this.lessons[lesson_id[_lookup_end]];
+                                    final int lesson_size = lesson == null ? 1 : lesson.getSks();
+
+                                    ++lookup;
+                                    remaining -= lesson_size;
+                                    --time_distribution[lesson_size];
+                                }
+                            }
+                        }
+                        //System.out.printf("\t%s\t\n", Arrays.toString(time_distribution));
+
+                        /*int sks = 0;
+                        //System.out.printf("[%s]", Arrays.toString(time_distribution));
                         for(int _i = -1, _is = time_distribution.length; ++_i < _is; )
                         {
                             sks += (_i * time_distribution[_i]);
                             time_distribution[_i] = 0;
                         }
-                        System.out.printf("%b ", sks == clustered_time[0]);
+                        //System.out.printf("%b ", sks == clustered_time[0]);*/
                     }
-                    System.out.println();
+                    //System.out.println();
                 }
-                System.out.println();
+                //System.out.println();
             }
             catch(Exception ignored)
             {
                 System.out.println("Broken");
+                ignored.printStackTrace();
                 this.random(particle.getVelocityProperty().getPRandProperty(), particle.getVelocityProperty().getPRand(), i_cluster);
                 Position.replace(particle.getData().getPosition(i_cluster), particle.getVelocityProperty().getPRand(i_cluster));
             }
