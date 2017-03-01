@@ -85,83 +85,12 @@ import org.jetbrains.annotations.NotNull;
      */
     public static void addition(final Velocity destination, final Velocity source)
     {
-        final Transposition[] vel_destination  = destination.list;
-        final Transposition[] vel_source       = source.list;
         final int             size_destination = destination.size();
         final int             size_source      = source.size();
 
-        /*
-        * @param vel_destination = ABC_______
-        * @param vel_source      = ACDEF_____
-        */
-        if(size_destination <= size_source)
+        for(int counter_destination = size_destination - 1, counter_lookup = -1; ++counter_lookup < size_source; )
         {
-            /*
-            * @param vel_destination = ABC_______
-            * @param vel_source      = ACDEF_____
-            *
-            * Rearrange destination first;
-            * @param vel_destination = a_b_c_____
-            * */
-            for(int counter_destination = size_destination * 2, counter_lookup = size_destination, separation_length = size_destination - 1; --separation_length >= 0; )
-            {
-                vel_destination[counter_destination -= 2].set(vel_destination[--counter_lookup]);
-            }
-
-            /*
-            * Fill blank then
-            * @param vel_destination = AaBcCd____
-            * */
-            for(int counter_destination = -1, counter_lookup = -1, insertion_length = size_destination; --insertion_length >= 0; )
-            {
-                vel_destination[counter_destination += 2].set(vel_source[++counter_lookup]);
-            }
-
-            /*
-            * Put Remaining source
-            * @param vel_destination = AABCDgh__
-            * */
-            for(int counter_destination = size_destination * 2 - 1, counter_lookup = size_destination - 1, remaining_length = size_source - size_destination; --remaining_length >= 0; )
-            {
-                vel_destination[++counter_destination].set(vel_source[++counter_lookup]);
-            }
-        }
-
-        /*
-        * @param vel_source      = ACDEF_____
-        * @param vel_destination = ADC_______
-        */
-        else
-        {
-            /*
-            * @param vel_source      = ACDEF_____
-            * @param vel_destination = ADC_______
-            *
-            * Rearrange destination last first;
-            * @param vel_destination = ACD___ef__
-            * */
-            for(int counter_destination = size_source + size_destination, counter_lookup = size_destination, remaining_length = size_destination - size_source; --remaining_length >= 0; )
-            {
-                vel_destination[--counter_destination].set(vel_destination[--counter_lookup]);
-            }
-
-            /*
-            * Rearrange remaining destination
-            * @param vel_destination = a_c_d_EF__
-            * */
-            for(int counter_destination = size_source * 2, counter_lookup = size_source, separation_length = size_source - 1; --separation_length >= 0; )
-            {
-                vel_destination[counter_destination -= 2].set(vel_destination[--counter_lookup]);
-            }
-
-            /*
-            * Last, fill the blank
-            * @param vel_destination = AaCdDcEF__
-            * */
-            for(int counter_destination = -1, counter_lookup = -1, insertion_length = size_source; --insertion_length >= 0; )
-            {
-                vel_destination[counter_destination += 2].set(vel_source[++counter_lookup]);
-            }
+            destination.list[++counter_destination].set(source.list[counter_lookup]);
         }
 
         destination.moveTo(size_destination + size_source);
