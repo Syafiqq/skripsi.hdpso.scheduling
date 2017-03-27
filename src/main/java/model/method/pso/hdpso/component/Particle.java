@@ -29,8 +29,8 @@ import org.jetbrains.annotations.NotNull;
     @NotNull private final VelocityCalculator movement_coefficient;
     @NotNull private final int[]              time_distribution;
     private final          int                window_size;
-
-    @NotNull private ValueObserver fitnessObserver;
+    @NotNull private final Data               storage;
+    @NotNull private       ValueObserver      fitnessObserver;
 
     public Particle(
             @NotNull final DSScheduleShufflingProperty builder,
@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
             @NotNull final RepairProperty[] repair_properties)
     {
         super(new Data(randomable.random(builder)));
+        this.storage = Data.newInstanceOnly(super.data);
         this.setting = setting;
         this.lesson_conflicts = new IntHList[super.velocity.length];
         for(int c_position = -1, position_size = super.velocity.length; ++c_position < position_size; )
@@ -64,6 +65,16 @@ import org.jetbrains.annotations.NotNull;
         {
         };
         time_distribution = new int[4];
+    }
+
+    public static void pushToStorage(@NotNull final Particle particle)
+    {
+        Data.replaceData(particle.storage, particle.data);
+    }
+
+    public static void pullFromStorage(@NotNull final Particle particle)
+    {
+        Data.replaceData(particle.data, particle.storage);
     }
 
     public void assignPBest()
@@ -198,5 +209,10 @@ import org.jetbrains.annotations.NotNull;
     @NotNull public int[] getTimeDistribution()
     {
         return this.time_distribution;
+    }
+
+    @NotNull public Data getStorage()
+    {
+        return this.storage;
     }
 }
