@@ -200,8 +200,14 @@ import org.jetbrains.annotations.Nullable;
                     particle.calculateVelocity(PSO.super.getGBest(), PSO.super.getEpoch(), setting.getMaxEpoch());
                     particle.updateData();
                     PSO.this.repair(particle);
+                    PSO.this.calculate(particle);
+                    Particle.pushToStorage(particle);
                     PSO.this.compress(particle);
                     PSO.this.calculate(particle);
+                    if(particle.getFitness() < particle.getStorage().getFitness())
+                    {
+                        Particle.pullFromStorage(particle);
+                    }
                 });
             }
             executor.shutdown();
@@ -223,8 +229,14 @@ import org.jetbrains.annotations.Nullable;
                 particle.calculateVelocity(super.getGBest(), super.getEpoch(), setting.getMaxEpoch());
                 particle.updateData();
                 this.repair(particle);
+                this.calculate(particle);
+                Particle.pushToStorage(particle);
                 this.compress(particle);
                 this.calculate(particle);
+                if(particle.getFitness() < particle.getStorage().getFitness())
+                {
+                    Particle.pullFromStorage(particle);
+                }
             }
         }
     }
