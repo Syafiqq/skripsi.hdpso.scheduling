@@ -187,7 +187,7 @@ import view.lesson.ILessonDetail;
                 @NotNull final DBLesson      lesson = MLesson.getFromMetadata(model, lessonMetadata, this.subjectMetadata, this.classMetadata, this.lectureMetadata);
                 MLesson.getAvailableClassroom(model, lesson, this.classroomMetadata);
                 @NotNull final Stage dialog = new Stage();
-                dialog.setTitle("Detail Pelajaran");
+                dialog.setTitle("Data Pelajaran");
 
                 try
                 {
