@@ -204,7 +204,7 @@ public class CMCategory implements Initializable
         if((this.schoolMetadata != null) && (this.dayMetadata != null) && (this.periodMetadata != null))
         {
             @NotNull final Stage dialog = new Stage();
-            dialog.setTitle("Detail Jadwal");
+            dialog.setTitle("Data Jadwal");
 
             try
             {
