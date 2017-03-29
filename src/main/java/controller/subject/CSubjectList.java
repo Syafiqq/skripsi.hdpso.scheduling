@@ -184,7 +184,7 @@ import view.subject.ISubjectDetail;
                 @NotNull final DBSubject subject = MSubject.getFromMetadata(model, this.schoolMetadata, subjectMetadata);
                 MSubject.getTimeOff(model, subject, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
-                dialog.setTitle("Detail Mata Kuliah");
+                dialog.setTitle("Data Mata Kuliah");
 
                 try {
                     dialog.setScene(new Scene(ISubjectDetail.load(new CSubjectDetail(subject, this.dayMetadata, this.periodMetadata, this.availabilities) {
