@@ -181,7 +181,7 @@ public class CClassList implements Initializable {
                 @NotNull final DBClass klass = MClass.getFromMetadata(model, this.schoolMetadata, klassMetadata);
                 MClass.getTimeOff(model, klass, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
-                dialog.setTitle("Detail Kelas");
+                dialog.setTitle("Data Kelas");
 
                 try {
                     dialog.setScene(new Scene(IClassDetail.load(new CClassDetail(klass, this.dayMetadata, this.periodMetadata, this.availabilities) {
