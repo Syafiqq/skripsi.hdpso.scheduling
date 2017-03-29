@@ -27,7 +27,7 @@ import model.database.component.DBParameter;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MParameter;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.method.pso.hdpso.core.VelocityCalculator;
 import model.util.Dump;
@@ -68,7 +68,7 @@ import org.jetbrains.annotations.Nullable;
 
     public CParameterList() throws UnsupportedEncodingException, SQLException
     {
-        @NotNull final AbstractModel model          = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
         this.parameter = MParameter.getFromSchool(model, schoolMetadata);
     }
@@ -193,7 +193,7 @@ import org.jetbrains.annotations.Nullable;
                     this.parameter.setMultiThread(isMultiThread);
                     try
                     {
-                        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                         MParameter.update(model, this.parameter);
                         @NotNull final Alert success = new Alert(Alert.AlertType.INFORMATION);
                         success.setTitle("Berhasil");

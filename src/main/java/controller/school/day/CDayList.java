@@ -7,6 +7,12 @@ package controller.school.day;
  * Github       : syafiqq
  */
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ResourceBundle;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -26,19 +32,12 @@ import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MDay;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.school.day.IDayEdit;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.ResourceBundle;
 
 public class CDayList implements Initializable {
     @NotNull
@@ -62,7 +61,7 @@ public class CDayList implements Initializable {
     public CDayList() throws UnsupportedEncodingException, SQLException {
         @NotNull final AbstractModel model = new MDay(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
-        this.schoolMetadata = MSchool.getFromMetadata(model, schoolMetadata);
+        this.schoolMetadata = MTimetable.getFromMetadata(model, schoolMetadata);
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, this.schoolMetadata);
     }
 

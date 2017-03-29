@@ -41,8 +41,8 @@ import model.database.model.MClass;
 import model.database.model.MClassroom;
 import model.database.model.MLecture;
 import model.database.model.MLesson;
-import model.database.model.MSchool;
 import model.database.model.MSubject;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,7 @@ import view.lesson.ILessonDetail;
 
     public CLessonList() throws UnsupportedEncodingException, SQLException
     {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         this.schoolMetadata = Dump.schoolMetadata();
         this.subjectMetadata = MSubject.getAllMetadataFromSchool(model, this.schoolMetadata);
         this.lectureMetadata = MLecture.getAllMetadataFromSchool(model, this.schoolMetadata);

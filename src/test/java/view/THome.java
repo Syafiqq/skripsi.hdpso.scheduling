@@ -18,7 +18,7 @@ import org.junit.Test;
 public class THome {
     @BeforeClass
     public static void setUpClass() throws InterruptedException, UnsupportedEncodingException, SQLException {
-/*        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+/*        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool school = Dump.schoolMetadata();
         @NotNull final Session session = Session.getInstance();
         @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);

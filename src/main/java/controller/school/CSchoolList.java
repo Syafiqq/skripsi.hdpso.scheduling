@@ -39,8 +39,8 @@ import model.database.model.MLecture;
 import model.database.model.MLesson;
 import model.database.model.MParameter;
 import model.database.model.MPeriod;
-import model.database.model.MSchool;
 import model.database.model.MSubject;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Session;
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +70,8 @@ import org.jetbrains.annotations.Nullable;
 
     private List<DBMSchool> populateSchool() {
         try {
-            @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            return MSchool.getAllMetadata(model);
+            @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            return MTimetable.getAllMetadata(model);
         } catch (SQLException | UnsupportedEncodingException ignored) {
             System.err.println("Error Activating Database");
             System.exit(-1);
@@ -85,10 +85,10 @@ import org.jetbrains.annotations.Nullable;
             this.notifySelectFirst();
         } else {
             try {
-                @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                @NotNull final Session session = Session.getInstance();
+                @NotNull final AbstractModel    model           = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                @NotNull final Session          session         = Session.getInstance();
                 @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
-                @NotNull final List<DBMClass> classMetadata = MClass.getAllMetadataFromSchool(model, school);
+                @NotNull final List<DBMClass>   classMetadata   = MClass.getAllMetadataFromSchool(model, school);
                 @NotNull final List<DBMLecture> lectureMetadata = MLecture.getAllMetadataFromSchool(model, school);
                 session.put("school", school);
                 session.put("day", MDay.getAllMetadataFromSchool(model, school));
@@ -122,9 +122,9 @@ import org.jetbrains.annotations.Nullable;
             if (result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
                     try {
-                        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        @NotNull final AbstractModel    model           = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                         @NotNull final List<DBMSubject> subjectMetadata = MSubject.getAllMetadataFromSchool(model, school);
-                        @NotNull final List<DBMClass> classMetadata = MClass.getAllMetadataFromSchool(model, school);
+                        @NotNull final List<DBMClass>   classMetadata   = MClass.getAllMetadataFromSchool(model, school);
                         @NotNull final List<DBMLecture> lectureMetadata = MLecture.getAllMetadataFromSchool(model, school);
                         MLesson.deleteBunch(model, MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));
                         MSubject.deleteBunch(model, subjectMetadata);
@@ -135,7 +135,7 @@ import org.jetbrains.annotations.Nullable;
                         MPeriod.deleteFromSchool(model, school);
                         MParameter.deleteFromSchool(model, school);
                         MConstraint.deleteFromSchool(model, school);
-                        MSchool.delete(model, school);
+                        MTimetable.delete(model, school);
                         this.schoolList.setItems(FXCollections.observableList(this.populateSchool()));
                         this.schoolList.refresh();
                     } catch (SQLException | UnsupportedEncodingException ignored) {

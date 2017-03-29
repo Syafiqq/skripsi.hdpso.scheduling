@@ -43,7 +43,7 @@ import model.database.model.MDay;
 import model.database.model.MLecture;
 import model.database.model.MLesson;
 import model.database.model.MPeriod;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import model.util.Session;
@@ -79,7 +79,7 @@ public class CLectureList implements Initializable {
     }
 
     public CLectureList() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         this.schoolMetadata = Dump.schoolMetadata();
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, this.schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, this.schoolMetadata);

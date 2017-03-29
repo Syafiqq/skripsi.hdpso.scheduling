@@ -9,6 +9,12 @@ package controller.school;
 
 import controller.school.day.CDayList;
 import controller.school.period.CPeriodList;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -26,7 +32,7 @@ import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MDay;
 import model.database.model.MPeriod;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
@@ -34,37 +40,29 @@ import view.school.ISchoolEdit;
 import view.school.day.IDayList;
 import view.school.period.IPeriodList;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.ResourceBundle;
-
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class CSchoolDetail implements Initializable {
 
-    @FXML
-    public Label lName;
-    @FXML
-    public Label lNickname;
-    @FXML
-    public Label lAddress;
-    @FXML
-    public Label lAcademicYear;
-    @FXML
-    public Label lSemester;
-    @FXML
-    public Label lActiveDay;
-    @FXML
-    public Label lActivePeriod;
-
     @NotNull
-    private final DBSchool school;
+    private final DBSchool        school;
     @NotNull
-    private final List<DBMDay> dayMetadata;
+    private final List<DBMDay>    dayMetadata;
     @NotNull
     private final List<DBMPeriod> periodMetadata;
+    @FXML
+    public        Label           lName;
+    @FXML
+    public        Label           lNickname;
+    @FXML
+    public        Label           lAddress;
+    @FXML
+    public        Label           lAcademicYear;
+    @FXML
+    public        Label           lSemester;
+    @FXML
+    public        Label           lActiveDay;
+    @FXML
+    public        Label           lActivePeriod;
 
     public CSchoolDetail(@NotNull final DBSchool school, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata) throws UnsupportedEncodingException, SQLException {
         this.school = school;
@@ -73,9 +71,9 @@ public class CSchoolDetail implements Initializable {
     }
 
     public CSchoolDetail() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
-        this.school = MSchool.getFromMetadata(model, schoolMetadata);
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
+        this.school = MTimetable.getFromMetadata(model, schoolMetadata);
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, schoolMetadata);
     }

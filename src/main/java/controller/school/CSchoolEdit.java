@@ -7,26 +7,29 @@ package controller.school;
  * Github       : syafiqq
  */
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import model.AbstractModel;
-import model.database.component.DBSchool;
-import model.database.component.DBSemester;
-import model.database.component.metadata.DBMSchool;
-import model.database.core.DBType;
-import model.database.model.MSchool;
-import model.method.pso.hdpso.component.Setting;
-import model.util.Dump;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import model.AbstractModel;
+import model.database.component.DBSchool;
+import model.database.component.DBSemester;
+import model.database.component.metadata.DBMSchool;
+import model.database.core.DBType;
+import model.database.model.MTimetable;
+import model.method.pso.hdpso.component.Setting;
+import model.util.Dump;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("WeakerAccess")
 public class CSchoolEdit implements Initializable {
@@ -52,9 +55,9 @@ public class CSchoolEdit implements Initializable {
     }
 
     public CSchoolEdit() throws UnsupportedEncodingException, SQLException {
-        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-        this.school = MSchool.getFromMetadata(model, schoolMetadata);
+        @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        this.school = MTimetable.getFromMetadata(model, schoolMetadata);
     }
 
     @Override
@@ -76,9 +79,9 @@ public class CSchoolEdit implements Initializable {
 
     public void onSchoolEditSavePressed(ActionEvent actionEvent) {
         try {
-            final int semester = ((RadioButton) this.semesterGroup.getSelectedToggle()).getText().toLowerCase().contentEquals(DBSemester.ODD.describe().toLowerCase()) ? DBSemester.ODD.ordinal() : DBSemester.EVEN.ordinal();
-            @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            MSchool.update(model,
+            final int                    semester = ((RadioButton) this.semesterGroup.getSelectedToggle()).getText().toLowerCase().contentEquals(DBSemester.ODD.describe().toLowerCase()) ? DBSemester.ODD.ordinal() : DBSemester.EVEN.ordinal();
+            @NotNull final AbstractModel model    = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            MTimetable.update(model,
                     school,
                     this.tfName.getText(),
                     this.tfNickname.getText(),

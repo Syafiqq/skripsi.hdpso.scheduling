@@ -7,6 +7,12 @@ package controller.school.period;
  * Github       : syafiqq
  */
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ResourceBundle;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -26,19 +32,12 @@ import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MPeriod;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import view.school.period.IPeriodEdit;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.ResourceBundle;
 
 public class CPeriodList implements Initializable {
     @NotNull
@@ -66,7 +65,7 @@ public class CPeriodList implements Initializable {
     public CPeriodList() throws UnsupportedEncodingException, SQLException {
         @NotNull final AbstractModel model = new MPeriod(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
-        this.schoolMetadata = MSchool.getFromMetadata(model, schoolMetadata);
+        this.schoolMetadata = MTimetable.getFromMetadata(model, schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, this.schoolMetadata);
     }
 

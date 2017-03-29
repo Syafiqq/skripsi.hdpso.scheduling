@@ -52,7 +52,7 @@ import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
 import model.database.loader.DBProblemLoader;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
 import model.dataset.component.DSTimeOff;
@@ -209,8 +209,8 @@ public class CMCategory implements Initializable
             try
             {
 
-                @NotNull final AbstractModel model  = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                @NotNull final DBSchool      school = MSchool.getFromMetadata(model, this.schoolMetadata);
+                @NotNull final AbstractModel model  = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                @NotNull final DBSchool      school = MTimetable.getFromMetadata(model, this.schoolMetadata);
                 dialog.setScene(new Scene(ISchoolDetail.load(new CSchoolDetail(school, this.dayMetadata, this.periodMetadata)
                 {
                     @Override
@@ -362,8 +362,8 @@ public class CMCategory implements Initializable
             {
                 try
                 {
-                    @NotNull final AbstractModel   model    = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                    @NotNull final DBSchool        school   = MSchool.getFromMetadata(model, this.schoolMetadata);
+                    @NotNull final AbstractModel   model    = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                    @NotNull final DBSchool        school   = MTimetable.getFromMetadata(model, this.schoolMetadata);
                     @NotNull final DBProblemLoader dbLoader = new DBProblemLoader(school);
                     dbLoader.loadData();
                     @NotNull final DatasetGenerator dsLoader = new DatasetGenerator(dbLoader);

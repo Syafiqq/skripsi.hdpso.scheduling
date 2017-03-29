@@ -10,6 +10,12 @@ package controller.subject;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -31,32 +37,29 @@ import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
 import model.database.component.metadata.DBMSubject;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MDay;
+import model.database.model.MPeriod;
+import model.database.model.MSubject;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
 @SuppressWarnings({"WeakerAccess", "unchecked"})
 public class CSubjectEditTimeOff implements Initializable {
     @NotNull
-    private final DBSubject subject;
+    final         Int2IntMap           availabilitiesLookup;
     @NotNull
-    private final List<DBMDay> dayMetadata;
+    private final DBSubject            subject;
     @NotNull
-    private final List<DBMPeriod> periodMetadata;
+    private final List<DBMDay>         dayMetadata;
+    @NotNull
+    private final List<DBMPeriod>      periodMetadata;
     @NotNull
     private final List<DBAvailability> availabilities;
-    @NotNull
-    final Int2IntMap availabilitiesLookup;
     @FXML
-    public GridPane timeOffContainer;
+    public        GridPane             timeOffContainer;
 
     public CSubjectEditTimeOff(@NotNull final DBSubject subject, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata, @NotNull final List<DBAvailability> availabilities) {
         this.subject = subject;
@@ -68,8 +71,8 @@ public class CSubjectEditTimeOff implements Initializable {
     }
 
     public CSubjectEditTimeOff() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, schoolMetadata);
         this.availabilities = MAvailability.getAll(model);

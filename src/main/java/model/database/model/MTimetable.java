@@ -7,64 +7,28 @@ package model.database.model;
  * Github       : syafiqq
  */
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import model.AbstractModel;
 import model.database.component.DBSchool;
 import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class MSchool extends AbstractModel {
-    public MSchool(String dbPath) throws SQLException {
+public class MTimetable extends AbstractModel
+{
+    public MTimetable(String dbPath) throws SQLException
+    {
         super(dbPath);
     }
 
-    public MSchool(@NotNull AbstractModel model) {
+    public MTimetable(@NotNull AbstractModel model)
+    {
         super(model);
-    }
-
-    @Nullable
-    public DBSchool insert(String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
-        return MSchool.insert(this, name, nickname, address, academicYear, semester, activePeriod, activeDay);
-    }
-
-    @Nullable
-    public DBSchool select(int schoolID) {
-        return MSchool.select(this, schoolID);
-    }
-
-    public List<DBSchool> getAll() {
-        return MSchool.getAll(this);
-    }
-
-    public List<DBMSchool> getAllMetadata() {
-        return MSchool.getAllMetadata(this);
-    }
-
-    public void delete(@NotNull final DBSchool school) {
-        this.delete(school.getId());
-    }
-
-    public void delete(@NotNull final DBMSchool school) {
-        MSchool.delete(this, school);
-    }
-
-    public void delete(int schoolId) {
-        MSchool.delete(this, schoolId);
-    }
-
-    public void update(@NotNull final DBSchool school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
-        this.update(school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
-    }
-
-    public void update(int schoolID, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
-        MSchool.update(this, schoolID, name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }
 
     @Nullable
@@ -94,7 +58,7 @@ public class MSchool extends AbstractModel {
 
             model.close();
 
-            insertedSchool = MSchool.select(model, insertedID);
+            insertedSchool = MTimetable.select(model, insertedID);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -193,11 +157,11 @@ public class MSchool extends AbstractModel {
     }
 
     public static void delete(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
-        MSchool.delete(model, school.getId());
+        MTimetable.delete(model, school.getId());
     }
 
     public static void delete(@NotNull final AbstractModel model, @NotNull final DBMSchool school) {
-        MSchool.delete(model, school.getId());
+        MTimetable.delete(model, school.getId());
     }
 
     public static void delete(@NotNull final AbstractModel model, int schoolId) {
@@ -216,7 +180,7 @@ public class MSchool extends AbstractModel {
     }
 
     public static void update(@NotNull final AbstractModel model, @NotNull final DBSchool school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
-        MSchool.update(model, school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
+        MTimetable.update(model, school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }
 
     public static void update(@NotNull final AbstractModel model, int schoolID, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
@@ -270,5 +234,52 @@ public class MSchool extends AbstractModel {
         }
         assert school != null;
         return school;
+    }
+
+    @Nullable
+    public DBSchool insert(String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    {
+        return MTimetable.insert(this, name, nickname, address, academicYear, semester, activePeriod, activeDay);
+    }
+
+    @Nullable
+    public DBSchool select(int schoolID)
+    {
+        return MTimetable.select(this, schoolID);
+    }
+
+    public List<DBSchool> getAll()
+    {
+        return MTimetable.getAll(this);
+    }
+
+    public List<DBMSchool> getAllMetadata()
+    {
+        return MTimetable.getAllMetadata(this);
+    }
+
+    public void delete(@NotNull final DBSchool school)
+    {
+        this.delete(school.getId());
+    }
+
+    public void delete(@NotNull final DBMSchool school)
+    {
+        MTimetable.delete(this, school);
+    }
+
+    public void delete(int schoolId)
+    {
+        MTimetable.delete(this, schoolId);
+    }
+
+    public void update(@NotNull final DBSchool school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    {
+        this.update(school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
+    }
+
+    public void update(int schoolID, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    {
+        MTimetable.update(this, schoolID, name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }
 }

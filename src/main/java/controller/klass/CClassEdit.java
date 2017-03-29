@@ -7,6 +7,12 @@ package controller.klass;
  * Github       : syafiqq
  */
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -19,17 +25,10 @@ import model.database.component.metadata.DBMClass;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MClass;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 @SuppressWarnings("WeakerAccess")
 public class CClassEdit implements Initializable {
@@ -42,9 +41,9 @@ public class CClassEdit implements Initializable {
     }
 
     public CClassEdit() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
-        @NotNull final List<DBMClass> klassMetadata = MClass.getAllMetadataFromSchool(model, schoolMetadata);
+        @NotNull final AbstractModel  model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool      schoolMetadata = Dump.schoolMetadata();
+        @NotNull final List<DBMClass> klassMetadata  = MClass.getAllMetadataFromSchool(model, schoolMetadata);
         if (klassMetadata.size() > 0) {
             this.klass = MClass.getFromMetadata(model, schoolMetadata, klassMetadata.get(0));
         } else {

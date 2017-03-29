@@ -27,7 +27,7 @@ import model.database.component.DBConstraint;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MConstraint;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Converter;
 import model.util.Dump;
@@ -78,7 +78,7 @@ import org.jetbrains.annotations.NotNull;
 
     public CConstraintList() throws UnsupportedEncodingException, SQLException
     {
-        @NotNull final AbstractModel model          = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
         this.constraint = MConstraint.getFromSchool(model, schoolMetadata);
     }
@@ -215,7 +215,7 @@ import org.jetbrains.annotations.NotNull;
                     this.constraint.setAllow(isAllow);
                     try
                     {
-                        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+                        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
                         MConstraint.update(model, this.constraint);
                         @NotNull final Alert success = new Alert(Alert.AlertType.INFORMATION);
                         success.setTitle("Berhasil");

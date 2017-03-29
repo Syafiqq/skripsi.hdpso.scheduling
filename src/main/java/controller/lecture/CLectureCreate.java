@@ -8,6 +8,13 @@ package controller.lecture;
  */
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,19 +31,15 @@ import model.database.component.metadata.DBMLecture;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MDay;
+import model.database.model.MLecture;
+import model.database.model.MPeriod;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class CLectureCreate  implements Initializable {
@@ -59,7 +62,7 @@ public class CLectureCreate  implements Initializable {
     }
 
     public CLectureCreate() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
         this.schoolMetadata = Dump.schoolMetadata();
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, this.schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, this.schoolMetadata);

@@ -36,7 +36,7 @@ import model.database.model.MConstraint;
 import model.database.model.MDay;
 import model.database.model.MParameter;
 import model.database.model.MPeriod;
-import model.database.model.MSchool;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,8 +65,8 @@ import org.jetbrains.annotations.Nullable;
 
     public void onCreateTimetablePressed(ActionEvent actionEvent) {
         try {
-            @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            @Nullable DBSchool school = MSchool.insert(model,
+            @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+            @Nullable DBSchool school = MTimetable.insert(model,
                     name.getText(),
                     nick.getText(),
                     address.getText(),

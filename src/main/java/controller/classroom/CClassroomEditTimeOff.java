@@ -10,6 +10,12 @@ package controller.classroom;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -31,17 +37,14 @@ import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
-import model.database.model.*;
+import model.database.model.MAvailability;
+import model.database.model.MClassroom;
+import model.database.model.MDay;
+import model.database.model.MPeriod;
+import model.database.model.MTimetable;
 import model.method.pso.hdpso.component.Setting;
 import model.util.Dump;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 @SuppressWarnings("WeakerAccess")
 public class CClassroomEditTimeOff implements Initializable {
@@ -68,8 +71,8 @@ public class CClassroomEditTimeOff implements Initializable {
     }
 
     public CClassroomEditTimeOff() throws UnsupportedEncodingException, SQLException {
-        @NotNull final AbstractModel model = new MSchool(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-        @NotNull final DBMSchool schoolMetadata = Dump.schoolMetadata();
+        @NotNull final AbstractModel model          = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
+        @NotNull final DBMSchool     schoolMetadata = Dump.schoolMetadata();
         this.dayMetadata = MDay.getAllMetadataFromSchool(model, schoolMetadata);
         this.periodMetadata = MPeriod.getAllMetadataFromSchool(model, schoolMetadata);
         this.availabilities = MAvailability.getAll(model);
