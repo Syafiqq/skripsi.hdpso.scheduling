@@ -147,7 +147,7 @@ public class CLectureDetail implements Initializable {
 
     public void onTimeOffEditLectureDetailPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Edit TimeOff Dosen");
+        dialog.setTitle("Edit TimeOff");
 
         try {
             dialog.setScene(new Scene(ILectureEditTimeOff.load(new CLectureEditTimeOff(this.lecture, this.dayMetadata, this.periodMetadata, this.availabilities) {
