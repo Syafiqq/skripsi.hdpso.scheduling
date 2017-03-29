@@ -38,7 +38,7 @@ public class CMHome implements Initializable {
 
     public void onButtonCreateNewPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Buat Jadwal Baru");
+        dialog.setTitle("Tambah Data Jadwal");
 
         try {
             dialog.setScene(new Scene(ISchoolNew.load(new CSchoolNew()).load()));
