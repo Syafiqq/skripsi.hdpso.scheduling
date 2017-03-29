@@ -24,8 +24,8 @@ import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.AbstractModel;
-import model.database.component.DBSchool;
 import model.database.component.DBSemester;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMDay;
 import model.database.component.metadata.DBMPeriod;
 import model.database.component.metadata.DBMSchool;
@@ -44,7 +44,7 @@ import view.school.period.IPeriodList;
 public class CSchoolDetail implements Initializable {
 
     @NotNull
-    private final DBSchool        school;
+    private final DBTimetable     school;
     @NotNull
     private final List<DBMDay>    dayMetadata;
     @NotNull
@@ -64,7 +64,8 @@ public class CSchoolDetail implements Initializable {
     @FXML
     public        Label           lActivePeriod;
 
-    public CSchoolDetail(@NotNull final DBSchool school, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata) throws UnsupportedEncodingException, SQLException {
+    public CSchoolDetail(@NotNull final DBTimetable school, @NotNull final List<DBMDay> dayMetadata, @NotNull final List<DBMPeriod> periodMetadata) throws UnsupportedEncodingException, SQLException
+    {
         this.school = school;
         this.dayMetadata = dayMetadata;
         this.periodMetadata = periodMetadata;

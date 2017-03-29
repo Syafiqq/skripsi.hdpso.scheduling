@@ -1,6 +1,6 @@
 package model.dataset.loader;
 
-import model.database.component.DBSchool;
+import model.database.component.DBTimetable;
 import model.database.loader.DBProblemLoader;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class TDatasetGenerator_Silent
 {
     @SuppressWarnings("Duplicates") @Test public void initialize()
     {
-        DBSchool school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
+        DBTimetable school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
         Assert.assertNotNull(school);
 
         DBProblemLoader dbLoader = new DBProblemLoader(school);

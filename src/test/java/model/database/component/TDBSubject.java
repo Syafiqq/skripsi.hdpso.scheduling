@@ -15,7 +15,7 @@ import org.junit.Test;
 {
     @Test public void test_001()
     {
-        final DBSchool school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 3, 2);
+        final DBTimetable school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 3, 2);
         Assert.assertNotNull(school);
 
         final DBAvailability availability = new DBAvailability(1, "Available", .5f);

@@ -29,8 +29,8 @@ import model.database.component.DBConstraint;
 import model.database.component.DBDay;
 import model.database.component.DBParameter;
 import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
 import model.database.component.DBSemester;
+import model.database.component.DBTimetable;
 import model.database.core.DBType;
 import model.database.model.MConstraint;
 import model.database.model.MDay;
@@ -66,7 +66,7 @@ import org.jetbrains.annotations.Nullable;
     public void onCreateTimetablePressed(ActionEvent actionEvent) {
         try {
             @NotNull final AbstractModel model = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-            @Nullable DBSchool school = MTimetable.insert(model,
+            @Nullable DBTimetable school = MTimetable.insert(model,
                     name.getText(),
                     nick.getText(),
                     address.getText(),
@@ -97,7 +97,8 @@ import org.jetbrains.annotations.Nullable;
         }
     }
 
-    private void generateSchoolData(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    private void generateSchoolData(@NotNull final AbstractModel model, @NotNull final DBTimetable school)
+    {
         /*
         * Generate Day
         * */

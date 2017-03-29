@@ -29,9 +29,9 @@ import model.database.component.DBLessonCluster;
 import model.database.component.DBLessonGroup;
 import model.database.component.DBParameter;
 import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
 import model.database.component.DBSubject;
 import model.database.component.DBTimeOff;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMClassroom;
 import model.database.core.DBComponent;
 import model.database.core.DBType;
@@ -49,7 +49,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"WeakerAccess", "unused", "FieldCanBeLocal"}) public class DBProblemLoader extends DBComponent
 {
-    private DBSchool                      school;
+    private DBTimetable                   school;
     private Int2ObjectMap<DBDay>          days;
     private Int2ObjectMap<DBPeriod>       periods;
     private Int2ObjectMap<DBAvailability> availabilities;
@@ -71,7 +71,7 @@ import org.jetbrains.annotations.NotNull;
     private int                           total_registered_time;
     private int                           operating_classroom_allowed_lesson;
 
-    public DBProblemLoader(@NotNull final DBSchool school)
+    public DBProblemLoader(@NotNull final DBTimetable school)
     {
         this.school = school;
     }
@@ -1020,7 +1020,7 @@ import org.jetbrains.annotations.NotNull;
         }
     }
 
-    public DBSchool getSchool()
+    public DBTimetable getSchool()
     {
         return this.school;
     }

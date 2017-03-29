@@ -7,19 +7,18 @@ package model.database.model;
  * Github       : syafiqq
  */
 
-import model.AbstractModel;
-import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
-import model.database.component.metadata.DBMPeriod;
-import model.database.component.metadata.DBMSchool;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import model.AbstractModel;
+import model.database.component.DBPeriod;
+import model.database.component.DBTimetable;
+import model.database.component.metadata.DBMPeriod;
+import model.database.component.metadata.DBMSchool;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class MPeriod extends AbstractModel {
@@ -31,43 +30,8 @@ public class MPeriod extends AbstractModel {
         super(model);
     }
 
-    public void insertOnly(@NotNull final DBSchool school, String name, String nickname, String start, String end, int position) {
-        MPeriod.insertOnly(this, school.getId(), name, nickname, start, end, position);
-    }
-
-    public void insertOnly(int schoolId, String name, String nickname, String start, String end, int position) {
-        MPeriod.insertOnly(this, schoolId, name, nickname, start, end, position);
-    }
-
-    public void insertOnlyBulk(@NotNull final List<DBPeriod> periods) {
-        MPeriod.insertOnlyBulk(this, periods);
-    }
-
-    public void update(@NotNull final DBPeriod period, String name, String nickname, String start, String end, int position) {
-        MPeriod.update(this, period, name, nickname, start, end, position);
-    }
-
-    public List<DBPeriod> getAllFromSchool(@NotNull final DBSchool school) {
-        return MPeriod.getAllFromSchool(this, school);
-    }
-
-    public List<DBMPeriod> getAllMetadataFromSchool(@NotNull final DBMSchool school){
-        return MPeriod.getAllMetadataFromSchool(this, school);
-    }
-
-    public void deleteFromSchool(@NotNull final DBSchool school) {
-        MPeriod.deleteFromSchool(this, school.getId());
-    }
-
-    public void deleteFromSchool(@NotNull final DBMSchool school) {
-        MPeriod.deleteFromSchool(this, school);
-    }
-
-    public void deleteFromSchool(int schoolId) {
-        MPeriod.deleteFromSchool(this, schoolId);
-    }
-
-    public static void insertOnly(@NotNull final AbstractModel model, @NotNull final DBSchool school, String name, String nickname, String start, String end, int position) {
+    public static void insertOnly(@NotNull final AbstractModel model, @NotNull final DBTimetable school, String name, String nickname, String start, String end, int position)
+    {
         MPeriod.insertOnly(model, school.getId(), name, nickname, start, end, position);
     }
 
@@ -117,7 +81,8 @@ public class MPeriod extends AbstractModel {
         }
     }
 
-    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBTimetable school)
+    {
         MPeriod.deleteFromSchool(model, school.getId());
     }
 
@@ -140,7 +105,8 @@ public class MPeriod extends AbstractModel {
         }
     }
 
-    public static List<DBPeriod> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static List<DBPeriod> getAllFromSchool(@NotNull final AbstractModel model, @NotNull final DBTimetable school)
+    {
         @NotNull List<DBPeriod> dbPeriodList = new LinkedList<>();
         try {
             if (model.isClosed()) {
@@ -247,5 +213,50 @@ public class MPeriod extends AbstractModel {
             e.printStackTrace();
         }
         return period;
+    }
+
+    public void insertOnly(@NotNull final DBTimetable school, String name, String nickname, String start, String end, int position)
+    {
+        MPeriod.insertOnly(this, school.getId(), name, nickname, start, end, position);
+    }
+
+    public void insertOnly(int schoolId, String name, String nickname, String start, String end, int position)
+    {
+        MPeriod.insertOnly(this, schoolId, name, nickname, start, end, position);
+    }
+
+    public void insertOnlyBulk(@NotNull final List<DBPeriod> periods)
+    {
+        MPeriod.insertOnlyBulk(this, periods);
+    }
+
+    public void update(@NotNull final DBPeriod period, String name, String nickname, String start, String end, int position)
+    {
+        MPeriod.update(this, period, name, nickname, start, end, position);
+    }
+
+    public List<DBPeriod> getAllFromSchool(@NotNull final DBTimetable school)
+    {
+        return MPeriod.getAllFromSchool(this, school);
+    }
+
+    public List<DBMPeriod> getAllMetadataFromSchool(@NotNull final DBMSchool school)
+    {
+        return MPeriod.getAllMetadataFromSchool(this, school);
+    }
+
+    public void deleteFromSchool(@NotNull final DBTimetable school)
+    {
+        MPeriod.deleteFromSchool(this, school.getId());
+    }
+
+    public void deleteFromSchool(@NotNull final DBMSchool school)
+    {
+        MPeriod.deleteFromSchool(this, school);
+    }
+
+    public void deleteFromSchool(int schoolId)
+    {
+        MPeriod.deleteFromSchool(this, schoolId);
     }
 }

@@ -1,7 +1,7 @@
 package model.dataset.loader;
 
 import java.util.Arrays;
-import model.database.component.DBSchool;
+import model.database.component.DBTimetable;
 import model.database.loader.DBProblemLoader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,13 +16,13 @@ import org.junit.Test;
  */
 public class TDatasetGenerator_TimeDistribution
 {
-    private DBSchool         school;
+    private DBTimetable      school;
     private DBProblemLoader  dbLoader;
     private DatasetGenerator dsLoader;
 
     @SuppressWarnings("Duplicates") @Before public void initialize()
     {
-        this.school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
+        this.school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
         Assert.assertNotNull(this.school);
 
         this.dbLoader = new DBProblemLoader(school);

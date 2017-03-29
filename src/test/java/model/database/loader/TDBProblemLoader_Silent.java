@@ -1,6 +1,6 @@
 package model.database.loader;
 
-import model.database.component.DBSchool;
+import model.database.component.DBTimetable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,12 +13,12 @@ import org.junit.Test;
  */
 public class TDBProblemLoader_Silent
 {
-    private DBSchool        school;
+    private DBTimetable     school;
     private DBProblemLoader loader;
 
     @SuppressWarnings("Duplicates") @Test public void initialize()
     {
-        this.school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
+        this.school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
         Assert.assertNotNull(this.school);
 
         this.loader = new DBProblemLoader(school);

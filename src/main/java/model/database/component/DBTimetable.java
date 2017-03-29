@@ -9,12 +9,12 @@ import model.database.component.metadata.DBMSchool;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBSchool extends DBMSchool
+@SuppressWarnings(value = {"WeakerAccess", "unused"}) public class DBTimetable extends DBMSchool
 {
     private       String     nickname;
     private       String     address;
 
-    public DBSchool(int id, String name, String nickname, String address, String academic_year, int semester, int active_period, int active_day)
+    public DBTimetable(int id, String name, String nickname, String address, String academic_year, int semester, int active_period, int active_day)
     {
         super(id, name, academic_year, semester, active_period, active_day);
         this.nickname = nickname;
@@ -43,7 +43,7 @@ import model.database.component.metadata.DBMSchool;
 
     @Override public String toString()
     {
-        return "DBSchool{" +
+        return "DBTimetable{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", nickname='" + nickname + '\'' +

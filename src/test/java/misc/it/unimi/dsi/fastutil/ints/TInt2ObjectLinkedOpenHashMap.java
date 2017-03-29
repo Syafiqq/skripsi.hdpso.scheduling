@@ -1,8 +1,8 @@
 package misc.it.unimi.dsi.fastutil.ints;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import model.database.component.DBSchool;
 import model.database.component.DBSubject;
+import model.database.component.DBTimetable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class TInt2ObjectLinkedOpenHashMap
     @Test public void testDefaultReturnValue()
     {
         Int2ObjectLinkedOpenHashMap<DBSubject> subjects = new Int2ObjectLinkedOpenHashMap<>(1);
-        subjects.put(1, new DBSubject(1, "Abc", "BCA", new DBSchool(-1, null, null, null, null, -1, 1, 1)));
+        subjects.put(1, new DBSubject(1, "Abc", "BCA", new DBTimetable(-1, null, null, null, null, -1, 1, 1)));
 
         Assert.assertNull(subjects.defaultReturnValue());
     }

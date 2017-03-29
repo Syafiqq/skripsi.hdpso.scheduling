@@ -22,8 +22,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import model.AbstractModel;
-import model.database.component.DBSchool;
 import model.database.component.DBSemester;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMSchool;
 import model.database.core.DBType;
 import model.database.model.MTimetable;
@@ -34,23 +34,24 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("WeakerAccess")
 public class CSchoolEdit implements Initializable {
     @FXML
-    public TextField tfName;
+    public  TextField   tfName;
     @FXML
-    public TextField tfNickname;
+    public  TextField   tfNickname;
     @FXML
-    public TextField tfAddress;
+    public  TextField   tfAddress;
     @FXML
-    public TextField tfAcademicYear;
+    public  TextField   tfAcademicYear;
     @FXML
-    public RadioButton rbOdd;
+    public  RadioButton rbOdd;
     @FXML
-    public ToggleGroup semesterGroup;
+    public  ToggleGroup semesterGroup;
     @FXML
-    public RadioButton rbEven;
+    public  RadioButton rbEven;
     @NotNull
-    private DBSchool school;
+    private DBTimetable school;
 
-    public CSchoolEdit(@NotNull final DBSchool school) {
+    public CSchoolEdit(@NotNull final DBTimetable school)
+    {
         this.school = school;
     }
 

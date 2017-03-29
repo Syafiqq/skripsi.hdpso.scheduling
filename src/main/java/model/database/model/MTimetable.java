@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import model.AbstractModel;
-import model.database.component.DBSchool;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMSchool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +32,9 @@ public class MTimetable extends AbstractModel
     }
 
     @Nullable
-    public static DBSchool insert(@NotNull final AbstractModel model, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
-        @Nullable DBSchool insertedSchool = null;
+    public static DBTimetable insert(@NotNull final AbstractModel model, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    {
+        @Nullable DBTimetable insertedSchool = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -66,8 +67,9 @@ public class MTimetable extends AbstractModel
     }
 
     @Nullable
-    public static DBSchool select(@NotNull final AbstractModel model, int schoolID) {
-        @Nullable DBSchool school = null;
+    public static DBTimetable select(@NotNull final AbstractModel model, int schoolID)
+    {
+        @Nullable DBTimetable school = null;
         if (schoolID > 0) {
             try {
                 if (model.isClosed()) {
@@ -77,7 +79,7 @@ public class MTimetable extends AbstractModel
                 statement.setInt(1, schoolID);
                 @NotNull final ResultSet result = statement.executeQuery();
                 while (result.next()) {
-                    school = new DBSchool(
+                    school = new DBTimetable(
                             result.getInt("id"),
                             result.getString("name"),
                             result.getString("nick"),
@@ -98,8 +100,9 @@ public class MTimetable extends AbstractModel
         return school;
     }
 
-    public static List<DBSchool> getAll(@NotNull final AbstractModel model) {
-        @NotNull List<DBSchool> dbSchoolList = new LinkedList<>();
+    public static List<DBTimetable> getAll(@NotNull final AbstractModel model)
+    {
+        @NotNull List<DBTimetable> dbSchoolList = new LinkedList<>();
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -108,7 +111,7 @@ public class MTimetable extends AbstractModel
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
                 dbSchoolList.add(
-                        new DBSchool(
+                        new DBTimetable(
                                 result.getInt("id"),
                                 result.getString("name"),
                                 result.getString("nick"),
@@ -156,7 +159,8 @@ public class MTimetable extends AbstractModel
         return list;
     }
 
-    public static void delete(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static void delete(@NotNull final AbstractModel model, @NotNull final DBTimetable school)
+    {
         MTimetable.delete(model, school.getId());
     }
 
@@ -179,7 +183,8 @@ public class MTimetable extends AbstractModel
         }
     }
 
-    public static void update(@NotNull final AbstractModel model, @NotNull final DBSchool school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay) {
+    public static void update(@NotNull final AbstractModel model, @NotNull final DBTimetable school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    {
         MTimetable.update(model, school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }
 
@@ -205,8 +210,9 @@ public class MTimetable extends AbstractModel
         }
     }
 
-    @NotNull public static DBSchool getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool metadata) {
-        @Nullable DBSchool school = null;
+    @NotNull public static DBTimetable getFromMetadata(@NotNull final AbstractModel model, @NotNull final DBMSchool metadata)
+    {
+        @Nullable DBTimetable school = null;
         try {
             if (model.isClosed()) {
                 model.reconnect();
@@ -215,7 +221,7 @@ public class MTimetable extends AbstractModel
             statement.setInt(1, metadata.getId());
             @NotNull final ResultSet result = statement.executeQuery();
             while (result.next()) {
-                school = new DBSchool(
+                school = new DBTimetable(
                         result.getInt("id"),
                         result.getString("name"),
                         result.getString("nick"),
@@ -237,18 +243,18 @@ public class MTimetable extends AbstractModel
     }
 
     @Nullable
-    public DBSchool insert(String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    public DBTimetable insert(String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
     {
         return MTimetable.insert(this, name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }
 
     @Nullable
-    public DBSchool select(int schoolID)
+    public DBTimetable select(int schoolID)
     {
         return MTimetable.select(this, schoolID);
     }
 
-    public List<DBSchool> getAll()
+    public List<DBTimetable> getAll()
     {
         return MTimetable.getAll(this);
     }
@@ -258,7 +264,7 @@ public class MTimetable extends AbstractModel
         return MTimetable.getAllMetadata(this);
     }
 
-    public void delete(@NotNull final DBSchool school)
+    public void delete(@NotNull final DBTimetable school)
     {
         this.delete(school.getId());
     }
@@ -273,7 +279,7 @@ public class MTimetable extends AbstractModel
         MTimetable.delete(this, schoolId);
     }
 
-    public void update(@NotNull final DBSchool school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
+    public void update(@NotNull final DBTimetable school, String name, String nickname, String address, String academicYear, int semester, int activePeriod, int activeDay)
     {
         this.update(school.getId(), name, nickname, address, academicYear, semester, activePeriod, activeDay);
     }

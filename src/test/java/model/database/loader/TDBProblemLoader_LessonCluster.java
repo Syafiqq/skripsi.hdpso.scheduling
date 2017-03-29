@@ -1,15 +1,14 @@
 package model.database.loader;
 
+import java.util.Arrays;
 import model.database.component.DBLesson;
 import model.database.component.DBLessonCluster;
 import model.database.component.DBLessonGroup;
-import model.database.component.DBSchool;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMClassroom;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <model.database.loader> created by : 
@@ -20,12 +19,12 @@ import java.util.Arrays;
  */
 @SuppressWarnings("FieldCanBeLocal") public class TDBProblemLoader_LessonCluster
 {
-    private DBSchool        school;
+    private DBTimetable     school;
     private DBProblemLoader loader;
 
     @SuppressWarnings("Duplicates") @Before public void initialize()
     {
-        this.school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
+        this.school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
         Assert.assertNotNull(this.school);
 
         this.loader = new DBProblemLoader(school);

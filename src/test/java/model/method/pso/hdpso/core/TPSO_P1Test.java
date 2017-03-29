@@ -2,7 +2,9 @@ package model.method.pso.hdpso.core;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntArrays;
-import model.database.component.DBSchool;
+import java.util.Arrays;
+import java.util.Locale;
+import model.database.component.DBTimetable;
 import model.database.loader.DBProblemLoader;
 import model.dataset.component.DSLesson;
 import model.dataset.component.DSLessonCluster;
@@ -15,9 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * Created by Muhammad Syafiq on 12/27/2016.
@@ -32,7 +31,7 @@ public class TPSO_P1Test
 
     @SuppressWarnings("Duplicates") @Before public void initialize()
     {
-        DBSchool school = new DBSchool(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
+        DBTimetable school = new DBTimetable(1, "Program Teknologi Informasi dan Ilmu Komputer Universitas Brawijaya", "PTIIK UB", "Jl. Veteran No.8, Ketawanggede, Kec. Lowokwaru, Kota Malang, Jawa Timur", "2013 - 2014", 0, 17, 5);
         Assert.assertNotNull(school);
 
         DBProblemLoader dbLoader = new DBProblemLoader(school);

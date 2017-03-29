@@ -85,7 +85,7 @@ import model.database.component.DBSemester;
 
     @Override public String toString()
     {
-        return "DBSchool{" +
+        return "DBTimetable{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", academic_year='" + academic_year + '\'' +

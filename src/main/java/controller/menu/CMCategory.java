@@ -39,9 +39,9 @@ import model.database.component.DBClassroom;
 import model.database.component.DBDay;
 import model.database.component.DBLecture;
 import model.database.component.DBPeriod;
-import model.database.component.DBSchool;
 import model.database.component.DBSubject;
 import model.database.component.DBTimeOff;
+import model.database.component.DBTimetable;
 import model.database.component.metadata.DBMClass;
 import model.database.component.metadata.DBMClassroom;
 import model.database.component.metadata.DBMDay;
@@ -210,7 +210,7 @@ public class CMCategory implements Initializable
             {
 
                 @NotNull final AbstractModel model  = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                @NotNull final DBSchool      school = MTimetable.getFromMetadata(model, this.schoolMetadata);
+                @NotNull final DBTimetable   school = MTimetable.getFromMetadata(model, this.schoolMetadata);
                 dialog.setScene(new Scene(ISchoolDetail.load(new CSchoolDetail(school, this.dayMetadata, this.periodMetadata)
                 {
                     @Override
@@ -363,7 +363,7 @@ public class CMCategory implements Initializable
                 try
                 {
                     @NotNull final AbstractModel   model    = new MTimetable(Setting.getDBUrl(Setting.defaultDB, DBType.DEFAULT));
-                    @NotNull final DBSchool        school   = MTimetable.getFromMetadata(model, this.schoolMetadata);
+                    @NotNull final DBTimetable     school   = MTimetable.getFromMetadata(model, this.schoolMetadata);
                     @NotNull final DBProblemLoader dbLoader = new DBProblemLoader(school);
                     dbLoader.loadData();
                     @NotNull final DatasetGenerator dsLoader = new DatasetGenerator(dbLoader);
@@ -589,10 +589,10 @@ public class CMCategory implements Initializable
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_class   = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_period  = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
@@ -1013,10 +1013,10 @@ public class CMCategory implements Initializable
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_class   = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query_period  = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final DSTimeOff[]                timeoff_subject       = dsLoader.getDataset().getSubjects();
@@ -1429,10 +1429,10 @@ public class CMCategory implements Initializable
         * */
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
@@ -1699,10 +1699,10 @@ public class CMCategory implements Initializable
         * */
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
@@ -1969,10 +1969,10 @@ public class CMCategory implements Initializable
         * */
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();
@@ -2239,10 +2239,10 @@ public class CMCategory implements Initializable
         * */
         @NotNull final Int2ObjectMap<Int2ObjectMap<StringBuilder>> query = new Int2ObjectLinkedOpenHashMap<>(dbLoader.getClassroomSize());
 
-        @NotNull final DBSchool  empty_school  = new DBSchool(-1, "", "", "", "", -1, 1, 1);
-        @NotNull final DBSubject empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
-        @NotNull final DBLecture empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
-        @NotNull final DBClass   empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
+        @NotNull final DBTimetable empty_school  = new DBTimetable(-1, "", "", "", "", -1, 1, 1);
+        @NotNull final DBSubject   empty_subject = new DBSubject(-1, "Tidak Ada", "", empty_school);
+        @NotNull final DBLecture   empty_lecture = new DBLecture(-1, "Tidak Ada", empty_school);
+        @NotNull final DBClass     empty_class   = new DBClass(-1, "Tidak Ada", empty_school);
 
         @NotNull final DSLesson[]                 encoded_lessons       = dsLoader.getDataset().getLessons();
         @NotNull final Int2IntMap                 classroom_lv0_decoder = dsLoader.getDecoder().getClassrooms();

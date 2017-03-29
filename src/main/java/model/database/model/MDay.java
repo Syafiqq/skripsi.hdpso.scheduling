@@ -7,19 +7,18 @@ package model.database.model;
  * Github       : syafiqq
  */
 
-import model.AbstractModel;
-import model.database.component.DBDay;
-import model.database.component.DBSchool;
-import model.database.component.metadata.DBMDay;
-import model.database.component.metadata.DBMSchool;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import model.AbstractModel;
+import model.database.component.DBDay;
+import model.database.component.DBTimetable;
+import model.database.component.metadata.DBMDay;
+import model.database.component.metadata.DBMSchool;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"unused", "WeakerAccess", "Duplicates"})
 public class MDay extends AbstractModel {
@@ -31,43 +30,8 @@ public class MDay extends AbstractModel {
         super(model);
     }
 
-    public void insertOnly(@NotNull final DBSchool school, String name, String nickname, int position) {
-        this.insertOnly(school.getId(), name, nickname, position);
-    }
-
-    public void insertOnly(int schoolId, String name, String nickname, int position) {
-        MDay.insertOnly(this, schoolId, name, nickname, position);
-    }
-
-    public void insertOnlyBulk(@NotNull final List<DBDay> days) {
-        MDay.insertOnlyBulk(this, days);
-    }
-
-    public void update(final @NotNull DBDay day, String name, String nickname, int position) {
-        MDay.update(this, day, name, nickname, position);
-    }
-
-    public List<DBMDay> getAllMetadataFromSchool(@NotNull final DBMSchool school) {
-        return MDay.getAllMetadataFromSchool(this, school);
-    }
-
-    public List<DBDay> getAllFromSchool(@NotNull final DBSchool school) {
-        return MDay.getAllFromSchool(this, school);
-    }
-
-    public void deleteFromSchool(@NotNull final DBSchool school) {
-        this.deleteFromSchool(school.getId());
-    }
-
-    public void deleteFromSchool(@NotNull final DBMSchool school) {
-        MDay.deleteFromSchool(this, school);
-    }
-
-    public void deleteFromSchool(int schoolId) {
-        MDay.deleteFromSchool(this, schoolId);
-    }
-
-    public static void insertOnly(@NotNull final AbstractModel model, @NotNull final DBSchool school, String name, String nickname, int position) {
+    public static void insertOnly(@NotNull final AbstractModel model, @NotNull final DBTimetable school, String name, String nickname, int position)
+    {
         MDay.insertOnly(model, school.getId(), name, nickname, position);
     }
 
@@ -113,7 +77,8 @@ public class MDay extends AbstractModel {
         }
     }
 
-    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBSchool school) {
+    public static void deleteFromSchool(@NotNull final AbstractModel model, @NotNull final DBTimetable school)
+    {
         MDay.deleteFromSchool(model, school.getId());
     }
 
@@ -136,7 +101,8 @@ public class MDay extends AbstractModel {
         }
     }
 
-    public static List<DBDay> getAllFromSchool(@NotNull final AbstractModel model, @NotNull DBSchool school) {
+    public static List<DBDay> getAllFromSchool(@NotNull final AbstractModel model, @NotNull DBTimetable school)
+    {
         @NotNull List<DBDay> dbDayList = new LinkedList<>();
         try {
             if (model.isClosed()) {
@@ -237,5 +203,50 @@ public class MDay extends AbstractModel {
         }
         assert day != null;
         return day;
+    }
+
+    public void insertOnly(@NotNull final DBTimetable school, String name, String nickname, int position)
+    {
+        this.insertOnly(school.getId(), name, nickname, position);
+    }
+
+    public void insertOnly(int schoolId, String name, String nickname, int position)
+    {
+        MDay.insertOnly(this, schoolId, name, nickname, position);
+    }
+
+    public void insertOnlyBulk(@NotNull final List<DBDay> days)
+    {
+        MDay.insertOnlyBulk(this, days);
+    }
+
+    public void update(final @NotNull DBDay day, String name, String nickname, int position)
+    {
+        MDay.update(this, day, name, nickname, position);
+    }
+
+    public List<DBMDay> getAllMetadataFromSchool(@NotNull final DBMSchool school)
+    {
+        return MDay.getAllMetadataFromSchool(this, school);
+    }
+
+    public List<DBDay> getAllFromSchool(@NotNull final DBTimetable school)
+    {
+        return MDay.getAllFromSchool(this, school);
+    }
+
+    public void deleteFromSchool(@NotNull final DBTimetable school)
+    {
+        this.deleteFromSchool(school.getId());
+    }
+
+    public void deleteFromSchool(@NotNull final DBMSchool school)
+    {
+        MDay.deleteFromSchool(this, school);
+    }
+
+    public void deleteFromSchool(int schoolId)
+    {
+        MDay.deleteFromSchool(this, schoolId);
     }
 }
