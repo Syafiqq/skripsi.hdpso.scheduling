@@ -42,7 +42,7 @@ import view.menu.IMHome;
  * Email        : syafiq.rezpector@gmail.com
  * Github       : syafiqq
  */
-@SuppressWarnings({"WeakerAccess", "unused"}) public class CHome implements Initializable
+@SuppressWarnings({"WeakerAccess", "unused"}) public class CDashboard implements Initializable
 {
     @FXML
     public       BorderPane   home_ribbon;
@@ -113,7 +113,7 @@ import view.menu.IMHome;
                 {
                     this.bpResult.setCenter(null);
                     this.bpResult.setCenter((Node) _arg[0]);
-                    ((WebView) _arg[0]).zoomProperty().bind(CHome.this.home_content_slider_web_zoom.valueProperty());
+                    ((WebView) _arg[0]).zoomProperty().bind(CDashboard.this.home_content_slider_web_zoom.valueProperty());
                 }
                 if(_arg[1] instanceof Double)
                 {
@@ -184,7 +184,7 @@ import view.menu.IMHome;
                 particles[c_p].setFitnessObserver(poFitness);
                 lineChart.getData().add(sFitness);
                 lineChart.getData().add(sPBestFitness);
-                CHome.this.gpChart.add(lineChart, 0, (c_p + 1));
+                CDashboard.this.gpChart.add(lineChart, 0, (c_p + 1));
             }
         });
 
