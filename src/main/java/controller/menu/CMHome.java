@@ -2,6 +2,9 @@ package controller.menu;
 
 import controller.school.CSchoolList;
 import controller.school.CSchoolNew;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -11,10 +14,6 @@ import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 import view.school.ISchoolList;
 import view.school.ISchoolNew;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <controller> created by : 
@@ -53,7 +52,7 @@ public class CMHome implements Initializable {
 
     public void onSchoolListPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Load Jadwal");
+        dialog.setTitle("Daftar Jadwal");
 
         try {
             dialog.setScene(new Scene(ISchoolList.load(new CSchoolList()).load()));
