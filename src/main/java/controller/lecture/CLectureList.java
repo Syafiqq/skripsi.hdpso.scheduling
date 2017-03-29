@@ -181,7 +181,7 @@ public class CLectureList implements Initializable {
                 @NotNull final DBLecture lecture = MLecture.getFromMetadata(model, this.schoolMetadata, lectureMetadata);
                 MLecture.getTimeOff(model, lecture, this.dayMetadata, this.periodMetadata, this.availabilities);
                 @NotNull final Stage dialog = new Stage();
-                dialog.setTitle("Detail Dosen");
+                dialog.setTitle("Data Dosen");
 
                 try {
                     dialog.setScene(new Scene(ILectureDetail.load(new CLectureDetail(lecture, this.dayMetadata, this.periodMetadata, this.availabilities) {
