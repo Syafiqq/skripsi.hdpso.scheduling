@@ -147,7 +147,7 @@ public class CClassDetail implements Initializable {
 
     public void onTimeOffEditClassDetailPressed(ActionEvent actionEvent) {
         @NotNull final Stage dialog = new Stage();
-        dialog.setTitle("Edit TimeOff Kelas");
+        dialog.setTitle("Edit TimeOff");
 
         try {
             dialog.setScene(new Scene(IClassEditTimeOff.load(new CClassEditTimeOff(this.klass, this.dayMetadata, this.periodMetadata, this.availabilities) {
