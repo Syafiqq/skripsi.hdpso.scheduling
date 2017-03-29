@@ -36,7 +36,7 @@ public class THome {
         session.put("lecture", lectureMetadata);
         session.put("lesson", MLesson.getAllMetadataFromSchool(model, school, subjectMetadata, classMetadata, lectureMetadata));*/
 
-        Thread t = new Thread(() -> Application.launch(IHome.class));
+        Thread t = new Thread(() -> Application.launch(Dashboard.class));
         t.setDaemon(true);
         t.start();
         t.join();

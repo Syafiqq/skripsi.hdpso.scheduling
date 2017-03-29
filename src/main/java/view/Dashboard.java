@@ -1,13 +1,12 @@
 package view;
 
 import controller.CHome;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 
 /*
  * This <skripsi.hdpso.scheduling> project in package <view> created by : 
@@ -17,16 +16,19 @@ import java.io.IOException;
  * Github       : syafiqq
  */
 @SuppressWarnings("unused")
-public class IHome extends Application {
-    public IHome() {
+public class Dashboard extends Application
+{
+    public Dashboard()
+    {
     }
 
-    public IHome(CHome controller) {
+    public Dashboard(CHome controller)
+    {
         this.buildStage(new Stage(), controller);
     }
 
     public static FXMLLoader load(@NotNull CHome controller) {
-        @NotNull final FXMLLoader loader = new FXMLLoader(IHome.class.getResource("/layout/home.fxml"));
+        @NotNull final FXMLLoader loader = new FXMLLoader(Dashboard.class.getResource("/layout/home.fxml"));
         loader.setController(controller);
         return loader;
     }
@@ -38,7 +40,7 @@ public class IHome extends Application {
 
     private void buildStage(Stage primaryStage, CHome controller) {
         try {
-            @NotNull final FXMLLoader loader = IHome.load(controller);
+            @NotNull final FXMLLoader loader = Dashboard.load(controller);
             primaryStage.setTitle("Penjadwalan");
             primaryStage.setScene(new Scene(loader.load()));
             primaryStage.show();
